@@ -33,7 +33,7 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatRatingNotification;
  接受聊天消息通知
 
  @param chatManager  聊天管理对象
- @param chatMessages 聊天消息数组
+ @param chatMessage  消息
  */
 - (void)chatManager:(nonnull KFChatManager *)chatManager receiveMessage:(nonnull KFMessage *)chatMessage;
 /**
@@ -126,7 +126,7 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatRatingNotification;
  @return  消息实体
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
  */
-- (KFMessage *)sendAIText:(nonnull NSString *)text completion:(nullable void (^)(KFMessage * _Nonnull me_message,KFMessage * _Nullable ai_message, NSError * _Nullable error))completion;
+- (nonnull KFMessage *)sendAIText:(nonnull NSString *)text completion:(nullable void (^)(KFMessage * _Nonnull me_message,KFMessage * _Nullable ai_message, NSError * _Nullable error))completion;
 /**
  用户加入排队
  

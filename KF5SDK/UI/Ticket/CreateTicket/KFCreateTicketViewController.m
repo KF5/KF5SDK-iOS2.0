@@ -89,7 +89,7 @@
                 for (NSInteger i = 0; i < urls.count; i++) {
                     NSString *url = urls[i];
                     if ([url isKindOfClass:[NSString class]]) {
-                        [[SDImageCache sharedImageCache] storeImage:weakSelf.createView.photoImageView.images[i].image forKey:url completion:nil];
+                        [[SDImageCache sharedImageCache] storeImage:weakSelf.createView.photoImageView.images[i].image forKey:url];
                     }
                 }
             }else{

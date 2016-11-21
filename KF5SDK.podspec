@@ -17,27 +17,27 @@ Pod::Spec.new do |s|
     s.libraries   = 'sqlite3'
 
     s.subspec 'Base' do |ss|
-        ss.source_files = 'KF5SDK/UI/Base/**/*','KF5SDK/UI/Category/**/*','KF5SDK/UI/Lib/**/*'
-        ss.public_header_files = 'KF5SDK/UI/Base/**/*.h','KF5SDK/UI/Category/**/*.h','KF5SDK/UI/Lib/**/*.h'
-        ss.resources    = "KF5SDK/UI/KF5SDK.bundle"
-        ss.dependency 'MBProgressHUD'
-        ss.dependency 'YYText'
+    ss.source_files = 'KF5SDK/UI/Base/**/*','KF5SDK/UI/Category/**/*','KF5SDK/UI/Lib/**/*'
+    ss.public_header_files = 'KF5SDK/UI/Base/**/*.h','KF5SDK/UI/Category/**/*.h','KF5SDK/UI/Lib/**/*.h'
+    ss.resources    = "KF5SDK/UI/KF5SDK.bundle"
+    ss.dependency 'MBProgressHUD', '~> 1.0.0'
+    ss.dependency 'YYText', '~> 1.0.7'
     end
 
     s.subspec 'Doc' do |ss|
         ss.source_files = 'KF5SDK/UI/Doc/**/*'
         ss.public_header_files = 'KF5SDK/UI/Doc/**/*.h'
         ss.dependency 'KF5SDK/Base'
-        ss.dependency 'MJRefresh'
+        ss.dependency 'MJRefresh', '~> 3.1.12'
     end
 
     s.subspec 'Ticket' do |ss|
         ss.source_files = 'KF5SDK/UI/Ticket/**/*'
         ss.public_header_files = 'KF5SDK/UI/Ticket/**/*.h'
         ss.dependency 'KF5SDK/Base'
-        ss.dependency 'MJRefresh'
-        ss.dependency 'SDWebImage'
-        ss.dependency 'TZImagePickerController'
+        ss.dependency 'MJRefresh', '~> 3.1.12'
+        ss.dependency 'SDWebImage', '~> 3.8.2'
+        ss.dependency 'TZImagePickerController', '~> 1.7.1'
     end
 
     s.subspec 'Chat' do |ss|
@@ -46,8 +46,8 @@ Pod::Spec.new do |s|
         ss.vendored_library    = 'KF5SDK/UI/**/libopencore-amrnb.a'
         ss.dependency 'KF5SDK/Doc'
         ss.dependency 'KF5SDK/Ticket'
-        ss.dependency 'SDWebImage'
-        ss.dependency 'TZImagePickerController'
+        ss.dependency 'SDWebImage', '~> 3.8.2'
+        ss.dependency 'TZImagePickerController', '~> 1.7.1'
     end
 
 end

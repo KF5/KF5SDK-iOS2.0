@@ -1,18 +1,25 @@
-/*
- * This file is part of the SDWebImage package.
- * (c) Olivier Poitrey <rs@dailymotion.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+//
+//  UIImage+WebP.h
+//  SDWebImage
+//
+//  Created by Olivier Poitrey on 07/06/13.
+//  Copyright (c) 2013 Dailymotion. All rights reserved.
+//
 
 #ifdef SD_WEBP
 
-#import "SDWebImageCompat.h"
+#import <UIKit/UIKit.h>
+
+// Fix for issue #416 Undefined symbols for architecture armv7 since WebP introduction when deploying to device
+void WebPInitPremultiplyNEON(void);
+
+void WebPInitUpsamplersNEON(void);
+
+void VP8DspInitNEON(void);
 
 @interface UIImage (WebP)
 
-+ (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data;
++ (UIImage *)sd_imageWithWebPData:(NSData *)data;
 
 @end
 

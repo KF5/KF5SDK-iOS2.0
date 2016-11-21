@@ -37,7 +37,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    if (!self.title.length) self.title = KF5Localized(@"kf5_feed_back_list");
+    if (!self.title.length) self.title = KF5Localized(@"kf5_feedback_list");
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     __weak typeof(self)weakSelf = self;

@@ -21,7 +21,7 @@
  *
  *  注:当设置为NO时,noAgentAlertShowTitle,agentBusyAlertShowTitle和noAgentAlertActionBlock将失效
  */
-@property (nonatomic, assign) BOOL isShowAlertWhenNoAgent;
+@property (nonatomic, assign,getter=isShowAlertWhenNoAgent) BOOL showAlertWhenNoAgent;
 /**
  *  当没有客服在线或取消排队留言时,弹出alertView,点击"确定"按钮的事件处理,默认跳转到反馈工单界面
  */

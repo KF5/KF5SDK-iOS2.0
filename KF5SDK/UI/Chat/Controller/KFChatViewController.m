@@ -74,6 +74,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.showAlertWhenNoAgent = YES;
     [self setupView];
     
     self.viewModel = [[KFChatViewModel alloc]init];

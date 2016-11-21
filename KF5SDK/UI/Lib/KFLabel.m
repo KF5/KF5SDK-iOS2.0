@@ -7,13 +7,12 @@
 //
 
 #import "KFLabel.h"
-//#import "KF5HZPhotoBrowser.h"
 
 #import "KFContentLabelHelp.h"
 #import "KFHelper.h"
 #import "YYText.h"
 
-@interface KFLabel()//<HZKF5PhotoBrowserDelegate>
+@interface KFLabel()
 
 @property (nonatomic, weak) NSString *url;
 

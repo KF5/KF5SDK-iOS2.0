@@ -20,10 +20,10 @@
  */
 -(void)chatVoiceManager:(nonnull KFChatVoiceManager *)voiceManager recordingAmplitude:(CGFloat)amplitude;
 /**
- *  录音完成的代理
- *
- *  @param message     音频消息
- *  @param error       错误信息,为nil表示为成功
+ 录音完成的代理
+
+ @param data 音频数据
+ @param error 错误信息,为nil表示为成功
  */
 - (void)chatVoiceManager:(nonnull KFChatVoiceManager *)voiceManager recordVoice:(nullable NSData *)data error:(nullable NSError *)error;
 
@@ -65,24 +65,26 @@
  */
 -(void)stopVoicePlayingMessage;
 /**
- *  获取音频时长
- *
- *  @param message 音频消息
- *
- *  @return 时长
+ 获取音频时长
+
+ @param localPath 本地语音路径
+ @return 时长
  */
 + (double)voiceDurationWithlocalPath:(nonnull NSString *)localPath;
 /**
- *  判断是否是正在播放的文件
- *
- *  @param message 必须是语音消息
- *
+ 判断是否是正在播放的文件
+
+ @param localPath 本地语音路径
+ @return 是否正在播放
  */
 - (BOOL)isPlayingWithlocalPath:(nonnull NSString *)localPath;
 
 #pragma mark - 下载相关
+
 /**
- *  监听chatMessage的localPath是否存在,不存在loading,存在表示下载成功
+ 下载音频
+
+ @param url URL
  */
 - (void)downloadDataWithURL:(nonnull NSString *)url completion:(nullable void (^)(NSString * _Nullable local_path,NSError * _Nullable error))completion;
 

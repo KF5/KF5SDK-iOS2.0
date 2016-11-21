@@ -253,7 +253,7 @@
                 for (NSInteger i = 0; i < urls.count; i++) {
                     NSString *url = urls[i];
                     UIImage *image = (UIImage *)comment.attachments[i].url;
-                    [[SDImageCache sharedImageCache] storeImage:image forKey:url completion:nil];
+                    [[SDImageCache sharedImageCache] storeImage:image forKey:url];
                 }
                 
                 comment.attachments = [KFAttachment attachmentsWithDict:[result kf5_arrayForKeyPath:@"data.attachments"]];
