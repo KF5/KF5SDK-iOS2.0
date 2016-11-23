@@ -18,7 +18,7 @@ KF5SDK帮助开发者快速完成开发，提供给开发者创建工单、查�
 初始化配置信息：      
 `[[KFConfig shareConfig]initializeWithHostName:kHostName appId:kAppId];`
 注：khostName为您平台的http地址，如：http://tianxiang.kf5.com, kAppId为您为用户创建的唯一标示（在您的KF5后台[创建移动SDK APP应用](https://support.kf5.com/hc/kb/article/24825/)，APP应用里的传输密钥即为appId）。此方法可放在AppDelegate里初始化。    
-进入工程中的info.plist，添加一下权限
+进入工程中的info.plist，添加一下权限     
 Privacy - Camera Usage Description：是否允许该应用使用你的相机？     
 Privacy - Microphone Usage Description：是否允许该应用使用你的麦克风?    
 Privacy - Photo Library Usage Description：是否允许该应用访问你的媒体资料库？   
