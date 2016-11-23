@@ -31,12 +31,12 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
 
 - (void)initializeWithEmail:(NSString *)email completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
     NSAssert([KFHelper validateEmail:email], @"邮箱不能为空且格式必须正确");
-    [self initializeWithParams:@{@"email":email?:@""} completion:completion];
+    [self initializeWithParams:@{KF5Email:email?:@""} completion:completion];
 }
 
 - (void)initializeWithPhone:(NSString *)phone completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
     NSAssert([KFHelper validatePhone:phone], @"手机号不能为空且格式必须正确");
-    [self initializeWithParams:@{@"phone":phone?:@""} completion:completion];
+    [self initializeWithParams:@{KF5Phone:phone?:@""} completion:completion];
 }
 
 - (void)initializeWithParams:(NSDictionary *)params completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
@@ -63,6 +63,28 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
     }];
 }
 
+- (void)updateUserWithEmail:(NSString *)email phone:(NSString *)phone name:(NSString *)name completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
+    if (self.user.userToken.length == 0) {
+        NSError *error = [NSError errorWithDomain:@"请先调用KFUserManager的初始化方法" code:KFErrorCodeParamError userInfo:nil];
+        if (completion) completion(nil,error);
+    }
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:3];
+    if (self.user.userToken.length > 0) [params setObject:self.user.userToken forKey:KF5UserToken];
+    if (email.length > 0) [params setObject:email forKey:KF5Email];
+    if (phone.length > 0) [params setObject:phone forKey:KF5Phone];
+    if (name.length > 0) [params setObject:name forKey:KF5Name];
+    __weak typeof(self)weakSelf = self;
+    [KFHttpTool updateUserWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
+        if (!error) {
+            weakSelf.user = [KFUser userWithDict:[result kf5_dictionaryForKeyPath:@"data.user"]];
+            if(completion)completion(weakSelf.user,error);
+        }else{
+            if(completion)completion(nil,error);
+        }
+    }];
+}
+
 - (void)setUser:(KFUser *)user{
     _user = user;
     if (user) {
@@ -77,6 +99,7 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
 }
 
 + (void)deleteUser{
+    [KFUserManager shareUserManager].user = nil;
     [[NSUserDefaults standardUserDefaults]removeObjectForKey:KF5UserInfo];
     [[NSUserDefaults standardUserDefaults]synchronize];
 }

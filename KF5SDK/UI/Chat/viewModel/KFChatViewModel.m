@@ -61,6 +61,7 @@
     if ([KFChatManager sharedChatManager].isConnectSuccess) {
         [self delegateWithStatusChanage];
         [self getAgentWithCompletion:completion];
+        [self updateMetadata];
         return;
     }
     
@@ -73,6 +74,7 @@
         }else{
             [weakSelf syncMessage];
             [weakSelf getAgentWithCompletion:completion];
+            [weakSelf updateMetadata];
         }
     }];
 }
@@ -197,7 +199,13 @@
 - (void)sendRating:(BOOL)rating completion:(void (^)(NSError * _Nullable))completion{
     [[KFChatManager sharedChatManager]sendRating:rating completion:completion];
 }
-
+#pragma mark 更新IM自定义信息
+- (void)updateMetadata{
+    if (self.metadata.count > 0) {
+        [[KFChatManager sharedChatManager]uploadMetadata:self.metadata completion:^(NSError * _Nullable error) {
+        }];
+    }
+}
 #pragma mark 监测是否可以发送信息
 static BOOL isCanSendChecking = NO;
 

@@ -41,10 +41,10 @@
 - (void)refreshData:(BOOL)isHeader resultBlock:(void (^)(NSArray<NSDictionary *> *, NSInteger, NSError *))resultBlock{
     NSDictionary *params =
     @{
-      @"per_page":@(self.prePage),
-      @"page": isHeader?@(1):@(self.nextPage),
-      @"userToken":[KFUserManager shareUserManager].user.userToken?:@"",
-      @"category_id":@(self.category.Id)
+      KF5PerPage:@(self.prePage),
+      KF5Page: isHeader?@(1):@(self.nextPage),
+      KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+      KF5CategoryId:@(self.category.Id)
       };
     [KFHttpTool getDocForumListWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
         resultBlock([result kf5_arrayForKeyPath:@"data.forums"],[result kf5_numberForKeyPath:@"data.next_page"].unsignedIntegerValue,error);

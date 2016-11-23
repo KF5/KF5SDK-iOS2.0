@@ -51,7 +51,8 @@
 - (void)setMessageModel:(KFMessageModel *)messageModel{
     
     if (self.messageModel && self.messageModel.message.messageStatus != KFMessageStatusSuccess) {
-        [self.messageModel removeObserver:self forKeyPath:@"message.messageStatus"];
+        @try {[self.messageModel removeObserver:self forKeyPath:@"message.messageStatus"];
+        } @catch (NSException *exception) {}
     }
     
     [super setMessageModel:messageModel];
@@ -77,13 +78,15 @@
     if(![keyPath isEqualToString:@"message.messageStatus"])return;
     _loadView.status = self.messageModel.message.messageStatus;
     if (self.messageModel.message.messageStatus == KFMessageStatusSuccess) {
-        [self.messageModel removeObserver:self forKeyPath:@"message.messageStatus"];
+        @try {[self.messageModel removeObserver:self forKeyPath:@"message.messageStatus"];
+        } @catch (NSException *exception) {}
     }
 }
 
 - (void)dealloc{
     if (self.messageModel && self.messageModel.message.messageStatus != KFMessageStatusSuccess){
-        [self.messageModel removeObserver:self forKeyPath:@"message.messageStatus"];
+        @try {[self.messageModel removeObserver:self forKeyPath:@"message.messageStatus"];
+        } @catch (NSException *exception) {}
     }
 }
 

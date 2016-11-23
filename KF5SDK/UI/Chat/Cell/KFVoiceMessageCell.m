@@ -34,9 +34,11 @@
     
     if (self.messageModel) {
         if (self.messageModel.voiceLength == 0) {
-            [self.messageModel removeObserver:self forKeyPath:@"voiceLength"];
+            @try {[self.messageModel removeObserver:self forKeyPath:@"voiceLength"];
+            } @catch (NSException *exception) {}
         }else{
-            [self.messageModel removeObserver:self forKeyPath:@"isPlaying"];
+            @try {[self.messageModel removeObserver:self forKeyPath:@"isPlaying"];
+            } @catch (NSException *exception) {}
         }
     }
     
@@ -72,9 +74,11 @@
 - (void)dealloc{
     if (self.messageModel) {
         if (self.messageModel.voiceLength == 0) {
-            [self.messageModel removeObserver:self forKeyPath:@"voiceLength"];
+            @try {[self.messageModel removeObserver:self forKeyPath:@"voiceLength"];
+            } @catch (NSException *exception) {}
         }else{
-            [self.messageModel removeObserver:self forKeyPath:@"isPlaying"];
+            @try {[self.messageModel removeObserver:self forKeyPath:@"isPlaying"];
+            } @catch (NSException *exception) {}
         }
     }
 }

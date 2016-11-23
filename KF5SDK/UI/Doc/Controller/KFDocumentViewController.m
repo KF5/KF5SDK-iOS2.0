@@ -68,8 +68,8 @@
     
     NSDictionary *params =
     @{
-      @"userToken":[KFUserManager shareUserManager].user.userToken?:@"",
-      @"post_id":@(self.post.Id)
+      KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+      KF5PostId:@(self.post.Id)
       };
     
     __weak typeof(self)weakSelf = self;

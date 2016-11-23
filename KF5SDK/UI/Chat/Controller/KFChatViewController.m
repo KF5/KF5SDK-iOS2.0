@@ -51,10 +51,20 @@
 // 用于拨打电话
 @property (nullable, nonatomic, weak) UIWebView *webView;
 
+@property (nullable, nonatomic, strong) NSArray <NSDictionary *>*metadata;
+
 @end
 
 @implementation KFChatViewController
 
+- (instancetype)initWithMetadata:(NSArray<NSDictionary *> *)metadata
+{
+    self = [super init];
+    if (self) {
+        _metadata = metadata;
+    }
+    return self;
+}
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.tableView reloadData];
@@ -78,6 +88,7 @@
     [self setupView];
     
     self.viewModel = [[KFChatViewModel alloc]init];
+    self.viewModel.metadata = self.metadata;
     self.viewModel.delegate = self;
     [KFChatVoiceManager sharedChatVoiceManager].delegate = self;
     

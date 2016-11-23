@@ -8,16 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-#define kUserDefaultUserInfo  @"kUserDefaultUserInfo"
-
-#define kKeyHostName            @"hostName"
-#define kKeyAppId               @"appId"
-#define kKeyEmail               @"email"
-#define kKeyPhone               @"phone"
-#define kKeyUserName            @"userName"
-#define kKeyVerifyUserType      @"verifyUserType"
-#define KKeyIsLogin             @"isLogin"
-
 @interface KFPersonTableViewController : UITableViewController
 
 @end

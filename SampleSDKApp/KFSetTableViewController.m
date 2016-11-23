@@ -13,6 +13,7 @@
 #import "KF5SDKTicket.h"
 #import "KF5SDKDoc.h"
 #import "KF5SDKChat.h"
+#import "KFUserManager.h"
 
 #define KFColorFromRGB(rgbValue) [UIColor \
 colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
@@ -133,9 +134,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
 - (BOOL)checkLogin
 {
-    NSDictionary *userInfo = [[NSUserDefaults standardUserDefaults]objectForKey:kUserDefaultUserInfo];
-    
-    BOOL isLogin = ((NSNumber *)[userInfo objectForKey:KKeyIsLogin]).boolValue;
+    BOOL isLogin = [KFUserManager shareUserManager].user != nil;
     if (!isLogin) {
         [[[UIAlertView alloc]initWithTitle:@"提示" message:@"您还没有登录,请先登录" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil]show];
     }
@@ -185,7 +184,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 // 聊天
 - (void)chat{
     self.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:[[KFChatViewController alloc]init] animated:YES];
+    [self.navigationController pushViewController:[[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"IOS"}]] animated:YES];
     self.hidesBottomBarWhenPushed = NO;
 }
 

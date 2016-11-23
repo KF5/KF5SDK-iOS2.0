@@ -40,6 +40,13 @@
 
 @property (nullable, nonatomic, weak) id<KFChatViewModelDelegate> delegate;
 
+/**
+ IM自定义字段
+ */
+@property (nullable, nonatomic, strong) NSArray <NSDictionary *>*metadata;
+/**
+ 聊天状态
+ */
 @property (nonatomic, assign) KFChatStatus chatStatus;
 /**
  是否能发送消息

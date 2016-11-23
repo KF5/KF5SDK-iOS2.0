@@ -52,7 +52,7 @@ if ([KFUserManager shareUserManager].user.userToken.length == 0) {
 引入`#import "KF5SDKChat.h"`    
 调用方法如下：   
 ```ObjC
-[self.navigationController pushViewController:[[KFChatViewController alloc]init] animated:YES];
+[self.navigationController pushViewController:[[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"IOS"}]] animated:YES];
 ```
 注：聊天部分有聊天控制器，对应控制器为`KFChatViewController `。更详细的信息请见相关类的头文件。   
 ##四、SDK核心framework详解

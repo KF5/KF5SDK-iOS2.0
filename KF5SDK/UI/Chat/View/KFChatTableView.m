@@ -51,11 +51,6 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
         self.delegate = self;
         self.dataSource = self;
         
-        [self registerClass:[KFTextMessageCell class] forCellReuseIdentifier:kChatMessageTextCellID];
-        [self registerClass:[KFImageMessageCell class] forCellReuseIdentifier:kChatMessageImageCellID];
-        [self registerClass:[KFVoiceMessageCell class] forCellReuseIdentifier:kChatMessageVoiceCellID];
-        [self registerClass:[KFSystemMessageCell class] forCellReuseIdentifier:kChatMessageSystemCellID];
-        
         self.separatorStyle = UITableViewCellSeparatorStyleNone;
         self.canRefresh = YES;
     }
@@ -85,20 +80,40 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
     KFChatViewCell *cell = nil;
     switch (messageModel.message.messageType) {
         case KFMessageTypeText:
-        case KFMessageTypeJSON:
+        case KFMessageTypeJSON:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageTextCellID];
+            if (!cell) {
+                cell = [[KFTextMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageTextCellID];
+            }
+        }
             break;
-        case KFMessageTypeImage:
+        case KFMessageTypeImage:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageImageCellID];
+            if (!cell) {
+                cell = [[KFImageMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageImageCellID];
+            }
+        }
             break;
-        case KFMessageTypeVoice:
+        case KFMessageTypeVoice:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageVoiceCellID];
+            if (!cell) {
+                cell = [[KFVoiceMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageImageCellID];
+            }
+        }
             break;
-        case KFMessageTypeSystem:
+        case KFMessageTypeSystem:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageSystemCellID];
+            if (!cell) {
+                cell = [[KFSystemMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageImageCellID];
+            }
+        }
             break;
-        default:
+        default:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageTextCellID];
+            if (!cell) {
+                cell = [[KFTextMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageImageCellID];
+            }
+        }
             break;
     }
     cell.cellDelegate = self.tableDelegate;

@@ -68,9 +68,9 @@
 
 - (void)refreshData{
     NSDictionary *params = @{
-                             @"userToken":[KFUserManager shareUserManager].user.userToken,
-                             @"ticket_id":@(self.ticket_id),
-                             @"per_page":@"200"
+                             KF5UserToken:[KFUserManager shareUserManager].user.userToken,
+                             KF5TicketId:@(self.ticket_id),
+                             KF5PerPage:@"200"
                              };
     __weak typeof(self)weakSelf = self;
     [KFHttpTool getTicketWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
@@ -282,10 +282,10 @@
         }
         
         NSDictionary *params = @{
-                                 @"userToken":[KFUserManager shareUserManager].user.userToken?:@"",
-                                 @"ticket_id":@(weakSelf.ticket_id),
-                                 @"content":text,
-                                 @"uploads":tokens
+                                 KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+                                 KF5TicketId:@(weakSelf.ticket_id),
+                                 KF5Content:text,
+                                 KF5Uploads:tokens
                                  };
         [KFHttpTool updateTicketWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
             

@@ -163,8 +163,8 @@ static BOOL isHeaderRefresh = YES;
     __weak typeof(self)weakSelf = self;
     NSDictionary *params =
     @{
-      @"userToken":[KFUserManager shareUserManager].user.userToken?:@"",
-      @"query":searchBar.text?:@""
+      KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+      KF5Query:searchBar.text?:@""
       };
     [KFHttpTool searchDocumentWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
         weakSelf.searchArray = [KFDocItem docItemsWithDictArray:[result kf5_arrayForKeyPath:@"data.posts"]];

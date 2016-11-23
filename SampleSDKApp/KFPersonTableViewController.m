@@ -8,15 +8,13 @@
 
 #import "KFPersonTableViewController.h"
 #import "KFUserManager.h"
-
+#import "KFProgressHUD.h"
 #import <KF5SDK/KF5SDK.h>
 
 @interface KFPersonTableViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
 @property (weak, nonatomic) IBOutlet UITextField *emailTextField;
 @property (weak, nonatomic) IBOutlet UITextField *phoneTextField;
-@property (weak, nonatomic) IBOutlet UITextField *hostNameTextField;
-@property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
 
 @end
 
@@ -25,27 +23,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    NSDictionary *userInfo = [[NSUserDefaults standardUserDefaults]objectForKey:kUserDefaultUserInfo];
-    if (userInfo) {
-        self.nameTextField.text = [userInfo objectForKey:kKeyUserName];
-        self.emailTextField.text = [userInfo objectForKey:kKeyEmail];
-        self.phoneTextField.text = [userInfo objectForKey:kKeyPhone];
-        self.hostNameTextField.text = [userInfo objectForKey:kKeyHostName];
-        self.appIdTextField.text = [userInfo objectForKey:kKeyAppId];
+    KFUser *user = [KFUserManager shareUserManager].user;
+    if (user != nil) {
+        self.nameTextField.text = user.userName;
+        self.emailTextField.text = user.email;
+        self.phoneTextField.text = user.phone;
     }else{
-        [self resetUserInfo:nil];
+        NSString *idfv = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+        self.emailTextField.text = [NSString stringWithFormat:@"%@@qq.com",[idfv substringToIndex:8]];
+        self.nameTextField.text = @"IOS用户";
     }
     self.tableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
-}
-
-
-- (IBAction)resetUserInfo:(UIBarButtonItem *)sender {
-    NSString *idfv = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    self.emailTextField.text = [NSString stringWithFormat:@"%@@qq.com",[idfv substringToIndex:8]];
-    
-    self.hostNameTextField.text = @"https://tianxiang.kf5.com";
-    self.appIdTextField.text = @"00155bee6f7945ea5aa21c6ffc35f7aa7ed0999d7c6b6029";
-    self.nameTextField.text = @"IOS用户";
 }
 
 - (IBAction)login:(UIBarButtonItem *)sender {
@@ -61,78 +49,43 @@
         [self showAlertWithTitle:@"手机号格式不正确"];
         return;
     }
-    
-    if (self.appIdTextField.text.length == 0) {
-        [self showAlertWithTitle:@"密钥不能为空"];
-        return;
-    }
-    
-    if (self.hostNameTextField.text.length == 0) {
-        [self showAlertWithTitle:@"云客服地址不能为空"];
-        return;
-    }
-    
-    [[KFConfig shareConfig]initializeWithHostName:self.hostNameTextField.text appId:self.appIdTextField.text];
-    
 
     
-    
-    UIView *bgView = [[UIView alloc]initWithFrame:self.view.frame];
-    bgView.backgroundColor = [UIColor blackColor];
-    bgView.alpha = 0.3;
-    [self.view addSubview:bgView];
-    
-    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 32, 32)];
-    [activityIndicator setCenter:bgView.center];
-    [activityIndicator setActivityIndicatorViewStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [bgView addSubview:activityIndicator];
-    [activityIndicator startAnimating];
-    
+    [KFProgressHUD showDefaultLoadingTo:self.view];
     // 初始化配置信息
     __weak typeof(self)weakSelf = self;
     [[KFUserManager shareUserManager]initializeWithEmail:self.emailTextField.text completion:^(KFUser * _Nullable user, NSError * _Nullable error) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            [KFProgressHUD hideHUDForView:weakSelf.view];
             if (error) {
                 [weakSelf showAlertWithTitle:error.domain];
             }else{
                 
                 [[NSNotificationCenter defaultCenter]postNotificationName:@"loginSuccess" object:nil];
-                
-                NSDictionary *userInfo = @{kKeyHostName:self.hostNameTextField.text?:@"",kKeyAppId:self.appIdTextField.text?:@"",kKeyEmail:self.emailTextField.text?:@"",kKeyPhone:self.phoneTextField.text?:@"",kKeyUserName:self.nameTextField.text?:@"",KKeyIsLogin:@(YES)};
-                [[NSUserDefaults standardUserDefaults]setObject:userInfo forKey:kUserDefaultUserInfo];
-                [[NSUserDefaults standardUserDefaults]synchronize];
                 [weakSelf updateMessage];
                 [weakSelf.navigationController popViewControllerAnimated:YES];
             }
-            [bgView removeFromSuperview];
         });
     }];
 }
-
-
 - (void)updateMessage{
     
     NSString *token = [[NSUserDefaults standardUserDefaults]objectForKey:@"deviceToken"];
     if (token.length > 0) {
         NSDictionary *param = @{
-                                @"userToken":[KFUserManager shareUserManager].user.userToken?:@"",
-                                @"deviceToken":token?:@""
+                                KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+                                KF5DeviceToken:token?:@""
                                 };
         [KFHttpTool saveTokenWithParams:param completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
         }];  
     }
-
-    NSDictionary *userInfo = [[NSUserDefaults standardUserDefaults]objectForKey:kUserDefaultUserInfo];
-
-    NSString *name = [userInfo objectForKey:kKeyUserName];
-    NSString *phone = [userInfo objectForKey:kKeyPhone];
- 
-    NSMutableDictionary *param2 = [NSMutableDictionary dictionaryWithCapacity:3];
-    [param2 setObject:[KFUserManager shareUserManager].user.userToken?:@"" forKey:@"userToken"];
-    if (name)  [param2 setObject:name forKey:@"name"];
-    if (phone) [param2 setObject:phone forKey:@"phone"];
-    
-    [KFHttpTool updateUserWithParams:param2 completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
+    __weak typeof(self)weakSelf = self;
+    [[KFUserManager shareUserManager]updateUserWithEmail:nil phone:self.phoneTextField.text name:self.nameTextField.text completion:^(KFUser * _Nullable user, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error) {
+                [KFProgressHUD showErrorTitleToView:weakSelf.view title:error.domain hideAfter:0.7];
+            }
+        });
     }];
 }
 
@@ -141,7 +94,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 5;
+    return 3;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

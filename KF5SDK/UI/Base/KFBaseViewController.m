@@ -10,6 +10,14 @@
 #import "KFHelper.h"
 
 @implementation KFBaseTableViewController
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.automaticallyAdjustsScrollViewInsets = YES;
+    }
+    return self;
+}
 
 // ios7以下系统的横屏的事件
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
@@ -51,7 +59,14 @@
 
 
 @implementation KFBaseViewController
-
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.automaticallyAdjustsScrollViewInsets = YES;
+    }
+    return self;
+}
 // ios7以下系统的横屏的事件
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
     [self updateFrame];

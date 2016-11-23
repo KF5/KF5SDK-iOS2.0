@@ -17,6 +17,7 @@
 @property (nullable, nonatomic, copy, readwrite) NSString *phone;
 @property (nullable, nonatomic, copy, readwrite) NSString *userName;
 @property (nullable, nonatomic, strong, readwrite) NSDictionary *deviceTokens;
+
 @end
 
 @implementation KFUser

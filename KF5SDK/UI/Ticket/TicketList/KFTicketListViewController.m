@@ -75,9 +75,9 @@
 - (void)refreshWithisHeader:(BOOL)isHeader{
     
     NSDictionary *params =@{
-                            @"per_page":@(self.prePage?:30),
-                            @"page": isHeader?@(1):@(self.nextPage),
-                            @"userToken":[KFUserManager shareUserManager].user.userToken?:@""
+                            KF5PerPage:@(self.prePage?:30),
+                            KF5Page: isHeader?@(1):@(self.nextPage),
+                            KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@""
                             };
     __weak typeof(self)weakSelf = self;
     [KFHttpTool getTicketListWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {

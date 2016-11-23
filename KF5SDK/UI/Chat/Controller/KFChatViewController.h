@@ -11,6 +11,13 @@
 @interface KFChatViewController : KFBaseViewController
 
 /**
+ 初始化方法
+
+ @param metadata IM自定义字段
+ */
+-(nonnull instancetype)initWithMetadata:(nullable NSArray <NSDictionary *>*)metadata;
+
+/**
  *  当退出KFChatViewController时是否断开连接,默认为YES
  *
  *  如果设置为NO,则需要在合适的位置调用[[KFChatManager sharedChatManager] setUserOffline]方法关闭与服务器的连接
@@ -25,8 +32,7 @@
 /**
  *  当没有客服在线或取消排队留言时,弹出alertView,点击"确定"按钮的事件处理,默认跳转到反馈工单界面
  */
-@property (nonatomic, copy) void (^noAgentAlertActionBlock)();
-
+@property (nullable, nonatomic, copy) void (^noAgentAlertActionBlock)();
 /**
  每次拉取的历史数量,默认20
  */

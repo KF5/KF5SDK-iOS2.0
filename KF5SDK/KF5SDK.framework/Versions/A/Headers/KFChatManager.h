@@ -24,7 +24,8 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatReceiveAgentNotification;
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatEndChatNotification;
 ///客服发起满意度评价通知
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatRatingNotification;
-
+///socket连接成功通知
+UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
 
 @protocol KFChatManagerDelegate <NSObject>
 

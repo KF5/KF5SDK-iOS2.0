@@ -21,12 +21,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSDictionary *userInfo = [[NSUserDefaults standardUserDefaults]objectForKey:kUserDefaultUserInfo];
-        
-    if ([KFUserManager shareUserManager].user.userToken > 0 && userInfo) {
+    if ([KFUserManager shareUserManager].user != nil) {
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"注销" style:UIBarButtonItemStyleDone target:self action:@selector(login:)];
-        
-        [[KFConfig shareConfig]initializeWithHostName:[userInfo objectForKey:kKeyHostName] appId:[userInfo objectForKey:kKeyAppId]];
     }else{
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"登录" style:UIBarButtonItemStyleDone target:self action:@selector(login:)];
     }
@@ -50,14 +46,10 @@
         UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
         KFPersonTableViewController *preson = (KFPersonTableViewController*)[storyboard instantiateViewControllerWithIdentifier:@"KFPersonTableViewController"];
         [self.navigationController pushViewController:preson animated:YES];
-    }else{
+    }else{// 注销方法
         item.title = @"登录";
-        
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults]objectForKey:kUserDefaultUserInfo]];
-        [userInfo setValue:@(NO) forKey:KKeyIsLogin];
-        [[NSUserDefaults standardUserDefaults]setObject:userInfo forKey:kUserDefaultUserInfo];
-        [[NSUserDefaults standardUserDefaults]synchronize];
-        
+        // 注销用户
+        [KFUserManager deleteUser];
     }
 }
 
