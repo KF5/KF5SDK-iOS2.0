@@ -16,13 +16,6 @@
  @param metadata IM自定义字段
  */
 -(nonnull instancetype)initWithMetadata:(nullable NSArray <NSDictionary *>*)metadata;
-
-/**
- *  当退出KFChatViewController时是否断开连接,默认为YES
- *
- *  如果设置为NO,则需要在合适的位置调用[[KFChatManager sharedChatManager] setUserOffline]方法关闭与服务器的连接
- */
-@property (nonatomic, assign) BOOL isDisConnectWhenDelloc;
 /**
  *  当没有客服在线时是否弹出alertView,默认为YES
  *

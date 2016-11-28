@@ -58,6 +58,10 @@
  */
 - (void)configChatWithCompletion:(nullable void (^)())completion;
 /**
+ 断开连接
+ */
+- (void)disconnect;
+/**
  发送满意度评价
 
  @param rating     是否满意

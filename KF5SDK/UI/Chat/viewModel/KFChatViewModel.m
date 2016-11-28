@@ -46,6 +46,9 @@
     return [KFChatManager sharedChatManager].chatStatus;
 }
 
+- (void)disconnect{
+    [[KFChatManager sharedChatManager]setUserOffline];
+}
 #pragma mark - 连接请求
 - (void)configChatWithCompletion:(void (^)())completion{
     

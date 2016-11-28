@@ -97,8 +97,24 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    // 进入后台断开与服务器的连接
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    // 进入前台连接服务器
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     
-    
+    // 连接服务器
+    [self connect];
+
+    NSMutableArray <KFMessageModel *>*newDatas = [NSMutableArray arrayWithArray:[self.viewModel queryMessageModelsWithLimit:self.limit]];
+    if (newDatas.count < self.limit) {
+        [self.tableView endRefreshingWithNoMoreData];
+    }
+    self.tableView.messageModelArray = newDatas;
+    [self.tableView reloadData];
+}
+
+#pragma mark 连接服务器
+- (void)connect{
     self.title = KF5Localized(@"kf5_connecting");
     [KFProgressHUD showLoadingTo:self.view title:@""];
     __weak typeof(self)weakSelf = self;
@@ -107,14 +123,8 @@
             [KFProgressHUD hideHUDForView:weakSelf.view];
         });
     }];
+}
 
-    NSMutableArray <KFMessageModel *>*newDatas = [NSMutableArray arrayWithArray:[self.viewModel queryMessageModelsWithLimit:self.limit]];
-    if (newDatas.count < self.limit) {
-        [self.tableView endRefreshingWithNoMoreData];
-    }
-    self.tableView.messageModelArray = newDatas;
-    [self.tableView reloadData];
-} 
 #pragma mark 初始化subView
 - (void)setupView{
     
@@ -571,6 +581,12 @@
 }
 
 #pragma mark - 其他
+- (void)didEnterBackground:(NSNotification *)note{
+    [self.viewModel disconnect];
+}
+- (void)willEnterForeground:(NSNotification *)note{
+    [self connect];
+}
 - (void)showMessageWithText:(NSString *)text alerType:(KF5AlertType)type{
     if (text.length == 0) return;
     KFAlertMessage *alert = [[KFAlertMessage alloc]initWithViewController:self title:text duration:4 showType:type];
@@ -617,6 +633,7 @@
 }
 
 - (void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
     [self removeObserver:self forKeyPath:@"chatToolView.frame"];
 }
 
