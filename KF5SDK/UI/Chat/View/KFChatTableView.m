@@ -97,21 +97,21 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
         case KFMessageTypeVoice:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageVoiceCellID];
             if (!cell) {
-                cell = [[KFVoiceMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageImageCellID];
+                cell = [[KFVoiceMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageVoiceCellID];
             }
         }
             break;
         case KFMessageTypeSystem:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageSystemCellID];
             if (!cell) {
-                cell = [[KFSystemMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageImageCellID];
+                cell = [[KFSystemMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageSystemCellID];
             }
         }
             break;
         default:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageTextCellID];
             if (!cell) {
-                cell = [[KFTextMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageImageCellID];
+                cell = [[KFTextMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageTextCellID];
             }
         }
             break;
