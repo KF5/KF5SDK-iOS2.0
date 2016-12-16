@@ -153,7 +153,7 @@
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
     UILabel *label = [[UILabel alloc]init];
-    label.text = KF5Localized(@"kf5_no_feed_back");
+    label.text = KF5Localized(@"kf5_no_feedback");
     label.textColor = KF5Helper.KF5NameColor;
     label.font = [UIFont boldSystemFontOfSize:16];
     label.textAlignment = NSTextAlignmentCenter;

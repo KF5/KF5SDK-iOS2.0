@@ -184,7 +184,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 // 聊天
 - (void)chat{
     self.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:[[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"IOS"}]] animated:YES];
+    [self.navigationController pushViewController:[[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"iOS"}]] animated:YES];
     self.hidesBottomBarWhenPushed = NO;
 }
 
