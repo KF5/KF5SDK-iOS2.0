@@ -203,7 +203,6 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
         NSString *path = [[NSBundle mainBundle] pathForResource:KF5SDKBundle ofType:nil];
         if (!path) {
             path = [[NSBundle mainBundle]pathForResource:KF5SDKFrameworkBundle ofType:nil];
-//            path = [[NSBundle mainBundle] pathForResource:@"KF5SDKUI" ofType:@"bundle" inDirectory:@"Frameworks/KF5SDK.framework/"];
         }
         bundle = [NSBundle bundleWithPath:path];
     }

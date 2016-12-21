@@ -43,7 +43,7 @@
      KF5Email:@"",  // 用户的邮箱,选其一
      KF5Phone:@""   // 用户的手机号,选其一
  };
- @warning   email和phone只能选其一,两者都填默认优先手机号
+ @warning   email和phone只能选其一,两者都填默认优先验证手机号
  */
 - (void)initializeWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
 /**

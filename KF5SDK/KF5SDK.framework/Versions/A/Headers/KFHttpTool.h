@@ -69,10 +69,10 @@ static NSString * _Nonnull const KF5CustomFields = @"custom_fields";
 
  @param params 参数,如下
  @{
-    KF5Email:@"",  // 用户的邮箱,选其一
     KF5Phone:@""   // 用户的手机号,选其一
+    KF5Email:@"",  // 用户的邮箱,选其一
  };
- @warning   email和phone只能选其一,两者都填默认优先手机号
+ @warning   email和phone只能选其一,两者都填默认优先使用手机号验证用户,如果手机号没有查找到用户,则使用邮箱验证用户
  */
 + (nullable NSURLSessionDataTask *)loginUserWithParams:(nonnull NSDictionary *)params completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
 /**
