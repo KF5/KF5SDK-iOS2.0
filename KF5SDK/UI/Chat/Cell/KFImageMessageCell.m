@@ -17,7 +17,7 @@
     if (self) {
         UIImageView *messageImageView = [[UIImageView alloc] init];
         messageImageView.backgroundColor = KF5Helper.KF5PlaceHolderBgColor;
-        messageImageView.contentMode = UIViewContentModeScaleAspectFit;
+        messageImageView.contentMode = UIViewContentModeScaleAspectFit;
         messageImageView.userInteractionEnabled = YES;
         [messageImageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapImage:)]];
         [self.contentView addSubview:messageImageView];

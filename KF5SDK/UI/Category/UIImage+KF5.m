@@ -191,4 +191,31 @@
     return image;
 }
 
++ (UIImage *)kf5_drawArrowImageWithColor:(UIColor *)color size:(CGSize)size{
+    
+    UIGraphicsBeginImageContextWithOptions(size, NO, [UIScreen mainScreen].scale);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGFloat lineWidth = 2;
+    
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, nil, lineWidth, lineWidth);
+    CGPathAddLineToPoint(path, nil, size.width - lineWidth, size.height/2);
+    CGPathAddLineToPoint(path, nil, lineWidth, size.height-lineWidth*2);
+    CGContextAddPath(context, path);
+    
+    CGContextSetLineWidth(context, lineWidth);
+    CGContextSetLineCap(context, kCGLineCapSquare);
+    
+    CGContextSetStrokeColorWithColor(context, color.CGColor);
+    
+    CGContextStrokePath(context);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    
+    CGPathRelease(path);
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
+
 @end

@@ -8,6 +8,7 @@
 
 #import "KFComment.h"
 #import "KFHelper.h"
+#import "KFUserManager.h"
 
 @implementation KFComment
 
@@ -21,6 +22,7 @@
         comment.created = [comDict kf5_numberForKeyPath:@"created_at"].doubleValue;
         comment.author_name = [comDict kf5_stringForKeyPath:@"author_name"];
         comment.author_id = [comDict kf5_numberForKeyPath:@"author_id"].integerValue;
+        comment.messageFrom = comment.author_id == [KFUserManager shareUserManager].user.user_id ? KFMessageFromMe : KFMessageFromOther;
         comment.content = [[comDict kf5_stringForKeyPath:@"content"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         comment.attachments = [KFAttachment attachmentsWithDict:[comDict kf5_arrayForKeyPath:@"attachments"]];
         comment.messageStatus = KFMessageStatusSuccess;

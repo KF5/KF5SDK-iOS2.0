@@ -26,7 +26,9 @@
 #import "KFPhotoGroupView.h"
 #import "KFContentLabelHelp.h"
 
-@interface KFTicketViewController ()<KFTicketViewCellDelegate,UIWebViewDelegate,KFTicketToolViewDelegate>
+#import "KFRatingViewController.h"
+
+@interface KFTicketViewController ()<KFTicketViewCellDelegate,UIWebViewDelegate,KFTicketToolViewDelegate,KFTicketTableViewDelegate>
 
 @property (nullable, nonatomic, weak) KFTicketTableView *tableView;
 @property (nullable, nonatomic, weak) KFTicketToolView *toolView;
@@ -80,8 +82,16 @@
         if (!error) {
             NSArray *comments = [KFComment commentWithDict:result];
             self.tableView.commentModelArray = [NSMutableArray arrayWithArray:[weakSelf commentModelsWithComments:comments]];
+            
+            KFRatingModel *ratingModel = nil;
+            if ([result kf5_numberForKeyPath:@"data.request.rating_flag"].boolValue) {
+                ratingModel = [[KFRatingModel alloc] init];
+                ratingModel.ratingScore = [result kf5_numberForKeyPath:@"data.request.rating"].integerValue;
+                ratingModel.ratingContent = [result kf5_stringForKeyPath:@"data.request.rating_content"];
+            }
             dispatch_async(dispatch_get_main_queue(), ^{
                 [KFProgressHUD hideHUDForView:weakSelf.view];
+                weakSelf.tableView.ratingModel = ratingModel;
                 [weakSelf.tableView reloadData];
                 [weakSelf.tableView scrollViewBottomHasMainQueue:NO];
             });
@@ -141,6 +151,16 @@
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
     [JKAlert showMessage:KF5Localized(@"kf5_phone_error")];
 }
+#pragma mark - TicketTableViewDelegate
+- (void)ticketTableView:(KFTicketTableView *)tableView clickHeaderViewWithRatingModel:(KFRatingModel *)ratingModel{
+    KFRatingViewController *ratingVC = [[KFRatingViewController alloc] initWithTicket_id:self.ticket_id ratingModel:ratingModel];
+    __weak typeof(self)weakSelf = self;
+    [ratingVC setCompletionBlock:^(KFRatingModel *ratingModel) {
+        weakSelf.tableView.ratingModel = ratingModel;
+    }];
+    [self.navigationController pushViewController:ratingVC animated:YES];
+}
+
 #pragma mark - cellDelegate
 - (void)ticketCell:(KFTicketViewCell *)cell clickImageWithIndex:(NSInteger)index{
     [self.view endEditing:YES];
@@ -162,7 +182,6 @@
     [v presentFromImageView:fromView toContainer:self.navigationController.view animated:YES completion:nil];
     self.photoGroupView = v;
 }
-
 
 - (void)ticketCell:(KFTicketViewCell *)cell clickLabelWithInfo:(NSDictionary *)info{
     kKFLinkType type = [info kf5_numberForKeyPath:KF5LinkType].unsignedIntegerValue;
@@ -194,7 +213,6 @@
         default:
             break;
     }
-
 }
 
 #pragma mark - TicketToolViewDelegate

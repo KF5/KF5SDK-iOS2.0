@@ -112,14 +112,23 @@
     [self addSubview:_faceView];
     //发送键
     _sendBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_sendBtn setImage:KF5Helper.chat_faceSendH forState:UIControlStateNormal];
-    [_sendBtn setImage:KF5Helper.chat_faceSend forState:UIControlStateHighlighted];
+    
+    // 转接人工客服按钮
+    _sendBtn.titleLabel.font = KF5Helper.KF5TitleFont;
+    _sendBtn.backgroundColor = KF5Helper.KF5BlueColor;
+    _sendBtn.layer.borderColor = [KF5Helper.KF5ChatToolTextViewBorderColor CGColor];
+    _sendBtn.layer.borderWidth = 0.5;
+    _sendBtn.layer.cornerRadius = 8.0;
+    [_sendBtn setTitle:KF5Localized(@"kf5_send") forState:UIControlStateNormal];
+    [_sendBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_sendBtn setTitleColor:KF5Helper.KF5ChatToolViewSpeakBtnTitleColorH forState:UIControlStateHighlighted];
+    
     [_sendBtn addTarget:self action:@selector(sendMessage) forControlEvents:UIControlEventTouchUpInside];
     
     CGFloat backW = 60;
     CGFloat backX =  screenWidth - backW - 10;
     
-    _sendBtn.frame = CGRectMake(backX, faceViewHeight, backW, pageControlHeight);
+    _sendBtn.frame = CGRectMake(backX, faceViewHeight, backW, pageControlHeight - 5);
     [self addSubview:_sendBtn];
     
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(statusBarOrientationChange:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
@@ -215,7 +224,7 @@
     //删除键
     CGFloat backW = 60;
     CGFloat backX =  screenWidth - backW - 10;
-    _sendBtn.frame = CGRectMake(backX, faceViewHeight, backW, pageControlHeight);
+    _sendBtn.frame = CGRectMake(backX, faceViewHeight, backW, 30);
 }
 
 - (void)statusBarOrientationChange:(NSNotification *)notification{

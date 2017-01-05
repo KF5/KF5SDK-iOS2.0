@@ -110,13 +110,17 @@
         NSString *title = [NSString stringWithFormat:@"来自%@的工单请求",[KFConfig shareConfig].appName];
         NSString *content = weakSelf.createView.textView.text;
         
-        NSDictionary *params = @{
-                                 KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
-                                 KF5Title:title?:@"",
-                                 KF5Content:content,
-                                 KF5CustomFields:[KFHelper JSONStringWithObject:weakSelf.custom_fields]?:@"",
-                                 KF5Uploads:imageTokens?:@[]
-                                 };
+        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+                                          KF5Title:title?:@"",
+                                          KF5Content:content,
+                                          KF5Uploads:imageTokens?:@[]
+                                        }];
+        if (weakSelf.custom_fields) {
+            [params setObject:[KFHelper JSONStringWithObject:weakSelf.custom_fields] forKey:KF5CustomFields];
+        }
+        
         [KFHttpTool createTicketWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
             
             dispatch_async(dispatch_get_main_queue(), ^{

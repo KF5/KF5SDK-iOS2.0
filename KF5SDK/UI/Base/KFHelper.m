@@ -60,12 +60,6 @@ KF5LazyImage(chatTool_keyBoard, @"kf5_chat_keyBoard");
 KF5LazyImage(chatTool_picture, @"kf5_chat_picture");
 KF5LazyImage(chatTool_voice, @"kf5_chat_voice");
 
-
-KF5LazyImage(chat_faceSend, @"kf5_chat_send");
-KF5LazyImage(chat_faceSendH, @"kf5_chat_send_pre");
-
-KF5LazyImage(chat_transfer, @"kf5_chat_transfer");
-
 KF5LazyImage(failedImage, @"kf5_failed");
 KF5LazyImage(agentImage, @"kf5_header_agent");
 KF5LazyImage(endUserImage, @"kf5_header_endUser");
@@ -115,6 +109,9 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
     self.KF5BgColor = KF5ColorFromRGB(0xf7f7f8);
     self.KF5MeURLColor = KF5ColorFromRGB(0xb7ebff);
     self.KF5OtherURLColor = KF5ColorFromRGB(0x64cbf4);
+    
+    self.KF5SatifiedColor = KF5ColorFromRGB(0xF5A613);
+    self.KF5BlueColor = KF5ColorFromRGB(0x1da4ec);
     
     self.KF5PlaceHolderBgColor = KF5ColorFromRGB(0xefeff4);
     

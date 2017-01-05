@@ -9,7 +9,7 @@
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "45A67EB4-7E61-44F4-B3CB-3D76524373B3",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "6DCA4FE1C1830AD6F44A55F80C731444B34F8F56" : "KF5SDK-iOS2.0\/",
+    "6DCA4FE1C1830AD6F44A55F80C731444B34F8F56" : "KF5SDK2.0_CocoPods\/",
     "D78782CF38F317C413D6A8EC801B699D15A9A921" : "KF5SDK"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "SampleSDKApp",

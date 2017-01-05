@@ -37,4 +37,6 @@
 + (nullable UIImage *)kf5_imageWithColor:(nonnull UIColor *)color;
 + (nullable UIImage *)kf5_imageWithColor:(nonnull UIColor *)color size:(CGSize)size;
 
++ (nullable UIImage *)kf5_drawArrowImageWithColor:(nonnull UIColor *)color size:(CGSize)size;
+
 @end

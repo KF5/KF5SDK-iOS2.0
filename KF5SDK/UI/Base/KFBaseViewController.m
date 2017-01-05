@@ -21,6 +21,7 @@
 
 // ios7以下系统的横屏的事件
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
+    NSLog(@"%@",NSStringFromCGRect(self.view.frame));
     [self updateFrame];
     [self.view endEditing:YES];
 }
@@ -31,6 +32,7 @@
     [self.view endEditing:YES];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        self.view.bounds = CGRectMake(0, 0, size.width, size.height);
         [self updateFrame];
     }];
 }
@@ -79,6 +81,7 @@
     [self.view endEditing:YES];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        self.view.bounds = CGRectMake(0, 0, size.width, size.height);
         [self updateFrame];
     }];
 }

@@ -64,10 +64,6 @@ static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.f
 @property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_meWaves;
 @property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_otherWaves;
 
-@property (nullable, nonatomic, strong) UIImage *chat_faceSend;
-@property (nullable, nonatomic, strong) UIImage *chat_faceSendH;
-
-@property (nullable, nonatomic, strong) UIImage *chat_transfer;
 
 @property (nullable, nonatomic, strong) UIImage *failedImage;
 @property (nullable, nonatomic, strong) UIImage *agentImage;
@@ -92,6 +88,10 @@ static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.f
 @property (nonnull, nonatomic, strong) UIColor *KF5BgColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5MeURLColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5OtherURLColor;
+
+@property (nonnull, nonatomic, strong) UIColor *KF5SatifiedColor;
+
+@property (nonnull, nonatomic, strong) UIColor *KF5BlueColor;
 
 @property (nonnull, nonatomic, strong) UIColor *KF5PlaceHolderBgColor;
 

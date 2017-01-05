@@ -24,6 +24,8 @@ static NSString * _Nonnull const KF5Title        = @"title";
 static NSString * _Nonnull const KF5Content      = @"content";
 static NSString * _Nonnull const KF5Uploads      = @"uploads";
 static NSString * _Nonnull const KF5CustomFields = @"custom_fields";
+static NSString * _Nonnull const KF5Rating       = @"rating";
+static NSString * _Nonnull const KF5FullSearch   = @"full_search";
 
 
 @interface KFFileModel : NSObject
@@ -170,6 +172,7 @@ static NSString * _Nonnull const KF5CustomFields = @"custom_fields";
  @{
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5Query:@"",       // 搜索关键字,必填
+    KF5FullSearch:@()   // 是否开启全文搜索,0或1,默认不开启,选填
  };
  */
 + (nullable NSURLSessionDataTask *)searchDocumentWithParams:(nonnull NSDictionary *)params completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
@@ -220,6 +223,18 @@ static NSString * _Nonnull const KF5CustomFields = @"custom_fields";
  };
  */
 + (nullable NSURLSessionDataTask *)updateTicketWithParams:(nonnull NSDictionary *)params completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
+/**
+ 工单满意度评价
+ 
+ @param params 参数,如下:
+ @{
+ KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
+ KF5TicketId:@(),    // 工单的id,必填
+ KF5Rating:@(),      // 满意度,必填
+ KF5Content:@""      // 满意度评价内容,选填
+ };
+ */
++ (NSURLSessionDataTask *)ratingTicketWithParams:(NSDictionary *)params completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion;
 /**
  创建工单
 

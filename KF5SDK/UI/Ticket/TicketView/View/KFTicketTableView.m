@@ -7,6 +7,7 @@
 //
 
 #import "KFTicketTableView.h"
+#import "KFTicketHeaderView.h"
 
 @interface KFTicketTableView()<UITableViewDelegate,UITableViewDataSource>
 
@@ -38,6 +39,23 @@
         self.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     }
     return self;
+}
+
+- (void)setRatingModel:(KFRatingModel *)ratingModel{
+    _ratingModel = ratingModel;
+    
+    if (!ratingModel) {self.tableHeaderView = nil;return;}
+    
+    KFTicketHeaderView *headerView = [[KFTicketHeaderView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 44)];
+    headerView.ratingLabel.text = [KFRatingModel stringForRatingScore:ratingModel.ratingScore];
+    [headerView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickHeaderView)]];
+    self.tableHeaderView = headerView;
+}
+
+- (void)clickHeaderView{
+    if ([self.cellDelegate respondsToSelector:@selector(ticketTableView:clickHeaderViewWithRatingModel:)]) {
+        [self.cellDelegate ticketTableView:self clickHeaderViewWithRatingModel:self.ratingModel];
+    }
 }
 
 #pragma mark - tableView代理
