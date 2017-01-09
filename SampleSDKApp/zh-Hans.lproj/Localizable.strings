@@ -1,0 +1,27 @@
+/* 
+  Localizable.strings
+  SampleSDKApp
+
+  Created by admin on 17/1/9.
+  Copyright © 2017年 kf5. All rights reserved.
+*/
+
+"kf5_confirm"="确定";
+"kf5_reminder"="提示";
+"kf5_cancel"="取消";
+
+// home
+"kf5_logout"="注销";
+"kf5_login"="登录";
+"kf5_welcomeText"="欢迎使用云客服SDK";
+"kf5_descriptionText"="售前售中售后的企业级客服系统";
+// set
+"kf5_helpCenter"="帮助文档";
+"kf5_set_feedback"="提交反馈";
+"kf5_set_feedback_list"="查看反馈";
+"kf5_chating"="即时交谈";
+"kf5_aboutMe"="关于我们";
+"kf5_notLogin"="您还没有登录,请先登录";
+"kf5_notAccount"="邮箱和手机号必须填其一";
+"kf5_incorrectEmail"="邮箱格式不正确";
+"kf5_incorrectPhone"="手机号格式不正确";

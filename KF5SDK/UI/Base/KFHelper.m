@@ -17,7 +17,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 #define  KF5LazyImage(property,imageName) \
 - (UIImage *)property{\
 if (!_##property) {\
-    _##property = [UIImage kf5_imageWithBundleImageName:imageName];\
+_##property = [UIImage kf5_imageWithBundleImageName:imageName];\
 }\
 return _##property;\
 }
@@ -206,14 +206,29 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
     return bundle;
 }
 
++ (void)setLocalLanguage:(NSString *)localLanguage{
+    if (localLanguage.length == 0) return;
+    
+    if (![[self localLanguage] isEqualToString:localLanguage]) {
+        [[NSUserDefaults standardUserDefaults]setObject:localLanguage forKey:KF5LocalLanguage];
+        [[NSUserDefaults standardUserDefaults]synchronize];
+        bundle = nil;
+    }
+}
++ (NSString *)localLanguage{
+    return [[NSUserDefaults standardUserDefaults]objectForKey:KF5LocalLanguage];
+}
+
 + (NSString *)localizedStringForKey:(NSString *)key {
     return [self localizedStringForKey:key value:@""];
 }
 
+static NSBundle *bundle = nil;
 + (NSString *)localizedStringForKey:(NSString *)key value:(NSString *)value {
-    static NSBundle *bundle = nil;
+    
     if (bundle == nil) {
-        NSString *language = [NSLocale preferredLanguages].firstObject;
+        // 如果本地存储的语言为nil,则使用系统语言
+        NSString *language = [self localLanguage]?:[NSLocale preferredLanguages].firstObject;
         if ([language rangeOfString:@"zh-Hans"].location != NSNotFound) {
             language = @"zh-Hans";
         } else {
@@ -274,15 +289,10 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
 }
 + (CGSize)sizeWithText:(NSString *)text font:(UIFont *)font maxSize:(CGSize)maxSize{
     CGRect rect = [text boundingRectWithSize:maxSize
-        options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin//采用换行模式
-        attributes:@{NSFontAttributeName: font}//传人的字体字典
-        context:nil];
+                                     options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin//采用换行模式
+                                  attributes:@{NSFontAttributeName: font}//传人的字体字典
+                                     context:nil];
     return rect.size;
 }
 
-
-
 @end
-
-
-

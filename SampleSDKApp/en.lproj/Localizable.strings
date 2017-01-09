@@ -1,0 +1,26 @@
+/* 
+  Localizable.strings
+  SampleSDKApp
+
+  Created by admin on 17/1/9.
+  Copyright © 2017年 kf5. All rights reserved.
+*/
+"kf5_confirm"="Confirm";
+"kf5_reminder"="Reminder";
+"kf5_cancel"="Cancel";
+
+// home
+"kf5_logout"="Logout";
+"kf5_login"="Login";
+"kf5_welcomeText"="Welcome to the SDK demo";
+"kf5_descriptionText"="Enterprise Customer service system";
+// set
+"kf5_helpCenter"="Helpcenter";
+"kf5_set_feedback"="Submit a request";
+"kf5_set_feedback_list"="View requests";
+"kf5_chating"="Live chat";
+"kf5_aboutMe"="About us";
+"kf5_notLogin"="You have not login, please login first";
+"kf5_notAccount"="Please enter the email or phone";
+"kf5_incorrectEmail"="Email format is incorrect";
+"kf5_incorrectPhone"="Phone format is incorrect";

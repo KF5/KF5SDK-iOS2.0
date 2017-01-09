@@ -42,12 +42,16 @@
 
 static NSString * _Nonnull const KF5SDKBundle            = @"KF5SDK.bundle";
 static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.framework/KF5SDK.bundle";
+static NSString * _Nonnull const KF5LocalLanguage        = @"KF5LocalLanguage";
 
+static NSString * _Nonnull const KF5LinkTitle           = @"KF5LinkTitle";//title
+static NSString * _Nonnull const KF5LinkType            = @"KF5LinkType";//类型
+static NSString * _Nonnull const KF5LinkKey             = @"KF5LinkKey";//key
+static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 
 @interface KFHelper : NSObject
 
 + (nonnull instancetype)shareHelper;
-
 
 @property (nullable, nonatomic, strong) UIImage *chat_ctnMeBg;
 @property (nullable, nonatomic, strong) UIImage *chat_ctnMeBgH;
@@ -130,7 +134,7 @@ static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.f
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatFaceViewPageControlSelectColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatFaceViewPageControlNormalColor;
 
-#pragma mark cell
+#pragma mark - 聊天cell
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatSystemCellTimeLabelBackgroundColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatTextCellMeLabelUrlColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatTextCellOtherLabelUrlColor;
@@ -145,7 +149,9 @@ static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.f
 
 #pragma mark - NSBundle
 + (nonnull NSBundle *)shareBundle;
-
+///如果想使用系统语言,请设置本地语言为nil
++ (void)setLocalLanguage:(nullable NSString *)localLanguage;
++ (nullable NSString *)localLanguage;
 + (nullable NSString *)localizedStringForKey:(nonnull NSString *)key value:(nullable NSString *)value;
 + (nullable NSString *)localizedStringForKey:(nonnull NSString *)key;
 
@@ -168,18 +174,7 @@ static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.f
 
 static const NSInteger kKF5ChatToolViewTag              = 1000011;
 static const NSInteger kKF5TicketToolViewTag            = 1000022;
-static const NSInteger kKF5ActivityViewTag              = 1000033;
 static const NSInteger kKF5RecordViewTag                = 1000044;
-static const NSInteger kKF5AttViewTag                   = 1000055;
-
-static const NSInteger kKF5MessageStatueLoadingViewTag  = 1000066;
-static const NSInteger kKF5MessageStatueFailureViewTag  = 1000077;
-static const NSInteger kKF5AlertResendMessageTag        = 1000088;
-static const NSInteger kKF5AlertTransferTicketTag       = 1000099;
-static const NSInteger kKF5AlertLeaveMessageTag         = 1000100;
-static const NSInteger kKF5CloseButtonTag               = 1000111;
-static const NSInteger kKF5AddImageButtonTag            = 1000122;
-static const NSInteger kKF5AlertRatingTag               = 1000133;
 
 #pragma mark - 通知
 static NSString * _Nonnull const KKF5NoteNeedLoadTicketListData      = @"KKF5NoteNeedLoadTicketListData";
@@ -188,13 +183,5 @@ static NSString * _Nonnull const KKF5NoteTransferAgent      = @"KKF5NoteTransfer
 static NSString * _Nonnull const KKF5NoteLeaveMessage      = @"KKF5NoteLeaveMessage";   //排队中留言
 
 #pragma mark - 存储
-static NSString * _Nonnull const KF5LinkTitle           = @"KF5LinkTitle";//title
-static NSString * _Nonnull const KF5LinkType            = @"KF5LinkType";//类型
-static NSString * _Nonnull const KF5LinkKey             = @"KF5LinkKey";//key
-static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
-
-
 static NSString * _Nonnull const kKF5UserDefaultUserMessage  = @"kKF5UserDefaultUserMessage";//用户信息
 static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKF5UserDefaultHasChatQueueMessage";//排队时用户发送的消息
-
-

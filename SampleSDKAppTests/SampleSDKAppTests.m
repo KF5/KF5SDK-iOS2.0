@@ -2,11 +2,10 @@
 //  SampleSDKAppTests.m
 //  SampleSDKAppTests
 //
-//  Created by admin on 15/2/2.
-//  Copyright (c) 2015年 admin. All rights reserved.
+//  Created by admin on 17/1/9.
+//  Copyright © 2017年 kf5. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
 @interface SampleSDKAppTests : XCTestCase
@@ -27,7 +26,7 @@
 
 - (void)testExample {
     // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
 }
 
 - (void)testPerformanceExample {

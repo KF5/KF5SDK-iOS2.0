@@ -38,15 +38,15 @@
 
 - (IBAction)login:(UIBarButtonItem *)sender {
     if (self.emailTextField.text.length == 0 && self.phoneTextField.text.length == 0) {
-        [self showAlertWithTitle:@"邮箱和手机号必须填其一"];
+        [self showAlertWithTitle:NSLocalizedString(@"kf5_notAccount", nil)];
         return;
     }
     if (self.emailTextField.text.length > 0 && ![self validateEmail:self.emailTextField.text]) {
-        [self showAlertWithTitle:@"邮箱格式不正确"];
+        [self showAlertWithTitle:NSLocalizedString(@"kf5_incorrectEmail", nil)];
         return;
     }
     if (self.phoneTextField.text.length > 0 && ![self validatePhone:self.phoneTextField.text]) {
-        [self showAlertWithTitle:@"手机号格式不正确"];
+        [self showAlertWithTitle:NSLocalizedString(@"kf5_incorrectPhone", nil)];
         return;
     }
 
@@ -70,13 +70,13 @@
 }
 - (void)updateMessage{
     
-    NSString *token = [[NSUserDefaults standardUserDefaults]objectForKey:@"deviceToken"];
-    if (token.length > 0) {
-        NSDictionary *param = @{
+    NSString *deviceToken = [[NSUserDefaults standardUserDefaults]objectForKey:@"deviceToken"];
+    if (deviceToken.length > 0) {
+        NSDictionary *params = @{
                                 KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
-                                KF5DeviceToken:token?:@""
+                                KF5DeviceToken:deviceToken
                                 };
-        [KFHttpTool saveTokenWithParams:param completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
+        [KFHttpTool saveTokenWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
         }];  
     }
     __weak typeof(self)weakSelf = self;
@@ -90,7 +90,7 @@
 }
 
 - (void)showAlertWithTitle:(NSString *)title{
-        [[[UIAlertView alloc]initWithTitle:@"提示" message:title delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil]show];
+        [[[UIAlertView alloc]initWithTitle:NSLocalizedString(@"kf5_reminder", nil) message:title delegate:nil cancelButtonTitle:NSLocalizedString(@"kf5_confirm", nil) otherButtonTitles:nil, nil]show];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {

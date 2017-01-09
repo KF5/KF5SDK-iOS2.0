@@ -258,7 +258,7 @@
         JKAlert *alert = [JKAlert alertWithTitle:KF5Localized(@"kf5_reminder") andMessage:KF5Localized(@"kf5_rating_content")];
         [alert addCancleButtonWithTitle:KF5Localized(@"kf5_cancel") handler:nil];
         [alert addCommonButtonWithTitle:KF5Localized(@"kf5_satisfied") handler:^(JKAlertItem *item) {
-            [weakSelf sendRating:NO];
+            [weakSelf sendRating:YES];
         }];
         [alert addCommonButtonWithTitle:KF5Localized(@"kf5_unsatisfied") handler:^(JKAlertItem *item) {
             [weakSelf sendRating:NO];
@@ -613,14 +613,21 @@
 }
 - (void)sendRating:(BOOL)rating{
     
+    __weak typeof(self)weakSelf = self;
     [self.viewModel sendRating:rating completion:^(NSError *error) {
+        NSString *content = KF5Localized(@"kf5_rating_successfully");
+        if (error) {
+            content = KF5Localized(@"kf5_rating_failure");
+        }
+        KFMessage *message = [[KFMessage alloc] init];
+        message.content = content;
+        message.messageType = KFMessageTypeSystem;
+        message.created = [NSDate date].timeIntervalSince1970;
+        KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:message];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
+        });
     }];
-    KFMessage *message = [[KFMessage alloc] init];
-    message.content = KF5Localized(@"kf5_rating_successfully") ;
-    message.messageType = KFMessageTypeSystem;
-    message.created = [NSDate date].timeIntervalSince1970;
-    KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:message];
-    [self chat:self.viewModel addMessageModels:@[model]];
 }
 - (NSInteger)limit{
     if (_limit == 0)_limit = 30;

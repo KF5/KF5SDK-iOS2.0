@@ -63,23 +63,22 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
     UILabel *label1 = [[UILabel alloc]initWithFrame:CGRectMake(64, 41, 200, 19)];
     label1.font = [UIFont systemFontOfSize:14.f];
     label1.backgroundColor = [UIColor clearColor];
-    label1.text = @"欢迎使用逸创云客服SDK";
+    label1.text = NSLocalizedString(@"kf5_welcomeText", nil);
     label1.textColor = KFColorFromRGB(0x3e4245);
     [topView addSubview:label1];
     
     UILabel *label2 = [[UILabel alloc]initWithFrame:CGRectMake(64, 60, 250, 19)];
     label2.textColor = KFColorFromRGB(0x45d8d0);
     label2.font = [UIFont systemFontOfSize:11.f];
-    label2.text = @"以下是展示逸创云客服SDK功能的按钮";
+    label2.text = NSLocalizedString(@"kf5_descriptionText", nil);
     [topView addSubview:label2];
     
     self.cellDataList = @[
-                          [KFCellData cellDataWithTitle:@"帮助中心" imageName:@"icon_document"],
-                          [KFCellData cellDataWithTitle:@"反馈问题" imageName:@"icon_request"],
-                          [KFCellData cellDataWithTitle:@"查看反馈" imageName:@"icon_ticketList"],
-                          [KFCellData cellDataWithTitle:@"即时交谈" imageName:@"icon_chat"]
+                          [KFCellData cellDataWithTitle:NSLocalizedString(@"kf5_helpCenter", nil) imageName:@"icon_document"],
+                          [KFCellData cellDataWithTitle:NSLocalizedString(@"kf5_set_feedback", nil) imageName:@"icon_request"],
+                          [KFCellData cellDataWithTitle:NSLocalizedString(@"kf5_set_feedback_list", nil) imageName:@"icon_ticketList"],
+                          [KFCellData cellDataWithTitle:NSLocalizedString(@"kf5_chating", nil) imageName:@"icon_chat"]
                           ];
-    
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
@@ -136,7 +135,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 {
     BOOL isLogin = [KFUserManager shareUserManager].user != nil;
     if (!isLogin) {
-        [[[UIAlertView alloc]initWithTitle:@"提示" message:@"您还没有登录,请先登录" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil]show];
+        [[[UIAlertView alloc]initWithTitle:NSLocalizedString(@"kf5_reminder", nil) message:NSLocalizedString(@"kf5_notLogin", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"kf5_cancel", nil) otherButtonTitles:NSLocalizedString(@"kf5_confirm", nil), nil]show];
     }
     return isLogin;
 }

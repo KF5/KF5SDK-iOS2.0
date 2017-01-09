@@ -35,7 +35,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
 @property (nonnull, nonatomic, strong) NSData *fileData;
 
 /**
- 文件名称,默认值为当前的时间戳.jpg,如
+ 文件名称,在一次上传中,不能使用相同的fileName
  */
 @property (nullable, nonatomic, copy) NSString *fileName;
 
@@ -234,7 +234,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  KF5Content:@""      // 满意度评价内容,选填
  };
  */
-+ (NSURLSessionDataTask *)ratingTicketWithParams:(NSDictionary *)params completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion;
++ (nullable NSURLSessionDataTask *)ratingTicketWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion;
 /**
  创建工单
 

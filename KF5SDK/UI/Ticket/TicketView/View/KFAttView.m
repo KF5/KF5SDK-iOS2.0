@@ -31,7 +31,6 @@
         [closeBtn setImage:KF5Helper.ticketTool_closeAtt forState:UIControlStateNormal];
         [closeBtn addTarget:self action:@selector(delAttBtn:) forControlEvents:UIControlEventTouchUpInside];
         self.closeBtn = closeBtn;
-        closeBtn.tag = kKF5CloseButtonTag;
 
         closeBtn.frame = CGRectMake(KF5Helper.KF5DefaultSpacing, KF5Helper.KF5DefaultSpacing, KFViewSideLength, KFViewSideLength);
         [self addSubview:closeBtn];
@@ -40,7 +39,6 @@
         [addImageBtn setImage:KF5Helper.ticketTool_addAtt forState:UIControlStateNormal];
         [addImageBtn addTarget:self action:@selector(addAttBtn:) forControlEvents:UIControlEventTouchUpInside];
         addImageBtn.frame = CGRectMake(CGRectGetMaxX(closeBtn.frame) + KF5Helper.KF5DefaultSpacing, KF5Helper.KF5DefaultSpacing, KFViewSideLength, KFViewSideLength);
-        addImageBtn.tag = kKF5AddImageButtonTag;
         self.addImageBtn = addImageBtn;
         [self addSubview:addImageBtn];
         

@@ -22,9 +22,9 @@
     [super viewDidLoad];
     
     if ([KFUserManager shareUserManager].user != nil) {
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"注销" style:UIBarButtonItemStyleDone target:self action:@selector(login:)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"kf5_logout", nil) style:UIBarButtonItemStyleDone target:self action:@selector(login:)];
     }else{
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"登录" style:UIBarButtonItemStyleDone target:self action:@selector(login:)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"kf5_login", nil) style:UIBarButtonItemStyleDone target:self action:@selector(login:)];
     }
     
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(pushTicketList) name:@"homePush" object:nil];
@@ -42,21 +42,35 @@
 
 - (void)login:(UIBarButtonItem *)item
 {
-    if ([item.title isEqualToString:@"登录"]) {
+    if ([item.title isEqualToString:NSLocalizedString(@"kf5_login", nil)]) {
         UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
         KFPersonTableViewController *preson = (KFPersonTableViewController*)[storyboard instantiateViewControllerWithIdentifier:@"KFPersonTableViewController"];
         [self.navigationController pushViewController:preson animated:YES];
     }else{// 注销方法
-        item.title = @"登录";
-        // 注销用户
-        [KFUserManager deleteUser];
+        item.title = NSLocalizedString(@"kf5_login", nil);
+        [self deleteUser];
     }
 }
 
 #pragma mark - delegate
 - (void)loginSuccess
 {
-    self.navigationItem.rightBarButtonItem.title = @"注销";
+    self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"kf5_logout", nil);
+}
+#pragma mark - 注销用户
+- (void)deleteUser{
+    
+    NSString *deviceToken = [[NSUserDefaults standardUserDefaults]valueForKey:@"deviceToken"];
+    if (deviceToken.length > 0) {
+        NSDictionary *params = @{
+                                 KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+                                 KF5DeviceToken:deviceToken
+                                 };
+        [KFHttpTool deleteTokenWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
+        }];
+    }
+    
+    [KFUserManager deleteUser];
 }
 
 #pragma mark - push

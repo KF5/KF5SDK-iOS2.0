@@ -132,9 +132,9 @@ static const CGFloat kKF5MaxHeight = 130;
 #pragma mark - 按钮点击事件
 - (void)att:(UIButton *)btn{
     self.type = KFTicketToolTypeAddImage;
-    // 如果点击添加附件按钮时,记录下键盘的状态,tag = kKF5AttViewTag 为键盘在弹出,等关闭附件添加控件时,再恢复状态
+    // 如果点击添加附件按钮时,记录下键盘的状态,tag = 1 为键盘在弹出,等关闭附件添加控件时,再恢复状态
     if ([self.textView isFirstResponder]) {
-        self.attView.tag = kKF5AttViewTag;
+        self.attView.tag = 1;
         [self.textView resignFirstResponder];
     }else{
         self.attView.tag = 0;
@@ -151,7 +151,7 @@ static const CGFloat kKF5MaxHeight = 130;
 #pragma mark - attViewDelegate
 - (void)attViewcloseAction:(KFAttView *)attView{
     self.type = KFTicketToolTypeInputText;
-    // 点击关闭附件按钮时,恢复键盘状态,tag = kKF5AttViewTag 为键盘在弹出,弹出键盘
+    // 点击关闭附件按钮时,恢复键盘状态,tag = 1 为键盘在弹出,弹出键盘
     if (![self.textView isFirstResponder] && attView.tag) {
         [self.textView becomeFirstResponder];
     }

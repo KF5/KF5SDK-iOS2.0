@@ -1,0 +1,39 @@
+
+/* Class = "UILabel"; text = "欢迎使用云客服SDK"; ObjectID = "3X4-d6-mbn"; */
+"3X4-d6-mbn.text" = "欢迎使用云客服SDK";
+
+/* Class = "UIBarButtonItem"; title = "登录"; ObjectID = "3jy-0V-dOJ"; */
+"3jy-0V-dOJ.title" = "登录";
+
+/* Class = "UINavigationItem"; title = "用户"; ObjectID = "4TQ-Xv-UcD"; */
+"4TQ-Xv-UcD.title" = "用户";
+
+/* Class = "UILabel"; text = "V2.0.0-beta www.kf5.com"; ObjectID = "98s-n8-4aX"; */
+"98s-n8-4aX.text" = "V2.1.0 www.kf5.com";
+
+/* Class = "UITextField"; placeholder = "邮箱"; ObjectID = "BiR-Io-N2T"; */
+"BiR-Io-N2T.placeholder" = "邮箱";
+
+/* Class = "UITabBarItem"; title = "设置"; ObjectID = "Cpr-hJ-dkB"; */
+"Cpr-hJ-dkB.title" = "设置";
+
+/* Class = "UINavigationItem"; title = "设置"; ObjectID = "Sxf-dC-9W8"; */
+"Sxf-dC-9W8.title" = "设置";
+
+/* Class = "UILabel"; text = "售前售中售后的企业级客服系统"; ObjectID = "YYc-rd-Uc5"; */
+"YYc-rd-Uc5.text" = "售前售中售后的企业级客服系统";
+
+/* Class = "UILabel"; text = "SDK"; ObjectID = "hHb-tO-IGV"; */
+"hHb-tO-IGV.text" = "SDK";
+
+/* Class = "UITabBarItem"; title = "首页"; ObjectID = "n4H-5P-0I9"; */
+"n4H-5P-0I9.title" = "首页";
+
+/* Class = "UITextField"; placeholder = "昵称"; ObjectID = "nJp-JP-ITy"; */
+"nJp-JP-ITy.placeholder" = "昵称";
+
+/* Class = "UINavigationItem"; title = "首页"; ObjectID = "rmw-yu-14q"; */
+"rmw-yu-14q.title" = "首页";
+
+/* Class = "UITextField"; placeholder = "手机号"; ObjectID = "vk9-pA-8CK"; */
+"vk9-pA-8CK.placeholder" = "手机号";
