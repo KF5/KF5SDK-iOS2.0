@@ -14,6 +14,7 @@
 #import "KF5SDKDoc.h"
 #import "KF5SDKChat.h"
 #import "KFUserManager.h"
+#import <KF5SDK/KF5SDK.h>
 
 #define KFColorFromRGB(rgbValue) [UIColor \
 colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
@@ -183,7 +184,8 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 // 聊天
 - (void)chat{
     self.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:[[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"iOS"}]] animated:YES];
+    
+    [self.navigationController pushViewController:[[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"iOS"},@{@"name":@"SDK版本",@"value":[[KFConfig shareConfig] version]}]] animated:YES];
     self.hidesBottomBarWhenPushed = NO;
 }
 

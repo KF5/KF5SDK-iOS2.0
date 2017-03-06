@@ -79,6 +79,7 @@
         [KFHttpTool saveTokenWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
         }];  
     }
+    // 使用邮箱为主的登录方式,可以更新用户的昵称和手机号
     __weak typeof(self)weakSelf = self;
     [[KFUserManager shareUserManager]updateUserWithEmail:nil phone:self.phoneTextField.text name:self.nameTextField.text completion:^(KFUser * _Nullable user, NSError * _Nullable error) {
         dispatch_async(dispatch_get_main_queue(), ^{

@@ -17,7 +17,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 #define  KF5LazyImage(property,imageName) \
 - (UIImage *)property{\
 if (!_##property) {\
-_##property = [UIImage kf5_imageWithBundleImageName:imageName];\
+    _##property = [UIImage kf5_imageWithBundleImageName:imageName];\
 }\
 return _##property;\
 }
@@ -30,10 +30,11 @@ _##property = [[UIImage kf5_imageWithBundleImageName:imageName]kf5_imageResize];
 return _##property;\
 }
 
-
 #import "KFHelper.h"
 #import "AFNetworkReachabilityManager.h"
 #import <CommonCrypto/CommonDigest.h>
+
+static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKF5UserDefaultHasChatQueueMessage";//排队时用户发送的消息
 
 @implementation KFHelper
 
@@ -240,7 +241,6 @@ static NSBundle *bundle = nil;
     return [[NSBundle mainBundle] localizedStringForKey:key value:value table:nil];
 }
 
-
 #pragma mark - helper
 + (BOOL)isNetworkEnable{
     BOOL isNetwork = [[AFNetworkReachabilityManager sharedManager] isReachable];
@@ -289,10 +289,23 @@ static NSBundle *bundle = nil;
 }
 + (CGSize)sizeWithText:(NSString *)text font:(UIFont *)font maxSize:(CGSize)maxSize{
     CGRect rect = [text boundingRectWithSize:maxSize
-                                     options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin//采用换行模式
-                                  attributes:@{NSFontAttributeName: font}//传人的字体字典
-                                     context:nil];
+        options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin//采用换行模式
+        attributes:@{NSFontAttributeName: font}//传人的字体字典
+        context:nil];
     return rect.size;
+}
+
++ (BOOL)hasChatQueueMessage{
+    NSNumber *hasChatQueueMessage = [[NSUserDefaults standardUserDefaults]valueForKey:kKF5UserDefaultHasChatQueueMessage];
+    return hasChatQueueMessage.boolValue;
+    
+}
++ (void)setHasChatQueueMessage:(BOOL)hasChatQueueMessage{
+    if (hasChatQueueMessage) {
+        [[NSUserDefaults standardUserDefaults]setBool:hasChatQueueMessage forKey:kKF5UserDefaultHasChatQueueMessage];
+    }else{
+        [[NSUserDefaults standardUserDefaults]removeObjectForKey:kKF5UserDefaultHasChatQueueMessage];
+    }
 }
 
 @end

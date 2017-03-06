@@ -202,8 +202,7 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
                 self.transferBtn.hidden = YES;
                 
                 // 如果有这条消息,则不能再编辑内容
-                NSNumber *hasChatQueueMessage = [[NSUserDefaults standardUserDefaults]valueForKey:kKF5UserDefaultHasChatQueueMessage];
-                if (hasChatQueueMessage.boolValue) {
+                if ([KFHelper hasChatQueueMessage]) {
                     [self.textView resignFirstResponder];
                     self.textView.placeholderText = KF5Localized(@"kf5_describe_the_problem");
                     [self.textView setEditable:NO];
@@ -216,6 +215,10 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
                 
             default:
                 break;
+        }
+        // 状态为机器人状态或正在对话状态时,需要将hasChatQueueMessage设置为NO,用于下次排队时可输入一段话
+        if (chatToolViewType == KFChatStatusAIAgent || chatToolViewType == KFChatStatusChatting) {
+            [KFHelper setHasChatQueueMessage:NO];
         }
     });
     

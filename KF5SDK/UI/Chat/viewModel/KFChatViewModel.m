@@ -113,25 +113,16 @@
     [self delegateWithQueueing];
     
     __weak typeof(self)weakSelf = self;
-    [[KFChatManager sharedChatManager]queueUpWithCompletion:^(NSInteger queue_index, NSError *error) {
-        if (!error) {
-            [weakSelf delegateWithQueueIndexChange:queue_index];
-            if (completion)completion();
-        }else{
-            if (error.code == KFErrorCodeAgentOffline) {
-                [weakSelf delegateWithNoAgent];
-                if (completion) completion();
-            }else{
-                [weakSelf delegateWithQueueError:error];
-                if (completion)completion();
-            }
+    [[KFChatManager sharedChatManager]queueUpWithCompletion:^(NSError *error) {
+        if (error) {
+            [weakSelf delegateWithQueueError:error];
         }
+        if (completion)completion();
     }];
 }
 
 - (void)cancleWithCompletion:(void (^)(NSError *))completion{
     [[KFChatManager sharedChatManager]queueCancelWithCompletion:^(NSError * _Nullable error) {
-        [[NSUserDefaults standardUserDefaults]removeObjectForKey:kKF5UserDefaultHasChatQueueMessage];
         if (completion) {
             completion(error);
         }
@@ -164,7 +155,7 @@
             }else{
                 message = [[KFChatManager sharedChatManager] sendText:data completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {
                     if (!error && chatStatus == KFChatStatusQueue) {
-                        [[NSUserDefaults standardUserDefaults]setObject:@(YES) forKey:kKF5UserDefaultHasChatQueueMessage];
+                        [KFHelper setHasChatQueueMessage:YES];
                         // 排队期间发送一条消息用于提问,之后就不能发送消息了
                         // 为了方式在发送消息过程中,状态已经发生变化,则先判断消息成功之后的状态
                         [weakSelf delegateWithStatusChanage];
@@ -239,9 +230,12 @@ static BOOL isCanSendChecking = NO;
 - (void)chatManager:(KFChatManager *)chatManager queueIndex:(NSInteger)queueIndex{
     [self delegateWithQueueIndexChange:queueIndex];
 }
+// 用户排队失败的通知
+- (void)chatManager:(KFChatManager *)chatManager queueError:(NSError *)error{
+    [self delegateWithQueueError:error];
+}
 // 分配到客服/转接客服通知
 - (void)chatManager:(KFChatManager *)chatManager currectAgent:(KFAgent *)agent{
-    [[NSUserDefaults standardUserDefaults]removeObjectForKey:kKF5UserDefaultHasChatQueueMessage];
     [self delegateWithAgentChange:agent];
 }
 // 客服关闭对话通知
@@ -288,17 +282,10 @@ static BOOL isCanSendChecking = NO;
         [self.delegate chatWithQueueing:self];
     }
 }
+/**排队人数变化*/
 - (void)delegateWithQueueIndexChange:(NSInteger)queueIndex{
-    if (queueIndex > -1) {//-1说明已经分配到客服
-        if ([self.delegate respondsToSelector:@selector(chat:queueIndexChange:)]) {
-            [self.delegate chat:self queueIndexChange:queueIndex];
-        }
-    }
-}
-/**当前没有客服在线*/
-- (void)delegateWithNoAgent{
-    if ([self.delegate respondsToSelector:@selector(chatWithNoAgent:)]) {
-        [self.delegate chatWithNoAgent:self];
+    if ([self.delegate respondsToSelector:@selector(chat:queueIndexChange:)]) {
+        [self.delegate chat:self queueIndexChange:queueIndex];
     }
 }
 /**排队失败*/

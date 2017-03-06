@@ -18,6 +18,8 @@
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatReceiveMessageNotification;
 ///用户排队的当前位置通知
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatQueueNotification;
+///用户排队失败的通知
+UIKIT_EXTERN _Nonnull NSNotificationName const KFChatQueueErrorNotification;
 ///分配到客服/转接客服通知
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatReceiveAgentNotification;
 ///客服关闭对话通知
@@ -44,6 +46,13 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  @param queueIndex  当前位置
  */
 - (void)chatManager:(nonnull KFChatManager *)chatManager queueIndex:(NSInteger)queueIndex;
+/**
+ 用户排队失败
+
+ @param chatManager 聊天管理对象
+ @param error 失败的error,当前只有可能是客服不在线而造成的失败
+ */
+- (void)chatManager:(nonnull KFChatManager *)chatManager queueError:(nonnull NSError *)error;
 /**
  分配到客服/转接客服通知
 
@@ -132,9 +141,9 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  用户加入排队
  
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
-          如果queue_index等于-1,则说明已经分配到客服
+          completion中的error用于判断排队请求是否成功,排队结果会调用chatManager:queueIndex:和chatManager:queueError:代理方法
  */
-- (void)queueUpWithCompletion:(nullable void (^)(NSInteger queue_index, NSError * _Nullable error))completion;
+- (void)queueUpWithCompletion:(nullable void (^)(NSError * _Nullable error))completion;
 /**
  用户取消排队
 

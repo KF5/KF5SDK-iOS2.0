@@ -18,15 +18,13 @@
 - (void)chat:(nonnull KFChatViewModel *)chat connectError:(nullable NSError *)error;
 /**排队中*/
 - (void)chatWithQueueing:(nonnull KFChatViewModel *)chat;
-///排队人数变化
+/**排队人数变化*/
 - (void)chat:(nonnull KFChatViewModel *)chat queueIndexChange:(NSInteger)queueIndex;
-/**当前没有客服在线*/
-- (void)chatWithNoAgent:(nonnull KFChatViewModel *)chat;
 /**排队失败*/
 - (void)chat:(nonnull KFChatViewModel *)chat queueError:(nullable NSError *)error;
 /** 获取到客服*/
 - (void)chat:(nonnull KFChatViewModel *)chat agentChange:(nullable KFAgent *)agent;
-///状态改变
+/** 状态改变*/
 - (void)chat:(nonnull KFChatViewModel *)chat statusChange:(KFChatStatus)status;
 /** 客服发起满意度评价请求*/
 - (void)chatWithAgentRating:(nonnull KFChatViewModel *)chat;

@@ -241,7 +241,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  @param params 参数,如下:
  @{
     KF5UserToken:@"",       // 用户唯一标示,可通过创建或登录用户获得,必填
-    KF5Title:@"",           // 工单的id,必填
+    KF5Title:@"",           // 工单的标题,必填
     KF5Content:@"",         // 回复内容,必填
     KF5Uploads:@[],         // 附件token数组,选填
     KF5CustomFields:@""     // 自定义字段,如@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}],需要将数组转成JSONString使用,选填
@@ -262,21 +262,5 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  @warning 文件大小根据您KF5平台的套餐决定,所以请开发者自行压缩,详细请见http://www.kf5.com/product/pricing
  */
 + (nullable NSURLSessionDataTask *)uploadWithUserToken:(nonnull NSString *)userToken fileModels:(nonnull NSArray <KFFileModel *>*)fileModels uploadProgress:(nullable void (^)(NSProgress *_Nullable progress))uploadProgressBlock completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
-/**
- IM上传图片
-
- @param userToken   用户唯一标示,可通过创建或登录用户获得,必填
- @param imageData   图片,必填
- @warning 文件大小根据您KF5平台的套餐决定,所以请开发者自行压缩,详细请见http://www.kf5.com/product/pricing
- */
-+ (nullable NSURLSessionDataTask *)chatWithUserToken:(nonnull NSString *)userToken imageData:(nonnull NSData *)imageData uploadProgress:(nullable void (^)(NSProgress *_Nullable progress))uploadProgressBlock completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
-/**
- IM上传语音
-
- @param userToken  用户唯一标示,可通过创建或登录用户获得,必填
- @param voice      语音,必填
- @warning 文件大小根据您KF5平台的套餐决定,所以请开发者自行压缩,详细请见http://www.kf5.com/product/pricing
- */
-+ (nullable NSURLSessionDataTask *)chatWithUserToken:(nonnull NSString *)userToken voice:(nonnull NSData *)voice uploadProgress:(nullable void  (^)(NSProgress *_Nullable progress))uploadProgressBlock completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
 
 @end

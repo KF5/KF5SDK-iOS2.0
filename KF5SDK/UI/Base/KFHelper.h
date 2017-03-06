@@ -167,6 +167,9 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 ///多行计算尺寸
 + (CGSize)sizeWithText:(nonnull NSString *)text font:(nonnull UIFont *)font maxSize:(CGSize)maxSize;
 
++ (BOOL)hasChatQueueMessage;
++ (void)setHasChatQueueMessage:(BOOL)hasChatQueueMessage;
+
 @end
 
 
@@ -184,4 +187,4 @@ static NSString * _Nonnull const KKF5NoteLeaveMessage      = @"KKF5NoteLeaveMess
 
 #pragma mark - 存储
 static NSString * _Nonnull const kKF5UserDefaultUserMessage  = @"kKF5UserDefaultUserMessage";//用户信息
-static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKF5UserDefaultHasChatQueueMessage";//排队时用户发送的消息
+
