@@ -35,7 +35,7 @@
 - (void)setMessageModel:(KFMessageModel *)messageModel{
     [super setMessageModel:messageModel];
     
-    self.messageLabel.attributedText = messageModel.text;
+    self.messageLabel.textLayout = messageModel.textLayout;
     self.messageLabel.frame = messageModel.messageViewFrame;
 }
 
@@ -91,7 +91,7 @@
     if (self.messageModel.message.messageType == KFMessageTypeOther) {
         [[UIPasteboard generalPasteboard]setString:self.messageModel.message.url?:@""];
     }else if(self.messageModel.message.messageType == KFMessageTypeJSON){
-        [[UIPasteboard generalPasteboard]setString:self.messageModel.text.string?:@""];
+        [[UIPasteboard generalPasteboard]setString:self.messageModel.textLayout.text.string?:@""];
     }else{
         [[UIPasteboard generalPasteboard]setString:self.messageModel.message.content?:@""];
     }

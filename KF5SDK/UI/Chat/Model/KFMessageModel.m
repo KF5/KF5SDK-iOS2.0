@@ -22,6 +22,13 @@ BOOL isShowTime(double time){
     return show;
 }
 
+@interface KFMessageModel()
+
+@property (nullable, nonatomic, strong) NSAttributedString *text;
+@property (nullable, nonatomic, strong) NSAttributedString *systemText;
+
+@end
+
 @implementation KFMessageModel
 
 - (instancetype)initWithMessage:(KFMessage *)message{
@@ -106,12 +113,9 @@ BOOL isShowTime(double time){
         CGSize messageSize = CGSizeZero;
         
         if (_message.messageType == KFMessageTypeText || _message.messageType == KFMessageTypeJSON) {
-            // 因为有emoji表情,所以使用coreText的计算高度方式
-            CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)_text);
-            CGSize targetSize =CGSizeMake(KF5SCREEN_WIDTH-160, MAXFLOAT);
-            messageSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, (CFIndex)[_text length]), NULL, targetSize, NULL);
-            CFRelease(framesetter);
-            
+            YYTextContainer *container = [YYTextContainer containerWithSize:CGSizeMake(KF5SCREEN_WIDTH-160, MAXFLOAT)];
+            _textLayout = [YYTextLayout layoutWithContainer:container text:_text];
+            messageSize = _textLayout.textBoundingSize;
         }else if (_message.messageType == KFMessageTypeImage){
             CGFloat scaleFactor = MIN(KF5MaxImageWidth/_message.imageWidth, KF5MaxImageHeight/_message.imageHeight);
             scaleFactor = scaleFactor > 1 ? 1 :scaleFactor;
@@ -139,7 +143,9 @@ BOOL isShowTime(double time){
             _loadViewFrame.origin.x = KF5SCREEN_WIDTH - CGRectGetMaxX(_loadViewFrame);
         }
     }else{
-        CGSize systemSize = [_systemText boundingRectWithSize:CGSizeMake(KF5SCREEN_WIDTH-100, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil].size;
+        YYTextContainer *container = [YYTextContainer containerWithSize:CGSizeMake(KF5SCREEN_WIDTH-100, MAXFLOAT)];
+        _systemTextLayout = [YYTextLayout layoutWithContainer:container text:_systemText];
+        CGSize systemSize = _systemTextLayout.textBoundingSize;
         
         _systemFrame = CGRectMake((KF5SCREEN_WIDTH - systemSize.width) / 2 , 5, systemSize.width, systemSize.height);
         _systemBackgroundFrame = CGRectMake(_systemFrame.origin.x - 5, _systemFrame.origin.y - 5, _systemFrame.size.width + 10, _systemFrame.size.height + 10);

@@ -26,7 +26,7 @@
 
 
 /**内容*/
-@property (nullable, nonatomic, strong) NSAttributedString *text;
+@property (nullable, nonatomic, strong) YYTextLayout *textLayout;
 /**图片*/
 @property (nullable, nonatomic, strong) UIImage *image;
 /**语音*/
@@ -54,7 +54,7 @@
 /**系统消息背景的frame*/
 @property (nonatomic, assign) CGRect systemBackgroundFrame;
 /**系统消息文本*/
-@property (nullable, nonatomic, strong) NSAttributedString *systemText;
+@property (nullable, nonatomic, strong) YYTextLayout *systemTextLayout;
 
 
 

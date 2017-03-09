@@ -42,7 +42,7 @@
 - (void)setMessageModel:(KFMessageModel *)messageModel{
     [super setMessageModel:messageModel];
     
-    _systemMessageLabel.attributedText = messageModel.systemText;
+    _systemMessageLabel.textLayout = messageModel.systemTextLayout;
     _systemMessageLabel.frame = messageModel.systemFrame;
     _backgroundLayer.frame = messageModel.systemBackgroundFrame;
 }

@@ -24,6 +24,8 @@
     self = [super init];
     if (self) {
         self.urlColor = KF5Helper.KF5OtherURLColor;
+        self.ignoreCommonProperties = YES;
+        self.displaysAsynchronously = YES;
         __weak typeof(self)weakSelf = self;
         self.highlightTapAction = ^(UIView *containerView, NSAttributedString *text, NSRange range, CGRect rect) {
             if (range.location >= text.length) return;

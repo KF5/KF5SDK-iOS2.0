@@ -83,6 +83,13 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
         [self.textDelegate kf5_textViewDidChange:self];
     }
 }
+
+- (void)insertText:(NSString *)text{
+    if ([self textView:self shouldChangeTextInRange:NSMakeRange(0, text.length) replacementText:text]) {
+        [super insertText:text];
+    }
+}
+
 - (BOOL)textView:(KFTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     
     if ([self.textDelegate respondsToSelector:@selector(kf5_textView:shouldChangeTextInRange:replacementText:)]) {
