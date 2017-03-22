@@ -1682,7 +1682,6 @@
 				DEVELOPMENT_TEAM = WBB6368FVN;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/未命名文件夹/KF5SDK",
 					"$(PROJECT_DIR)/KF5SDK",
 				);
 				INFOPLIST_FILE = SampleSDKApp/Info.plist;
@@ -1690,7 +1689,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/未命名文件夹/KF5SDK/UI/Vendors/MLRecorder",
 					"$(PROJECT_DIR)/KF5SDK/UI/Vendors/MLRecorder",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kf5.SampleSDKApp;
@@ -1706,7 +1704,6 @@
 				DEVELOPMENT_TEAM = WBB6368FVN;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/未命名文件夹/KF5SDK",
 					"$(PROJECT_DIR)/KF5SDK",
 				);
 				INFOPLIST_FILE = SampleSDKApp/Info.plist;
@@ -1714,7 +1711,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/未命名文件夹/KF5SDK/UI/Vendors/MLRecorder",
 					"$(PROJECT_DIR)/KF5SDK/UI/Vendors/MLRecorder",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kf5.SampleSDKApp;

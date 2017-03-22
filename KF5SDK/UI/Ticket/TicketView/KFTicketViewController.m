@@ -172,7 +172,7 @@
         KFAttachment *pic = pics[i];
         KFPhotoGroupItem *item = [KFPhotoGroupItem new];
         item.thumbView = imgView;
-        item.largeImageURL = pic.url;
+        item.largeImageURL = [NSURL URLWithString:pic.url];
         [items addObject:item];
         if (i == index) {
             fromView = imgView;
@@ -200,7 +200,7 @@
             if ([formatName isEqualToString:@"[图片]"]) {
                 [self.view endEditing:YES];
                 KFPhotoGroupItem *item = [KFPhotoGroupItem new];
-                item.largeImageURL = info[KF5LinkKey];
+                item.largeImageURL = [NSURL URLWithString:info[KF5LinkKey]];
                 KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:@[item]];
                 [v presentFromImageView:cell.commentLabel toContainer:self.navigationController.view animated:YES completion:nil];
                 self.photoGroupView = v;

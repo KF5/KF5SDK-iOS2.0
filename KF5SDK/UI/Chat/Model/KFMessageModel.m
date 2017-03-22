@@ -69,9 +69,9 @@ BOOL isShowTime(double time){
             urlColor = KF5Helper.KF5OtherURLColor;
         }
         if (_message.messageType == KFMessageTypeText) {
-            _text = [KFContentLabelHelp attributedStringWithString:_message.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
-        }else if (_message.messageType == KFMessageTypeJSON){
-            _text = [KFContentLabelHelp robotContentWithJSONString:_message.content font:font textColor:textColor urlColor:urlColor];
+            _text = [KFContentLabelHelp baseMessageWithString:_message.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
+        }if (_message.messageType == KFMessageTypeCustom){
+            _text = [KFContentLabelHelp customMessageWithJSONString:_message.content font:font textColor:textColor urlColor:urlColor];
         }else if(_message.messageType == KFMessageTypeOther){
             _text = [KFContentLabelHelp documentStringWithString:_message.content urlString:_message.url font:font urlColor:urlColor];
         }else if (_message.messageType == KFMessageTypeImage){
@@ -96,7 +96,7 @@ BOOL isShowTime(double time){
             }
         }
     }else{
-        _systemText = [KFContentLabelHelp systemContentWithString:_message.content font:KF5Helper.KF5TimeFont textColor:[UIColor whiteColor] urlColor:KF5Helper.KF5OtherURLColor];
+        _systemText = [KFContentLabelHelp systemMessageWithString:_message.content font:KF5Helper.KF5TimeFont textColor:[UIColor whiteColor] urlColor:KF5Helper.KF5OtherURLColor];
     }
 }
 
@@ -112,11 +112,7 @@ BOOL isShowTime(double time){
         
         CGSize messageSize = CGSizeZero;
         
-        if (_message.messageType == KFMessageTypeText || _message.messageType == KFMessageTypeJSON) {
-            YYTextContainer *container = [YYTextContainer containerWithSize:CGSizeMake(KF5SCREEN_WIDTH-160, MAXFLOAT)];
-            _textLayout = [YYTextLayout layoutWithContainer:container text:_text];
-            messageSize = _textLayout.textBoundingSize;
-        }else if (_message.messageType == KFMessageTypeImage){
+        if (_message.messageType == KFMessageTypeImage){
             CGFloat scaleFactor = MIN(KF5MaxImageWidth/_message.imageWidth, KF5MaxImageHeight/_message.imageHeight);
             scaleFactor = scaleFactor > 1 ? 1 :scaleFactor;
             messageSize = CGSizeMake(_message.imageWidth *scaleFactor, _message.imageHeight*scaleFactor);
@@ -126,6 +122,10 @@ BOOL isShowTime(double time){
         }else if(_message.messageType == KFMessageTypeVoice){
             CGFloat width = (_voiceLength > 60 ? 60 : _voiceLength) / 60.0 * 170;
             messageSize = CGSizeMake(width < 50 ? 50 : width, 15);
+        }else{
+            YYTextContainer *container = [YYTextContainer containerWithSize:CGSizeMake(KF5SCREEN_WIDTH-160, MAXFLOAT)];
+            _textLayout = [YYTextLayout layoutWithContainer:container text:_text];
+            messageSize = _textLayout.textBoundingSize;
         }
         
         _messageBgViewFrame = CGRectMake(CGRectGetMaxX(_headerFrame) +KF5Helper.KF5DefaultSpacing, CGRectGetMinY(_headerFrame), messageSize.width + KF5Helper.KF5ChatCellMessageBtnInsterLeftRight * 2 + KF5Helper.KF5ChatCellMessageBtnArrowWidth,messageSize.height + KF5Helper.KF5ChatCellMessageBtnInsterTopBottom * 2);

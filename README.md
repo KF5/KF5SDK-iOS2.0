@@ -72,11 +72,14 @@ KFLogger为日志打印类，当有错误信息时，会输入日志。开启方
 ##五、关于SDKUI部分的样式设置   
 所有的UI样式被封装在KFHelper中，开发者可根据需求直接修改View的属性或修改KFHelper中的样式。     
 ##六、其他
-KF5SDKUI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。   
-## 七、最新版本       
+1、KF5SDKUI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。
+2、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!   
+## 七、最新版本            
+#### V2.1.4 最后更新于 2017-03-23
+SDKIM新增消息类型,修复工单内容不显示的bug      
+### 历史版本         
 #### V2.1.3 最后更新于 2017-03-09
 新增SDK支持IM超时应答功能,修复部分bug           
-### 历史版本           
 #### V2.1.2 最后更新于 2017-03-06
 新增SDK支持用户的受理客服功能,优化代码            
 #### V2.1.1 最后更新于 2017-01-05

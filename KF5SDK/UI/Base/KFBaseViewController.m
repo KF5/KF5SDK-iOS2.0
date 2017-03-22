@@ -21,7 +21,6 @@
 
 // ios7以下系统的横屏的事件
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
-    NSLog(@"%@",NSStringFromCGRect(self.view.frame));
     [self updateFrame];
     [self.view endEditing:YES];
 }

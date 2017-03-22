@@ -8,13 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "KFComment.h"
+#import "YYTextLayout.h"
 
 @interface KFCommentModel : NSObject
 
 @property (nonnull, nonatomic, strong) KFComment *comment;
 
 /**内容*/
-@property (nullable, nonatomic, strong) NSAttributedString *text;
+@property (nullable, nonatomic, strong) YYTextLayout *textLayout;
 /**附件数组*/
 @property (nullable, nonatomic, strong) NSArray <KFAttachment *>*attachments;
 /**时间*/

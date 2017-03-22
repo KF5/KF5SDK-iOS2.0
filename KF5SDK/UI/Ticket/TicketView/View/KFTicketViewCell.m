@@ -78,7 +78,7 @@
 - (void)setCommentModel:(KFCommentModel *)commentModel{
     _commentModel = commentModel;
     
-    _commentLabel.attributedText = commentModel.text;
+    _commentLabel.textLayout = commentModel.textLayout;
     _commentLabel.frame = commentModel.textFrame;
     
     _photoImageView.frame = commentModel.attViewFrame;

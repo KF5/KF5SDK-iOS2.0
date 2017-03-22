@@ -80,7 +80,7 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
     KFChatViewCell *cell = nil;
     switch (messageModel.message.messageType) {
         case KFMessageTypeText:
-        case KFMessageTypeJSON:{
+        case KFMessageTypeCustom:{
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageTextCellID];
             if (!cell) {
                 cell = [[KFTextMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageTextCellID];

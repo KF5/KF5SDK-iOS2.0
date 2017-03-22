@@ -90,7 +90,7 @@
 -(void)copyItem:(id)sender{
     if (self.messageModel.message.messageType == KFMessageTypeOther) {
         [[UIPasteboard generalPasteboard]setString:self.messageModel.message.url?:@""];
-    }else if(self.messageModel.message.messageType == KFMessageTypeJSON){
+    }else if(self.messageModel.message.messageType == KFMessageTypeCustom){
         [[UIPasteboard generalPasteboard]setString:self.messageModel.textLayout.text.string?:@""];
     }else{
         [[UIPasteboard generalPasteboard]setString:self.messageModel.message.content?:@""];

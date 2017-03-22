@@ -16,12 +16,13 @@ typedef NS_OPTIONS(NSInteger, KFLabelHelpHandle) {
 };
 
 typedef enum : NSUInteger {
-    kKFLinkTypeNone,       // 无
-    kKFLinkTypePhone,      // 电话
-    kKFLinkTypeURL,        // 链接
-    kKFLinkTypeForum,      // IM知识库文档
-    kKFLinkTypeBracket,    // IM转接客服
-    kKFLinkTypeLeaveMessage // IM留言
+    kKFLinkTypeNone,         // 无
+    kKFLinkTypePhone,        // 电话
+    kKFLinkTypeURL,          // 链接
+    kKFLinkTypeDucument,     // IM知识库文档
+    kKFLinkTypeBracket,      // IM转接客服
+    kKFLinkTypeLeaveMessage, // IM留言
+    kKFLinkTypeVideo         // 视频
 } kKFLinkType;
 
 @interface KFContentLabelHelp : NSObject
@@ -35,15 +36,14 @@ typedef enum : NSUInteger {
  */
 + (NSMutableAttributedString *)documentStringWithString:(NSString *)string urlString:(NSString *)urlString font:(UIFont *)font urlColor:(UIColor *)urlColor;
 /**
- *  机器人回复消息转为文字加文档
+ *  自定义消息
  *
- *  @param JSONString json字符串{@"content":"";@"documents":[{@"id":@"",@"title":@""}]}
- *  @param font      字体
- *  @param textColor 文本颜色
- *  @param urlColor  链接颜色
+ *  @param JSONString JSON字符串
+ *  @param font       字体
+ *  @param textColor  文本颜色
+ *  @param urlColor   链接颜色
  */
-+ (NSMutableAttributedString *)robotContentWithJSONString:(NSString *)JSONString font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
-
++ (NSMutableAttributedString *)customMessageWithJSONString:(NSString *)JSONString font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
 /**
  系统消息匹配{{去留言}}
 
@@ -52,7 +52,7 @@ typedef enum : NSUInteger {
  @param textColor  文字颜色
  @param urlColor   链接颜色
  */
-+ (NSMutableAttributedString *)systemContentWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
++ (NSMutableAttributedString *)systemMessageWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
 /**
  *  聊天消息匹配电话,url,http,a标签
  *
@@ -62,7 +62,7 @@ typedef enum : NSUInteger {
  *  @param textColor 文本颜色
  *  @param urlColor  链接颜色
  */
-+ (NSMutableAttributedString *)attributedStringWithString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
++ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
 
 /**
  *  制作高亮富文本

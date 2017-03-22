@@ -12,7 +12,7 @@
 @interface KFPhotoGroupItem : NSObject
 @property (nullable, nonatomic, strong) UIView *thumbView; ///< thumb image, used for animation position calculation
 @property (nonatomic, assign) CGSize largeImageSize;
-@property (nullable, nonatomic, copy) NSString *largeImageURL;
+@property (nullable, nonatomic, strong) NSURL *largeImageURL;
 @end
 
 @interface KFPhotoGroupView : UIView

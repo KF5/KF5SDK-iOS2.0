@@ -435,8 +435,11 @@
     KFImageMessageCell *imageCell = (KFImageMessageCell *)cell;
     KFPhotoGroupItem *item = [KFPhotoGroupItem new];
     item.thumbView = imageCell.messageImageView;
-    item.largeImageURL = model.message.url;
-    
+    if (model.message.local_path.length > 0) {
+        item.largeImageURL = [NSURL fileURLWithPath:model.message.local_path];
+    }else{
+        item.largeImageURL = [NSURL URLWithString:model.message.url];
+    }
     KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:@[item]];
     [v presentFromImageView:imageCell.messageImageView toContainer:self.navigationController.view animated:YES completion:nil];
     self.photoGroupView = v;
@@ -475,7 +478,7 @@
                 [self.view endEditing:YES];
                 KFPhotoGroupItem *item = [KFPhotoGroupItem new];
                 item.thumbView = textCell.messageLabel;
-                item.largeImageURL = info[KF5LinkKey];
+                item.largeImageURL = [NSURL URLWithString:info[KF5LinkKey]];
                 
                 KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:@[item]];
                 [v presentFromImageView:textCell.messageLabel toContainer:self.navigationController.view animated:YES completion:nil];
@@ -486,7 +489,11 @@
             }
         }
             break;
-        case kKFLinkTypeForum:{
+        case kKFLinkTypeVideo:{// 可对接瞩目SDK实现应用内支持视频功能
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
+        }
+            break;
+        case kKFLinkTypeDucument:{
 #if KFHasDoc
             KFDocItem *item = [[KFDocItem alloc] init];
             item.title = info[KF5LinkTitle];

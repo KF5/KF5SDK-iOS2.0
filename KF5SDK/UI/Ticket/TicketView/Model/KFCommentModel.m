@@ -10,6 +10,12 @@
 #import "KFContentLabelHelp.h"
 #import "KFHelper.h"
 
+@interface KFCommentModel()
+
+@property (nullable, nonatomic, strong) NSAttributedString *text;
+
+@end
+
 @implementation KFCommentModel
 
 - (instancetype)initWithComment:(KFComment *)comment{
@@ -24,7 +30,8 @@
 
 - (void)setupData{
     // 内容
-    _text = [KFContentLabelHelp attributedStringWithString:_comment.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor urlColor:KF5Helper.KF5OtherURLColor];
+    _text = [KFContentLabelHelp baseMessageWithString:_comment.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor urlColor:KF5Helper.KF5OtherURLColor];
+    
     // 附件
     _attachments = _comment.attachments;
     // 时间
@@ -38,7 +45,10 @@
 - (void)updateFrame{
     // 内容
     CGFloat maxWidth = KF5SCREEN_WIDTH - KF5Helper.KF5HorizSpacing * 2;
-    CGSize textSize = [_text boundingRectWithSize:CGSizeMake(maxWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil].size;
+    YYTextContainer *container = [YYTextContainer containerWithSize:CGSizeMake(maxWidth, MAXFLOAT)];
+    _textLayout = [YYTextLayout layoutWithContainer:container text:_text];
+    CGSize textSize = _textLayout.textBoundingSize;
+    
     _textFrame = CGRectMake(KF5Helper.KF5HorizSpacing, KF5Helper.KF5VerticalSpacing, maxWidth, textSize.height);
     // 附件,如果没有附件,则与内容的上间距为0
     if (_attachments.count == 0) {

@@ -38,6 +38,19 @@ static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKF5Use
 
 @implementation KFHelper
 
++ (AFNetworkReachabilityManager *)reachabilityManager{
+    static AFNetworkReachabilityManager *_sharedManager = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedManager = [AFNetworkReachabilityManager manager];
+    });
+    return _sharedManager;
+}
+
++ (void)load{
+    [[self reachabilityManager]startMonitoring];
+}
+
 + (instancetype)shareHelper{
     static KFHelper *share;
     static dispatch_once_t onceToken;
@@ -243,7 +256,7 @@ static NSBundle *bundle = nil;
 
 #pragma mark - helper
 + (BOOL)isNetworkEnable{
-    BOOL isNetwork = [[AFNetworkReachabilityManager sharedManager] isReachable];
+    BOOL isNetwork = [[KFHelper reachabilityManager] isReachable];
     return isNetwork;
 }
 
@@ -306,6 +319,10 @@ static NSBundle *bundle = nil;
     }else{
         [[NSUserDefaults standardUserDefaults]removeObjectForKey:kKF5UserDefaultHasChatQueueMessage];
     }
+}
+
+- (void)dealloc{
+    [[KFHelper reachabilityManager] stopMonitoring];
 }
 
 @end

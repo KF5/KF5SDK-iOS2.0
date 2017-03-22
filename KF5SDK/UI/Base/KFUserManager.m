@@ -10,7 +10,6 @@
 #import "KFHelper.h"
 #import <KF5SDK/KFHttpTool.h>
 #import <KF5SDK/KFDispatcher.h>
-#import "AFNetworkReachabilityManager.h"
 
 static NSString * const KF5UserInfo = @"KF5USERINFO";
 
@@ -23,7 +22,6 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
         if (!share) {
             share = [[KFUserManager alloc] init];
             share.user = [KFUserManager localUser];
-            [[AFNetworkReachabilityManager sharedManager] startMonitoring];
         }
     });
     return share;
@@ -112,7 +110,5 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
     }
     return user;
 }
-- (void)dealloc{
-    [[AFNetworkReachabilityManager sharedManager] stopMonitoring];
-}
+
 @end

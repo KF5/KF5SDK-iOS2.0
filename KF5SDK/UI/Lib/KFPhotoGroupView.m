@@ -128,8 +128,8 @@
     _progressLayer.hidden = YES;
     [CATransaction commit];
     
-    if ([_item.largeImageURL isKindOfClass:[UIImage class]]) {
-        UIImage *image = (UIImage *)_item.largeImageURL;
+    if (_item.largeImageURL.isFileURL) {
+        UIImage *image = [UIImage imageWithContentsOfFile:_item.largeImageURL.path];
         _imageView.image = image;
         self.maximumZoomScale = 3;
         if (image) {
@@ -138,21 +138,19 @@
         }
         return;
     }
-    
-    if (![_item.largeImageURL isKindOfClass:[NSString class]])return;
-    
     __weak typeof(self)weakSelf = self;
-    [_imageView sd_setImageWithURL:[NSURL URLWithString:item.largeImageURL] placeholderImage:nil options:kNilOptions progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+    [[SDWebImageManager sharedManager] downloadImageWithURL:item.largeImageURL options:kNilOptions progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         if(!weakSelf)return;
         CGFloat progress = receivedSize / (float)expectedSize;
         progress = progress < 0.01 ? 0.01 : progress > 1 ? 1 : progress;
         if (isnan(progress)) progress = 0;
         weakSelf.progressLayer.hidden = NO;
         weakSelf.progressLayer.strokeEnd = progress;
-    } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if(!weakSelf)return;
         weakSelf.progressLayer.hidden = YES;
         if (!error) {
+            weakSelf.imageView.image = image;
             self.maximumZoomScale = 3;
             if (image) {
                 [weakSelf setValue:@(YES) forKey:@"itemDidLoad"];

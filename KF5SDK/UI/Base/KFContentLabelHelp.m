@@ -19,35 +19,42 @@
     NSMutableAttributedString *text = [self hightlightBorderWithString:string userInfo:[self userInfoWithType:kKFLinkTypeURL title:string key:urlString] font:font color:urlColor];
     return text;
 }
-
-+ (NSMutableAttributedString *)robotContentWithJSONString:(NSString *)JSONString font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
-    NSDictionary *robotMessageDict = [KFHelper dictWithJSONString:JSONString];
-    if (!robotMessageDict) return nil;
++ (NSMutableAttributedString *)customMessageWithJSONString:(NSString *)JSONString font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
+    NSDictionary *dict = [KFHelper dictWithJSONString:JSONString];
+    if (!dict) return nil;
     
-    NSString *content = [robotMessageDict objectForKey:@"content"];
-    
-    NSMutableAttributedString *text = [self attributedStringWithString:content labelHelpHandle:KFLabelHelpHandleBracket|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
-    
-    NSArray *documents = [robotMessageDict objectForKey:@"documents"];
-    for (NSDictionary *docDict in documents) {
-        NSNumber *post_id = [docDict kf5_numberForKeyPath:@"post_id"];
-        NSString *title = [docDict kf5_stringForKeyPath:@"title"];
-        NSString *url = [docDict kf5_stringForKeyPath:@"url"];
+    if ([[dict kf5_stringForKeyPath:@"type"]isEqualToString:@"video"]) {// json字符串{@"type":@"video",@"visitor_url":"xxxxxxxx";@"agent_url":"xxxxxxx"}
+        NSString *visitor_url = [dict kf5_stringForKeyPath:@"visitor_url"];
+        NSMutableAttributedString *text = [self hightlightBorderWithString:KF5Localized(@"kf5_invite_video_chat") userInfo:[self userInfoWithType:kKFLinkTypeVideo title:@"视频会话" key:visitor_url] font:font color:urlColor];
+        return text;
+    }else if([[dict kf5_stringForKeyPath:@"type"]isEqualToString:@"document"]){// json字符串{@"type":@"document", @"content":"";@"documents":[{@"id":@"",@"title":@""}]}
         
-        NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeForum title:title key:post_id?[NSString stringWithFormat:@"%@",post_id]:@""];
-        [userInfo setObject:url?:@"" forKey:KF5LinkURL];
+        NSString *content = [dict objectForKey:@"content"];
         
-        NSMutableAttributedString *docText = [self hightlightBorderWithString:title userInfo: userInfo font:font color:urlColor];
+        NSMutableAttributedString *text = [self baseMessageWithString:content labelHelpHandle:KFLabelHelpHandleBracket|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
         
-        NSMutableAttributedString *t = [self attStringWithString:@"\n ● " font:font color:textColor];
-        [text appendAttributedString:t];
-        [text appendAttributedString:docText];
+        NSArray *documents = [dict objectForKey:@"documents"];
+        for (NSDictionary *docDict in documents) {
+            NSNumber *post_id = [docDict kf5_numberForKeyPath:@"post_id"];
+            NSString *title = [docDict kf5_stringForKeyPath:@"title"];
+            NSString *url = [docDict kf5_stringForKeyPath:@"url"];
+            
+            NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeDucument title:title key:post_id?[NSString stringWithFormat:@"%@",post_id]:@""];
+            [userInfo setObject:url?:@"" forKey:KF5LinkURL];
+            
+            NSMutableAttributedString *docText = [self hightlightBorderWithString:title userInfo: userInfo font:font color:urlColor];
+            
+            NSMutableAttributedString *t = [self attStringWithString:@"\n ● " font:font color:textColor];
+            [text appendAttributedString:t];
+            [text appendAttributedString:docText];
+        }
+        return text;
+    }else{
+        return [self attStringWithString:JSONString font:font color:textColor];
     }
-    
-    return text;
 }
 
-+ (NSMutableAttributedString *)systemContentWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
++ (NSMutableAttributedString *)systemMessageWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:textColor];
     // 匹配{{}}
     NSArray *bracketResults = [[self regexBracket]matchesInString:text.string options:kNilOptions range:text.yy_rangeOfAll];
@@ -70,7 +77,7 @@
     return text;
 }
 
-+ (NSMutableAttributedString *)attributedStringWithString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
++ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
     if (string.length == 0) return nil;
     
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:textColor];

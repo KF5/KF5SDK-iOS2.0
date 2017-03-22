@@ -28,7 +28,7 @@ typedef NS_ENUM(NSInteger,KFMessageType) {
     KFMessageTypeVoice,
     KFMessageTypeSystem,
     KFMessageTypeOther,
-    KFMessageTypeJSON
+    KFMessageTypeCustom
 };
 /**
  *  消息来自于
