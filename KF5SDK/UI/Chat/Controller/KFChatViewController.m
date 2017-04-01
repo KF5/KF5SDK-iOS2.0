@@ -508,6 +508,12 @@
 #endif
         }
             break;
+        case kKFLinkTypeQuestion:{
+            NSString *title = info[KF5LinkTitle];
+            NSInteger questionId = ((NSString *)info[KF5LinkKey]).integerValue;
+            [self.viewModel getAnswerWithQuestionId:questionId questionTitle:title];
+        }
+            break;
         case kKFLinkTypeBracket:
             [self chatToolViewWithTransferAction:self.chatToolView];
             break;

@@ -134,7 +134,7 @@
     __weak KFChatViewModel *weakSelf = self;
     [[KFChatManager sharedChatManager]syncMessageWithCompletion:^(NSArray<KFMessage *> *history, NSError *error) {
         if (history.count > 0) {
-            [weakSelf delegateWithaddMessageModels:history];
+            [weakSelf delegateWithaddMessages:history];
         }
     }];
 }
@@ -148,9 +148,8 @@
         case KFMessageTypeText:{
             if (chatStatus == KFChatStatusAIAgent) {
                 message = [[KFChatManager sharedChatManager] sendAIText:data completion:^(KFMessage * _Nonnull me_message, KFMessage * _Nullable ai_message, NSError * _Nullable error) {
-                    if (ai_message && [weakSelf.delegate respondsToSelector:@selector(chat:addMessageModels:)]) {
-                            [weakSelf.delegate chat:weakSelf addMessageModels:[weakSelf messageModelsWithMessages:@[ai_message]]];
-                    }
+                    if (ai_message)
+                        [weakSelf delegateWithaddMessages:@[ai_message]];
                 }];
             }else{
                 message = [[KFChatManager sharedChatManager] sendText:data completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {
@@ -165,25 +164,35 @@
         }
             break;
         case KFMessageTypeImage:{
-            message = [[KFChatManager sharedChatManager] sendImage:data completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {
-                
-            }];
+            message = [[KFChatManager sharedChatManager] sendImage:data completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {}];
         }
             break;
         case KFMessageTypeVoice:{
-            message = [[KFChatManager sharedChatManager] sendVoice:data completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {
-                
-            }];
+            message = [[KFChatManager sharedChatManager] sendVoice:data completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {}];
         }
             break;
         default:
             break;
     }
     
-    if (message) {
-        [self delegateWithaddMessageModels:@[message]];
-    }
+    [self delegateWithaddMessages:@[message]];
 }
+#pragma mark 获取问题的答案
+- (void)getAnswerWithQuestionId:(NSInteger)questionId questionTitle:(NSString *)questionTitle{
+    if (self.chatStatus == KFChatStatusAIAgent) {
+        __weak typeof(self)weakSelf = self;
+        KFMessage *message = [[KFChatManager sharedChatManager]sendAIQuestionId:questionId questionTitle:questionTitle completion:^(KFMessage * _Nonnull me_message, KFMessage * _Nullable ai_message, NSError * _Nullable error) {
+            if (ai_message)
+                [weakSelf delegateWithaddMessages:@[ai_message]];
+            
+        }];
+        [self delegateWithaddMessages:@[message]];
+    }else{
+        [self sendMessageWithMessageType:KFMessageTypeText data:questionTitle];
+    }
+
+}
+
 - (void)resendMessageModel:(KFMessageModel *)messageModel{
     [[KFChatManager sharedChatManager]resendMessage:messageModel.message completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {
     }];
@@ -224,7 +233,7 @@ static BOOL isCanSendChecking = NO;
 #pragma mark - KFChatManagerDelegate
 // 接受聊天消息通知
 - (void)chatManager:(KFChatManager *)chatManager receiveMessage:(KFMessage *)chatMessage{
-    [self delegateWithaddMessageModels:@[chatMessage]];
+    [self delegateWithaddMessages:@[chatMessage]];
 }
 // 用户排队的当前位置通知
 - (void)chatManager:(KFChatManager *)chatManager queueIndex:(NSInteger)queueIndex{
@@ -320,9 +329,9 @@ static BOOL isCanSendChecking = NO;
     }
 }
 /**刷新数据*/
-- (void)delegateWithaddMessageModels:(NSArray <KFMessage *>*)history{
+- (void)delegateWithaddMessages:(NSArray <KFMessage *>*)messages{
     if ([self.delegate respondsToSelector:@selector(chat:addMessageModels:)]) {
-        [self.delegate chat:self addMessageModels:[self messageModelsWithMessages:history]];
+        [self.delegate chat:self addMessageModels:[self messageModelsWithMessages:messages]];
     }
 }
 

@@ -14,20 +14,20 @@
 @implementation KFContentLabelHelp
 
 + (NSMutableAttributedString *)documentStringWithString:(NSString *)string urlString:(NSString *)urlString font:(UIFont *)font urlColor:(UIColor *)urlColor{
-    if (string.length == 0) return nil;
+    if (string.length == 0) return [self attStringWithString:@" " font:font color:urlColor];
     
     NSMutableAttributedString *text = [self hightlightBorderWithString:string userInfo:[self userInfoWithType:kKFLinkTypeURL title:string key:urlString] font:font color:urlColor];
     return text;
 }
 + (NSMutableAttributedString *)customMessageWithJSONString:(NSString *)JSONString font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
     NSDictionary *dict = [KFHelper dictWithJSONString:JSONString];
-    if (!dict) return nil;
+    if (!dict) return [self attStringWithString:@" " font:font color:textColor];
     
     if ([[dict kf5_stringForKeyPath:@"type"]isEqualToString:@"video"]) {// json字符串{@"type":@"video",@"visitor_url":"xxxxxxxx";@"agent_url":"xxxxxxx"}
         NSString *visitor_url = [dict kf5_stringForKeyPath:@"visitor_url"];
         NSMutableAttributedString *text = [self hightlightBorderWithString:KF5Localized(@"kf5_invite_video_chat") userInfo:[self userInfoWithType:kKFLinkTypeVideo title:@"视频会话" key:visitor_url] font:font color:urlColor];
         return text;
-    }else if([[dict kf5_stringForKeyPath:@"type"]isEqualToString:@"document"]){// json字符串{@"type":@"document", @"content":"";@"documents":[{@"id":@"",@"title":@""}]}
+    }else if([[dict kf5_stringForKeyPath:@"type"]isEqualToString:@"document"]){// json字符串{@"type":@"document", @"content":"";@"documents":[{@"post_id":@(),@"title":@"",@"url":@""}]}
         
         NSString *content = [dict objectForKey:@"content"];
         
@@ -49,12 +49,33 @@
             [text appendAttributedString:docText];
         }
         return text;
+    }else if([[dict kf5_stringForKeyPath:@"type"] isEqualToString:@"question"]){// json字符串{@"type":@"question", @"content":"";@"questions":[{@"id":@(),@"title":@""}]}
+        NSString *content = [dict objectForKey:@"content"];
+        
+        NSMutableAttributedString *text = [self baseMessageWithString:content labelHelpHandle:KFLabelHelpHandleBracket|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
+        
+        NSArray *questions = [dict objectForKey:@"questions"];
+        for (NSDictionary *questionDict in questions) {
+            NSNumber *question_id = [questionDict kf5_numberForKeyPath:@"id"];
+            NSString *title = [questionDict kf5_stringForKeyPath:@"title"];
+            
+            NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeQuestion title:title key:question_id?[NSString stringWithFormat:@"%@",question_id]:@""];
+            
+            NSMutableAttributedString *questionText = [self hightlightBorderWithString:title userInfo: userInfo font:font color:urlColor];
+            
+            NSMutableAttributedString *t = [self attStringWithString:@"\n ● " font:font color:textColor];
+            [text appendAttributedString:t];
+            [text appendAttributedString:questionText];
+        }
+        return text;
     }else{
         return [self attStringWithString:JSONString font:font color:textColor];
     }
 }
 
 + (NSMutableAttributedString *)systemMessageWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
+    if (string.length == 0) [self attStringWithString:@" " font:font color:textColor];
+    
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:textColor];
     // 匹配{{}}
     NSArray *bracketResults = [[self regexBracket]matchesInString:text.string options:kNilOptions range:text.yy_rangeOfAll];
@@ -78,7 +99,7 @@
 }
 
 + (NSMutableAttributedString *)baseMessageWithString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
-    if (string.length == 0) return nil;
+    if (string.length == 0) return [self attStringWithString:@" " font:font color:textColor];
     
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:textColor];
     
@@ -189,7 +210,8 @@
  *  @param userInfo 携带信息
  */
 + (NSMutableAttributedString *)hightlightBorderWithString:(NSString *)string userInfo:(NSDictionary *)userInfo font:(UIFont *)font color:(UIColor *)color{
-
+    if (string.length == 0) return [self attStringWithString:@" " font:font color:color];
+    
     NSMutableAttributedString *hightlightString = [self attStringWithString:string font:font color:color];
     
     // 高亮状态的背景
@@ -213,6 +235,7 @@
  *  制作普通富文本
  */
 + (NSMutableAttributedString *)attStringWithString:(NSString *)string font:(UIFont *)font color:(UIColor *)color{
+    if (!string) string = @"";
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:string];
     attributedString.yy_font = font;
     attributedString.yy_color = color;

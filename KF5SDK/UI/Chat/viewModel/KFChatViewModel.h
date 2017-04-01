@@ -73,6 +73,13 @@
  */
 - (void)sendMessageWithMessageType:(KFMessageType)messageType data:(nonnull id)data;
 /**
+ 获取问题的答案
+
+ @param questionId 问题的id
+ @param questionTitle 问题的答案
+ */
+- (void)getAnswerWithQuestionId:(NSInteger)questionId questionTitle:(nonnull NSString *)questionTitle;
+/**
  重发消息
  */
 - (void)resendMessageModel:(nullable KFMessageModel *)messageModel;

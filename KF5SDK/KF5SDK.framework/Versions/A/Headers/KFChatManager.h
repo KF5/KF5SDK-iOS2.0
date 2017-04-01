@@ -132,11 +132,19 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  给机器人发送文本消息
 
  @param text       文本
-
  @return  消息实体
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
  */
 - (nonnull KFMessage *)sendAIText:(nonnull NSString *)text completion:(nullable void (^)(KFMessage * _Nonnull me_message,KFMessage * _Nullable ai_message, NSError * _Nullable error))completion;
+/**
+ 发送问题id获取机器人的回答
+
+ @param question_id     问题的id
+ @param questionTitle   问题的标题
+ @return  消息实体
+ @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
+ */
+- (nonnull KFMessage *)sendAIQuestionId:(NSInteger)question_id questionTitle:(nonnull NSString *)questionTitle completion:(nullable void (^)(KFMessage * _Nonnull me_message,KFMessage * _Nullable ai_message, NSError * _Nullable error))completion;
 /**
  用户加入排队
  
