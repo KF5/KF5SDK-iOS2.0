@@ -116,6 +116,8 @@
     [[KFChatManager sharedChatManager]queueUpWithCompletion:^(NSError *error) {
         if (error) {
             [weakSelf delegateWithQueueError:error];
+        }else{
+            [weakSelf delegateWithQueueIndexChange:-1];
         }
         if (completion)completion();
     }];

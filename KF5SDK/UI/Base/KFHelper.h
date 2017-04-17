@@ -41,7 +41,7 @@
 #define KF5ViewVertical UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)
 
 static NSString * _Nonnull const KF5SDKBundle            = @"KF5SDK.bundle";
-static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.framework/KF5SDK.bundle";
+static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDKUI.framework/KF5SDK.bundle";
 static NSString * _Nonnull const KF5LocalLanguage        = @"KF5LocalLanguage";
 
 static NSString * _Nonnull const KF5LinkTitle           = @"KF5LinkTitle";//title

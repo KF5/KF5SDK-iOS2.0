@@ -35,7 +35,7 @@
         
         NSArray *documents = [dict objectForKey:@"documents"];
         for (NSDictionary *docDict in documents) {
-            NSNumber *post_id = [docDict kf5_numberForKeyPath:@"post_id"];
+            NSNumber *post_id = [docDict kf5_numberForKeyPath:@"post_id"]?:[docDict kf5_numberForKeyPath:@"id"];
             NSString *title = [docDict kf5_stringForKeyPath:@"title"];
             NSString *url = [docDict kf5_stringForKeyPath:@"url"];
             

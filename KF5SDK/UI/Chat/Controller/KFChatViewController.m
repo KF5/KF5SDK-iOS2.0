@@ -233,7 +233,12 @@
         [self.tableView.messageModelArray removeObject:self.queueMessageModel];
     
     KFMessage *message = [[KFMessage alloc] init];
-    message.content = [NSString stringWithFormat:KF5Localized(@"kf5_update_queue_%ld"),queueIndex + 1];
+    if (queueIndex == -1) {
+       message.content = KF5Localized(@"kf5_update_queue");
+    }else{
+        message.content = [NSString stringWithFormat:KF5Localized(@"kf5_update_queue_%ld"),queueIndex + 1];
+    }
+    
     message.messageType = KFMessageTypeSystem;
     message.created = [NSDate date].timeIntervalSince1970;
     self.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
@@ -412,7 +417,11 @@
     [JKAlert showMessage:KF5Localized(@"kf5_resend_message") OKHandler:^(JKAlertItem *item) {
         NSIndexPath *indexPath = [weakSelf.tableView indexPathForCell:cell];
         if (!indexPath || indexPath.row > weakSelf.tableView.messageModelArray.count - 1) return;
-        [weakSelf.viewModel resendMessageModel:weakSelf.tableView.messageModelArray[indexPath.row]];
+        
+        [weakSelf.viewModel resendMessageModel:model];
+        [weakSelf.tableView.messageModelArray removeObject:model];
+        [weakSelf.tableView.messageModelArray addObject:model];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             NSUInteger rowCount = [weakSelf.tableView numberOfRowsInSection:0];
             @try {
