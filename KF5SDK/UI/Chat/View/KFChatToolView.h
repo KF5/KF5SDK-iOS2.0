@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import  <KF5SDK/KFDispatcher.h>
+#import "KFHelper.h"
 
 @class KFTextView;
 @class KFChatToolView;
@@ -81,6 +81,11 @@
  工具条显示方式
  */
 @property (nonatomic, assign) KFChatStatus chatToolViewType;
+
+/**
+ 当未开启机器人时,设置是否发送一条消息后,再分配客服(用于过滤无效的空对话),默认NO
+ */
+@property (nonatomic, assign) BOOL assignAgentWhenSendedMessage;
 
 /**
  代理方法

@@ -10,7 +10,6 @@
 
 #import "KFDocumentViewController.h"
 
-#import  <KF5SDK/KFHttpTool.h>
 #import "KFHelper.h"
 #import "KFUserManager.h"
 

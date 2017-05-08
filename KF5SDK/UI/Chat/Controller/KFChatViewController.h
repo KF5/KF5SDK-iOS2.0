@@ -13,7 +13,7 @@
 /**
  初始化方法
 
- @param metadata IM自定义字段
+ @param metadata IM自定义字段,格式如:@[@{@"name":@"姓名",@"value":@"小明"},@{@"name":@"性别",@"value":@"男"}]
  */
 -(nonnull instancetype)initWithMetadata:(nullable NSArray <NSDictionary *>*)metadata;
 /**
@@ -30,5 +30,10 @@
  每次拉取的历史数量,默认20
  */
 @property (nonatomic, assign) NSInteger limit;
+
+/**
+ 当未开启机器人时,设置是否发送一条消息后,再分配客服(用于过滤无效的空对话),默认NO
+ */
+@property (nonatomic, assign) BOOL assignAgentWhenSendedMessage;
 
 @end

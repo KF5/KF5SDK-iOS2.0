@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import <KF5SDK/KFMessage.h>
+#import "KFHelper.h"
 #import "YYTextLayout.h"
 
 @interface KFMessageModel : NSObject

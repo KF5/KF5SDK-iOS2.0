@@ -33,8 +33,13 @@ return _##property;\
 #import "KFHelper.h"
 #import "AFNetworkReachabilityManager.h"
 #import <CommonCrypto/CommonDigest.h>
+#import "KFUserManager.h"
 
-static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKF5UserDefaultHasChatQueueMessage";//排队时用户发送的消息
+#if __has_include("TZImagePickerController.h")
+#import "TZImagePickerController.h"
+#endif
+
+static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKFUserDefaultHasChatQueueMessage";//排队时用户发送的消息
 
 @implementation KFHelper
 
@@ -221,13 +226,14 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
 }
 
 + (void)setLocalLanguage:(NSString *)localLanguage{
-    if (localLanguage.length == 0) return;
-    
-    if (![[self localLanguage] isEqualToString:localLanguage]) {
+    if (localLanguage) {
         [[NSUserDefaults standardUserDefaults]setObject:localLanguage forKey:KF5LocalLanguage];
         [[NSUserDefaults standardUserDefaults]synchronize];
-        bundle = nil;
+        
+    }else{
+        [[NSUserDefaults standardUserDefaults]removeObjectForKey:KF5LocalLanguage];
     }
+    bundle = nil;
 }
 + (NSString *)localLanguage{
     return [[NSUserDefaults standardUserDefaults]objectForKey:KF5LocalLanguage];
@@ -309,16 +315,25 @@ static NSBundle *bundle = nil;
 }
 
 + (BOOL)hasChatQueueMessage{
-    NSNumber *hasChatQueueMessage = [[NSUserDefaults standardUserDefaults]valueForKey:kKF5UserDefaultHasChatQueueMessage];
+    NSString *userToken = [KFUserManager shareUserManager].user.userToken;
+    if (userToken.length == 0) return NO;
+    NSDictionary *dict = [[NSUserDefaults standardUserDefaults]valueForKey:kKF5UserDefaultHasChatQueueMessage];
+    NSNumber *hasChatQueueMessage = [dict valueForKey:userToken];
     return hasChatQueueMessage.boolValue;
     
 }
 + (void)setHasChatQueueMessage:(BOOL)hasChatQueueMessage{
+    NSString *userToken = [KFUserManager shareUserManager].user.userToken;
+    if (userToken.length == 0) return;
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults]valueForKey:kKF5UserDefaultHasChatQueueMessage]];
+    
     if (hasChatQueueMessage) {
-        [[NSUserDefaults standardUserDefaults]setBool:hasChatQueueMessage forKey:kKF5UserDefaultHasChatQueueMessage];
+        [dict setObject:@(hasChatQueueMessage) forKey:userToken];
     }else{
-        [[NSUserDefaults standardUserDefaults]removeObjectForKey:kKF5UserDefaultHasChatQueueMessage];
+        [dict removeObjectForKey:userToken];
     }
+    [[NSUserDefaults standardUserDefaults]setObject:dict forKey:kKF5UserDefaultHasChatQueueMessage];
 }
 
 - (void)dealloc{
@@ -326,3 +341,18 @@ static NSBundle *bundle = nil;
 }
 
 @end
+
+
+#if __has_include("TZImagePickerController.h")
+
+@interface TZImagePickerController(KF5SDK)
+@end
+@implementation TZImagePickerController(KF5SDK)
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskAll;
+}
+- (BOOL)shouldAutorotate{
+    return NO;
+}
+@end
+#endif

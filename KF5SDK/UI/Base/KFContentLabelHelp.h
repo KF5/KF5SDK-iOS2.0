@@ -58,13 +58,21 @@ typedef enum : NSUInteger {
  *  聊天消息匹配电话,url,http,a标签
  *
  *  @param string    内容
+ *  @param font      字体
+ *  @param textColor 文本颜色
+ *  @param urlColor  链接颜色
+ */
++ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
+/**
+ *  匹配电话,url,http,a标签
+ *
+ *  @param string    内容
  *  @param optional  要解析的方式
  *  @param font      字体
  *  @param textColor 文本颜色
  *  @param urlColor  链接颜色
  */
-+ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
-
++ (NSMutableAttributedString *)attributedString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
 /**
  *  制作高亮富文本
  *

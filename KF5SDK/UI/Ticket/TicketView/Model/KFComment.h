@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import  <KF5SDK/KFDispatcher.h>
+#import "KFHelper.h"
 #import "KFAttachment.h"
 
 @interface KFComment : NSObject

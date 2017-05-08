@@ -89,6 +89,7 @@
     
     self.viewModel = [[KFChatViewModel alloc]init];
     self.viewModel.metadata = self.metadata;
+    self.viewModel.assignAgentWhenSendedMessage = self.assignAgentWhenSendedMessage;
     self.viewModel.delegate = self;
     [KFChatVoiceManager sharedChatVoiceManager].delegate = self;
     
@@ -116,7 +117,7 @@
 #pragma mark 连接服务器
 - (void)connect{
     self.title = KF5Localized(@"kf5_connecting");
-    [KFProgressHUD showLoadingTo:self.view title:@""];
+    [KFProgressHUD showLoadingTo:self.view title:nil];
     __weak typeof(self)weakSelf = self;
     [self.viewModel configChatWithCompletion:^() {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -137,6 +138,7 @@
     // 添加输入框视图
     KFChatToolView *chatToolView = [[KFChatToolView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(tableView.frame), self.view.frame.size.width, KFChatToolView.defaultHeight)];
     chatToolView.tag = kKF5ChatToolViewTag;
+    chatToolView.assignAgentWhenSendedMessage = self.assignAgentWhenSendedMessage;
     chatToolView.delegate = self;
     chatToolView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:chatToolView];
@@ -183,16 +185,26 @@
         [self showMessageWithText:error.domain];
     });
 }
-#pragma mark 排队中
-- (void)chatWithQueueing:(KFChatViewModel *)chat{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.title = KF5Localized(@"kf5_queue_waiting");
-    });
-}
 #pragma mark 状态变化
 - (void)chat:(KFChatViewModel *)chat statusChange:(KFChatStatus)status{
     dispatch_async(dispatch_get_main_queue(), ^{
         self.chatToolView.chatToolViewType = status;
+        switch (status) {
+            case KFChatStatusNone:
+                self.title = KF5Localized(@"kf5_chat");
+                break;
+            case KFChatStatusQueue:
+                self.title = KF5Localized(@"kf5_queue_waiting");
+                break;
+            case KFChatStatusAIAgent:
+            case KFChatStatusChatting:{
+                [self removeQueueMessage];
+                self.title = self.viewModel.currentAgent.displayName;
+            }
+                break;
+            default:
+                break;
+        }
     });
 }
 #pragma mark 排队失败
@@ -201,7 +213,7 @@
         
         [self removeQueueMessage];
         
-        self.title = KF5Localized(@"kf5_no_agent_online");
+        [self showMessageWithText:KF5Localized(@"kf5_no_agent_online")];
         
         if (self.isShowAlertWhenNoAgent) {
             __weak typeof(self)weakSelf = self;
@@ -219,18 +231,9 @@
         }
     });
 }
-#pragma mark 获取到客服
-- (void)chat:(KFChatViewModel *)chat agentChange:(KFAgent *)agent{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self removeQueueMessage];
-        self.title = agent.displayName;
-    });
-}
+
 #pragma mark 排队变化
 - (void)chat:(KFChatViewModel *)chat queueIndexChange:(NSInteger)queueIndex{
-    
-    if (self.queueMessageModel)
-        [self.tableView.messageModelArray removeObject:self.queueMessageModel];
     
     KFMessage *message = [[KFMessage alloc] init];
     if (queueIndex == -1) {
@@ -238,14 +241,16 @@
     }else{
         message.content = [NSString stringWithFormat:KF5Localized(@"kf5_update_queue_%ld"),queueIndex + 1];
     }
-    
     message.messageType = KFMessageTypeSystem;
     message.created = [NSDate date].timeIntervalSince1970;
-    self.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
-        
-    [self.tableView.messageModelArray addObject:self.queueMessageModel];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.tableView reloadData];
+        [self.tableView.messageModelArray removeObject:self.queueMessageModel];
+        self.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
+        [self.tableView.messageModelArray addObject:self.queueMessageModel];
+        @try {
+            [self.tableView reloadData];
+        } @catch (NSException *exception) {}
         [self.tableView scrollViewBottomHasMainQueue:NO];
     });
 }
@@ -270,8 +275,7 @@
 #pragma mark 对话被客服关闭
 - (void)chatWithEndChat:(KFChatViewModel *)chat{
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.title = KF5Localized(@"kf5_chat_ended");
-        [self showMessageWithText:KF5Localized(@"kf5_chat_agent_leave")];
+        [self showMessageWithText:KF5Localized(@"kf5_chat_ended")];
     });
 }
 #pragma mark 刷新数据
@@ -303,7 +307,6 @@
             [self.tableView reloadData];
             [self.tableView scrollViewBottomHasMainQueue:NO];
         }
-        [KFHelper setHasChatQueueMessage:NO];
     });
 }
     
@@ -332,6 +335,7 @@
 }
 #pragma mark 添加图片按钮点击事件
 - (void)chatToolViewWithAddPictureAction:(KFChatToolView *)chatToolView{
+    if (![self canSendMessage]) return;
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:nil];
     imagePickerVc.allowPickingOriginalPhoto = NO;
     imagePickerVc.barItemTextFont = [UIFont boldSystemFontOfSize:17];
@@ -393,9 +397,9 @@
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(800 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
             if (self.tableView.messageModelArray.count > 0 && newDatas.count > 0) {
                 [self.tableView.messageModelArray insertObjects:newDatas atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newDatas.count)]];
-                    CGFloat offsetOfButtom = self.tableView.contentSize.height-self.tableView.contentOffset.y;
-                    [self.tableView reloadData];
-                    self.tableView.contentOffset = CGPointMake(0.0f, self.tableView.contentSize.height-offsetOfButtom);
+                CGFloat offsetOfButtom = self.tableView.contentSize.height-self.tableView.contentOffset.y;
+                [self.tableView reloadData];
+                self.tableView.contentOffset = CGPointMake(0.0f, self.tableView.contentSize.height-offsetOfButtom);
             }
             
             if (newDatas.count < self.limit) {
@@ -533,10 +537,9 @@
                     dispatch_async(dispatch_get_main_queue(), ^{
                         if (!error) {
                             [weakSelf removeQueueMessage];
-                            weakSelf.title = KF5Localized(@"kf5_cancel_queued");
-                            [KFProgressHUD showTitleToView:weakSelf.view title:KF5Localized(@"kf5_cancel_queue_successfully") hideAfter:0.7f];
+                            [weakSelf showMessageWithText:KF5Localized(@"kf5_cancel_queued")];
                         }else{
-                            [KFProgressHUD showTitleToView:weakSelf.view title:KF5Localized(@"kf5_cancel_queue_failed") hideAfter:0.7f];
+                            [weakSelf showMessageWithText:KF5Localized(@"kf5_cancel_queue_failed")];
                         }
                     });
                 }];

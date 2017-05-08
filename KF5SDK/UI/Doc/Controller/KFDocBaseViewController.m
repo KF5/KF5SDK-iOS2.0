@@ -14,7 +14,6 @@
 #import "UITableView+KFRefresh.h"
 #import "KFHelper.h"
 #import "KFProgressHUD.h"
-#import  <KF5SDK/KFHttpTool.h>
 #import "KFUserManager.h"
 
 static BOOL isHeaderRefresh = YES;

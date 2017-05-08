@@ -9,7 +9,6 @@
 #import "KFRatingViewController.h"
 #import "KFHelper.h"
 #import "KFTextView.h"
-#import <KF5SDK/KFHttpTool.h>
 #import "KFUserManager.h"
 #import "KFProgressHUD.h"
 

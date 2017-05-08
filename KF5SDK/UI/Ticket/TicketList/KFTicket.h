@@ -7,7 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
-#import  <KF5SDK/KFDispatcher.h>
+
+/**
+ 工单状态
+ */
+typedef NS_ENUM(NSInteger,KFTicketStatus) {
+    KFTicketStatusNew = 0,      // 尚未受理
+    KFTicketStatusOpen,         // 受理中
+    KFTicketStatusPending,      // 等待回复
+    KFTicketStatusSolved,       // 已解决
+    KFTicketStatusClosed        // 已关闭
+};
 
 @interface KFTicket : NSObject
 

@@ -238,34 +238,3 @@ static const void *AlertObject = &AlertObject;
 }
 
 @end
-
-//fixed UIAlertController Rotation crash bug
-@implementation UIAlertController (Rotation)
-#pragma mark self rotate
--(BOOL)shouldAutorotate {
-    
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    
-    if ( orientation == UIDeviceOrientationPortrait
-        | orientation == UIDeviceOrientationPortraitUpsideDown) {
-        
-        return YES;
-    }
-    
-    return NO;
-}
-
--(NSUInteger)supportedInterfaceOrientations {
-    
-    return (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown);
-}
-
--(UIInterfaceOrientation)preferredInterfaceOrientationForPresentation{
-    UIDevice* device = [UIDevice currentDevice];
-    if (device.orientation == UIInterfaceOrientationPortraitUpsideDown) {
-        return UIInterfaceOrientationPortraitUpsideDown;
-    }
-    return UIInterfaceOrientationPortrait;
-}
-
-@end

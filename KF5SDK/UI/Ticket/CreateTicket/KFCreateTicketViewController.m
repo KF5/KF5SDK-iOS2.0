@@ -10,9 +10,7 @@
 #import "KFHelper.h"
 #import "JKAlert.h"
 #import "KFProgressHUD.h"
-#import  <KF5SDK/KFHttpTool.h>
 #import "KFUserManager.h"
-#import  <KF5SDK/KFConfig.h>
 #import "KFTicketManager.h"
 #import "SDImageCache.h"
 #import "TZImagePickerController.h"

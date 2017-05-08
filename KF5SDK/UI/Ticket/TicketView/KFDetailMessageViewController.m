@@ -12,7 +12,6 @@
 
 #import "KFHelper.h"
 #import "JKAlert.h"
-#import  <KF5SDK/KFHttpTool.h>
 #import "KFProgressHUD.h"
 #import "KFUserManager.h"
 

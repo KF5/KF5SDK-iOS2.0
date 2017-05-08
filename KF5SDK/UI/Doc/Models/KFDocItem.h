@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import  <KF5SDK/KFDispatcher.h>
-
 @interface KFDocItem : NSObject
 
 ///Id

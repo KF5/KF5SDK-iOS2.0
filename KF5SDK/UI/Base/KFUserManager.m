@@ -8,8 +8,6 @@
 
 #import "KFUserManager.h"
 #import "KFHelper.h"
-#import <KF5SDK/KFHttpTool.h>
-#import <KF5SDK/KFDispatcher.h>
 
 static NSString * const KF5UserInfo = @"KF5USERINFO";
 

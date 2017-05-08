@@ -56,16 +56,6 @@ typedef NS_ENUM(NSInteger,KFChatStatus) {
 };
 
 /**
- 工单状态
- */
-typedef NS_ENUM(NSInteger,KFTicketStatus) {
-    KFTicketStatusNew = 0,      // 尚未受理
-    KFTicketStatusOpen,         // 受理中
-    KFTicketStatusPending,      // 等待回复
-    KFTicketStatusSolved,       // 已解决
-    KFTicketStatusClosed        // 已关闭
-};
-/**
  *  错误类型
  */
 typedef NS_ENUM(NSInteger,KFErrorCode) {

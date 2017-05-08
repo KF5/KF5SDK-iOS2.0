@@ -13,6 +13,14 @@
 #import "UIImage+KF5.h"
 #import "NSDate+KF5.h"
 
+#if __has_include("KF5SDK.h")
+#import "KF5SDK.h"
+#else
+#import <KF5SDK/KF5SDK.h>
+
+#endif
+
+
 #ifndef KF_CLAMP // return the clamped value
 #define KF_CLAMP(_x_, _low_, _high_)  (((_x_) > (_high_)) ? (_high_) : (((_x_) < (_low_)) ? (_low_) : (_x_)))
 #endif
@@ -41,7 +49,7 @@
 #define KF5ViewVertical UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)
 
 static NSString * _Nonnull const KF5SDKBundle            = @"KF5SDK.bundle";
-static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDKUI.framework/KF5SDK.bundle";
+static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.framework/KF5SDK.bundle";
 static NSString * _Nonnull const KF5LocalLanguage        = @"KF5LocalLanguage";
 
 static NSString * _Nonnull const KF5LinkTitle           = @"KF5LinkTitle";//title

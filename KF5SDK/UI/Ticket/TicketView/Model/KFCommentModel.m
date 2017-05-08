@@ -30,7 +30,7 @@
 
 - (void)setupData{
     // 内容
-    _text = [KFContentLabelHelp baseMessageWithString:_comment.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor urlColor:KF5Helper.KF5OtherURLColor];
+    _text = [KFContentLabelHelp attributedString:_comment.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor urlColor:KF5Helper.KF5OtherURLColor];
     
     // 附件
     _attachments = _comment.attachments;

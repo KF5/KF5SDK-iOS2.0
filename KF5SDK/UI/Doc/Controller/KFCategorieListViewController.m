@@ -9,7 +9,6 @@
 #import "KFCategorieListViewController.h"
 
 #import "KFForumListViewController.h"
-#import  <KF5SDK/KFHttpTool.h>
 #import "KFHelper.h"
 #import "KFUserManager.h"
 

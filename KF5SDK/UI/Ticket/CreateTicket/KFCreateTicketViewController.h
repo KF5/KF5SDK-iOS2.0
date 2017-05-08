@@ -11,7 +11,7 @@
 
 @interface KFCreateTicketViewController : KFBaseViewController
 
-///提交工单时添加的自定义工单字段数组
+///提交工单时添加的自定义工单字段数组 格式如:@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}]
 @property (nullable, nonatomic, strong) NSArray *custom_fields;
 ///创建工单视图
 @property (nullable, nonatomic, weak) KFCreateTicketView *createView;

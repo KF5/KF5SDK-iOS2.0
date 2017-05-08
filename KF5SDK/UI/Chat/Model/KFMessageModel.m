@@ -69,7 +69,7 @@ BOOL isShowTime(double time){
             urlColor = KF5Helper.KF5OtherURLColor;
         }
         if (_message.messageType == KFMessageTypeText) {
-            _text = [KFContentLabelHelp baseMessageWithString:_message.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
+            _text = [KFContentLabelHelp baseMessageWithString:_message.content font:font textColor:textColor urlColor:urlColor];
         }if (_message.messageType == KFMessageTypeCustom){
             _text = [KFContentLabelHelp customMessageWithJSONString:_message.content font:font textColor:textColor urlColor:urlColor];
         }else if(_message.messageType == KFMessageTypeOther){

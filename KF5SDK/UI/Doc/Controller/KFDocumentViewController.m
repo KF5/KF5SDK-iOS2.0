@@ -8,7 +8,6 @@
 
 #import "KFDocumentViewController.h"
 
-#import  <KF5SDK/KFHttpTool.h>
 #import "UITableView+KFRefresh.h"
 #import "KFHelper.h"
 #import "KFDocument.h"

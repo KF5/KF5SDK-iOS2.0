@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <KF5SDK/KFAgent.h>
-#import  <KF5SDK/KFDispatcher.h>
+#import "KFHelper.h"
 
 @class KFChatViewModel;
 @class KFMessageModel;
@@ -16,14 +15,10 @@
 @protocol KFChatViewModelDelegate <NSObject>
 /**连接服务器失败*/
 - (void)chat:(nonnull KFChatViewModel *)chat connectError:(nullable NSError *)error;
-/**排队中*/
-- (void)chatWithQueueing:(nonnull KFChatViewModel *)chat;
 /**排队人数变化*/
 - (void)chat:(nonnull KFChatViewModel *)chat queueIndexChange:(NSInteger)queueIndex;
 /**排队失败*/
 - (void)chat:(nonnull KFChatViewModel *)chat queueError:(nullable NSError *)error;
-/** 获取到客服*/
-- (void)chat:(nonnull KFChatViewModel *)chat agentChange:(nullable KFAgent *)agent;
 /** 状态改变*/
 - (void)chat:(nonnull KFChatViewModel *)chat statusChange:(KFChatStatus)status;
 /** 客服发起满意度评价请求*/
@@ -45,7 +40,15 @@
 /**
  聊天状态
  */
-@property (nonatomic, assign) KFChatStatus chatStatus;
+@property (nonatomic, assign, readonly) KFChatStatus chatStatus;
+/**
+ 当前的客服
+ */
+@property (nullable, nonatomic, weak, readonly) KFAgent *currentAgent;
+/**
+ 当未开启机器人时,设置是否发送一条消息后,再分配客服(用于过滤无效的空对话),默认NO
+ */
+@property (nonatomic, assign) BOOL assignAgentWhenSendedMessage;
 /**
  是否能发送消息
  */

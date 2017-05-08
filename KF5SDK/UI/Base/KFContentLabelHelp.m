@@ -31,7 +31,7 @@
         
         NSString *content = [dict objectForKey:@"content"];
         
-        NSMutableAttributedString *text = [self baseMessageWithString:content labelHelpHandle:KFLabelHelpHandleBracket|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
+        NSMutableAttributedString *text = [self baseMessageWithString:content font:font textColor:textColor urlColor:urlColor];
         
         NSArray *documents = [dict objectForKey:@"documents"];
         for (NSDictionary *docDict in documents) {
@@ -52,7 +52,7 @@
     }else if([[dict kf5_stringForKeyPath:@"type"] isEqualToString:@"question"]){// json字符串{@"type":@"question", @"content":"";@"questions":[{@"id":@(),@"title":@""}]}
         NSString *content = [dict objectForKey:@"content"];
         
-        NSMutableAttributedString *text = [self baseMessageWithString:content labelHelpHandle:KFLabelHelpHandleBracket|KFLabelHelpHandleATag font:font textColor:textColor urlColor:urlColor];
+        NSMutableAttributedString *text = [self baseMessageWithString:content font:font textColor:textColor urlColor:urlColor];
         
         NSArray *questions = [dict objectForKey:@"questions"];
         for (NSDictionary *questionDict in questions) {
@@ -69,7 +69,7 @@
         }
         return text;
     }else{
-        return [self attStringWithString:JSONString font:font color:textColor];
+        return [self baseMessageWithString:JSONString font:font textColor:textColor urlColor:urlColor];;
     }
 }
 
@@ -98,7 +98,11 @@
     return text;
 }
 
-+ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
++ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
+    return [self attributedString:string labelHelpHandle:KFLabelHelpHandleATag|KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleBracket font:font textColor:textColor urlColor:urlColor];
+}
+
++ (NSMutableAttributedString *)attributedString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor{
     if (string.length == 0) return [self attStringWithString:@" " font:font color:textColor];
     
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:textColor];

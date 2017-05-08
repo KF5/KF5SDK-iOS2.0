@@ -151,77 +151,93 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
 }
 
 - (void)updateFrame{
-    self.textView.kf5_w = CGRectGetMinX(self.faceBtn.frame) - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
-    self.speakBtn.kf5_w = self.textView.kf5_w;
-    self.textView.kf5_h = self.textView.textHeight;
-    CGFloat maxY = CGRectGetMaxY(self.frame);
-    self.kf5_h = self.textView ? self.textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2 : KFChatToolView.defaultHeight;
-    self.kf5_y = maxY - self.kf5_h;
-}
-
-- (void)setChatToolViewType:(KFChatStatus)chatToolViewType{
-    _chatToolViewType = chatToolViewType;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        switch (chatToolViewType) {
-            case KFChatStatusNone:
-            case KFChatStatusChatting:{// 是人工客服,则隐藏"转人工客服"按钮
-                self.textView.kf5_x = CGRectGetMaxX(self.voiceBtn.frame) + KF5Helper.KF5DefaultSpacing;
-                self.textView.kf5_w = CGRectGetMinX(self.faceBtn.frame) - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
-                self.speakBtn.frame = self.textView.frame;
-                
-                self.voiceBtn.hidden = NO;
-                self.faceBtn.hidden = NO;
-                self.pictureBtn.hidden = NO;
-                self.transferBtn.hidden = YES;
-                self.textView.placeholderText = nil;
-                [self.textView setEditable:YES];
-            }
-                break;
-            case KFChatStatusAIAgent:{// 是机器人客服,隐藏语音按钮,图片按钮,表情按钮
-                self.textView.kf5_x = CGRectGetMaxX(self.transferBtn.frame) + KF5Helper.KF5DefaultSpacing;
-                self.textView.kf5_w = self.frame.size.width - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
-                self.speakBtn.frame = self.textView.frame;
-                
-                self.voiceBtn.hidden = YES;
-                self.faceBtn.hidden = YES;
-                self.pictureBtn.hidden = YES;
-                self.transferBtn.hidden = NO;
-                self.textView.placeholderText = nil;
-                [self.textView setEditable:YES];
-                
-            }
-                break;
-            case KFChatStatusQueue:{// 当前为排队状态
-                self.textView.kf5_x = KF5Helper.KF5DefaultSpacing;
-                self.textView.kf5_w = self.frame.size.width - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
-                self.speakBtn.frame = self.textView.frame;
-                
-                self.voiceBtn.hidden = YES;
-                self.faceBtn.hidden = YES;
-                self.pictureBtn.hidden = YES;
-                self.transferBtn.hidden = YES;
-                
-                // 如果有这条消息,则不能再编辑内容
-                if ([KFHelper hasChatQueueMessage]) {
-                    [self.textView resignFirstResponder];
-                    self.textView.placeholderText = KF5Localized(@"kf5_describe_the_problem");
-                    [self.textView setEditable:NO];
+        switch (self.chatToolViewType) {
+            case KFChatStatusNone:{
+                if (self.assignAgentWhenSendedMessage) {
+                    [self layoutForQueueView];
                 }else{
-                    self.textView.placeholderText = KF5Localized(@"kf5_input_some_text");
-                    [self.textView setEditable:YES];
+                    [self layoutForChattingView];
                 }
             }
+                break;
+                
+            case KFChatStatusChatting:// 是人工客服,则隐藏"转人工客服"按钮
+                [self layoutForChattingView];
+                break;
+                
+            case KFChatStatusAIAgent:// 是机器人客服,隐藏语音按钮,图片按钮,表情按钮
+                [self layoutForAIView];
+                break;
+                
+            
+            case KFChatStatusQueue:// 当前为排队状态
+                [self layoutForQueueView];
                 break;
                 
             default:
                 break;
         }
-        // 状态为机器人状态或正在对话状态时,需要将hasChatQueueMessage设置为NO,用于下次排队时可输入一段话
-        if (chatToolViewType == KFChatStatusAIAgent || chatToolViewType == KFChatStatusChatting) {
-            [KFHelper setHasChatQueueMessage:NO];
-        }
     });
+
     
+    self.speakBtn.kf5_w = self.textView.kf5_w;
+    self.textView.kf5_h = self.textView.textHeight;
+    
+    CGFloat maxY = CGRectGetMaxY(self.frame);
+    self.kf5_h = self.textView ? self.textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2 : KFChatToolView.defaultHeight;
+    self.kf5_y = maxY - self.kf5_h;
+
+}
+
+- (void)layoutForChattingView{
+    self.textView.kf5_x = CGRectGetMaxX(self.voiceBtn.frame) + KF5Helper.KF5DefaultSpacing;
+    self.textView.kf5_w = CGRectGetMinX(self.faceBtn.frame) - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
+    
+    self.voiceBtn.hidden = NO;
+    self.faceBtn.hidden = NO;
+    self.pictureBtn.hidden = NO;
+    self.transferBtn.hidden = YES;
+    self.textView.placeholderText = nil;
+    [self.textView setEditable:YES];
+}
+
+- (void)layoutForAIView{
+    self.textView.kf5_x = CGRectGetMaxX(self.transferBtn.frame) + KF5Helper.KF5DefaultSpacing;
+    self.textView.kf5_w = self.frame.size.width - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
+    
+    self.voiceBtn.hidden = YES;
+    self.faceBtn.hidden = YES;
+    self.pictureBtn.hidden = YES;
+    self.transferBtn.hidden = NO;
+    self.textView.placeholderText = nil;
+    [self.textView setEditable:YES];
+}
+
+- (void)layoutForQueueView{
+    self.textView.kf5_x = KF5Helper.KF5DefaultSpacing;
+    self.textView.kf5_w = self.frame.size.width - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
+    
+    self.voiceBtn.hidden = YES;
+    self.faceBtn.hidden = YES;
+    self.pictureBtn.hidden = YES;
+    self.transferBtn.hidden = YES;
+    
+    // 如果有这条消息,则不能再编辑内容
+    if ([KFHelper hasChatQueueMessage]) {
+        [self.textView resignFirstResponder];
+        self.textView.placeholderText = KF5Localized(@"kf5_describe_the_problem");
+        [self.textView setEditable:NO];
+    }else{
+        self.textView.placeholderText = KF5Localized(@"kf5_input_some_text");
+        [self.textView setEditable:YES];
+    }
+}
+
+- (void)setChatToolViewType:(KFChatStatus)chatToolViewType{
+    _chatToolViewType = chatToolViewType;
+    [self updateFrame];
 }
 
 #pragma mark - 录音操作

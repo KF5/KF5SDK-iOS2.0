@@ -17,7 +17,6 @@
 #import "KFTicketToolView.h"
 #import "KFHelper.h"
 #import "KFUserManager.h"
-#import  <KF5SDK/KFHttpTool.h>
 #import "KFProgressHUD.h"
 #import "JKAlert.h"
 #import "KFTicketManager.h"

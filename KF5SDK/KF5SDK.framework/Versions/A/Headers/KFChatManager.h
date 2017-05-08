@@ -89,9 +89,9 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  */
 @property (nullable, nonatomic, strong,readonly) KFAgent *currentAgent;
 /**
- 机器人客服
+ 是否开启机器人
  */
-@property (nullable, nonatomic, strong,readonly) KFAgent *AIAgent;
+@property (nonatomic, assign, readonly, getter=isOpenRobot) BOOL openRobot;
 /**
  socket是否连接成功
  */

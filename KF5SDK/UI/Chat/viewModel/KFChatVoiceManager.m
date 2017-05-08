@@ -9,7 +9,6 @@
 #import "KFChatVoiceManager.h"
 #import "AFURLSessionManager.h"
 #import "KFHelper.h"
-#import <KF5SDK/KFDispatcher.h>
 #import "MLAudioMeterObserver.h"
 #import "MLAudioPlayer.h"
 #import "AmrPlayerReader.h"
