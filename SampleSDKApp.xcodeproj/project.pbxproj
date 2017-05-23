@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84A437D71ED432DE0080B78D /* TZGifPhotoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A437D41ED432DE0080B78D /* TZGifPhotoPreviewController.m */; };
+		84A437D81ED432DE0080B78D /* TZImageCropManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A437D61ED432DE0080B78D /* TZImageCropManager.m */; };
+		84A437DB1ED434370080B78D /* TZProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A437DA1ED434370080B78D /* TZProgressView.m */; };
 		84E2BDC61E2347C0006BD73E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E2BDC51E2347C0006BD73E /* main.m */; };
 		84E2BDC91E2347C0006BD73E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E2BDC81E2347C0006BD73E /* AppDelegate.m */; };
 		84E2BDCF1E2347C0006BD73E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84E2BDCD1E2347C0006BD73E /* Main.storyboard */; };
@@ -189,6 +192,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		84A437D31ED432DE0080B78D /* TZGifPhotoPreviewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZGifPhotoPreviewController.h; sourceTree = "<group>"; };
+		84A437D41ED432DE0080B78D /* TZGifPhotoPreviewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZGifPhotoPreviewController.m; sourceTree = "<group>"; };
+		84A437D51ED432DE0080B78D /* TZImageCropManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZImageCropManager.h; sourceTree = "<group>"; };
+		84A437D61ED432DE0080B78D /* TZImageCropManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZImageCropManager.m; sourceTree = "<group>"; };
+		84A437D91ED434370080B78D /* TZProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZProgressView.h; sourceTree = "<group>"; };
+		84A437DA1ED434370080B78D /* TZProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZProgressView.m; sourceTree = "<group>"; };
 		84E2BDC11E2347C0006BD73E /* SampleSDKApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleSDKApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84E2BDC51E2347C0006BD73E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		84E2BDC71E2347C0006BD73E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1126,6 +1135,12 @@
 		84E2C0E91E2348BB006BD73E /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
+				84A437D91ED434370080B78D /* TZProgressView.h */,
+				84A437DA1ED434370080B78D /* TZProgressView.m */,
+				84A437D31ED432DE0080B78D /* TZGifPhotoPreviewController.h */,
+				84A437D41ED432DE0080B78D /* TZGifPhotoPreviewController.m */,
+				84A437D51ED432DE0080B78D /* TZImageCropManager.h */,
+				84A437D61ED432DE0080B78D /* TZImageCropManager.m */,
 				84E2C0EA1E2348BB006BD73E /* NSBundle+TZImagePicker.h */,
 				84E2C0EB1E2348BB006BD73E /* NSBundle+TZImagePicker.m */,
 				84E2C0EC1E2348BB006BD73E /* TZAssetCell.h */,
@@ -1467,6 +1482,7 @@
 				84E2C1A81E2348BB006BD73E /* TZImageManager.m in Sources */,
 				84E2C1961E2348BB006BD73E /* NSData+ImageContentType.m in Sources */,
 				84E2BDC91E2347C0006BD73E /* AppDelegate.m in Sources */,
+				84A437DB1ED434370080B78D /* TZProgressView.m in Sources */,
 				84E2C14E1E2348BB006BD73E /* KFChatVoiceManager.m in Sources */,
 				84E2C1651E2348BB006BD73E /* KFDetailMessageViewController.m in Sources */,
 				84E2C18B1E2348BB006BD73E /* NSBundle+MJRefresh.m in Sources */,
@@ -1492,6 +1508,7 @@
 				84E2C1D21E2348F3006BD73E /* KFSetTableViewCell.m in Sources */,
 				84E2C1C11E2348BB006BD73E /* UIView+YYText.m in Sources */,
 				84E2C1911E2348BB006BD73E /* AmrRecordWriter.m in Sources */,
+				84A437D71ED432DE0080B78D /* TZGifPhotoPreviewController.m in Sources */,
 				84E2C1C21E2348BB006BD73E /* YYTextAsyncLayer.m in Sources */,
 				84E2C1791E2348BB006BD73E /* AFURLSessionManager.m in Sources */,
 				84E2C18F1E2348BB006BD73E /* AmrPlayerReader.m in Sources */,
@@ -1507,6 +1524,7 @@
 				84E2C18C1E2348BB006BD73E /* UIScrollView+MJExtension.m in Sources */,
 				84E2C15D1E2348BB006BD73E /* KFCreateTicketView.m in Sources */,
 				84E2C1501E2348BB006BD73E /* KFDocBaseViewController.m in Sources */,
+				84A437D81ED432DE0080B78D /* TZImageCropManager.m in Sources */,
 				84E2C1761E2348BB006BD73E /* AFSecurityPolicy.m in Sources */,
 				84E2C1591E2348BB006BD73E /* KFLoadView.m in Sources */,
 				84E2C1361E2348BB006BD73E /* KFContentLabelHelp.m in Sources */,

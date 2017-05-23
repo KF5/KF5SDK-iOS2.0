@@ -15,6 +15,7 @@
 
 - (void)kf5_endRefreshingWithNoMoreData;
 
+- (void)kf5_beginHeaderRefreshing;
 - (void)kf5_endHeaderRefreshing;
 - (void)kf5_endFooterRefreshing;
 

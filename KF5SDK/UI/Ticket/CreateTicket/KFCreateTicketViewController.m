@@ -19,6 +19,8 @@
 
 @end
 
+static NSArray *CustomFields = nil;
+
 @implementation KFCreateTicketViewController
 
 - (void)loadView{
@@ -27,6 +29,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChangeWithNote:)  name:UITextViewTextDidChangeNotification object:createView.textView];
     self.createView = createView;
     self.view = createView;
+}
+
++ (void)setCustomFields:(NSArray *)customFields{
+    CustomFields = customFields;
 }
 
 - (void)viewDidLoad {
@@ -115,8 +121,8 @@
                                           KF5Content:content,
                                           KF5Uploads:imageTokens?:@[]
                                         }];
-        if (weakSelf.custom_fields) {
-            [params setObject:[KFHelper JSONStringWithObject:weakSelf.custom_fields] forKey:KF5CustomFields];
+        if (CustomFields) {
+            [params setObject:[KFHelper JSONStringWithObject:CustomFields] forKey:KF5CustomFields];
         }
         
         [KFHttpTool createTicketWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {

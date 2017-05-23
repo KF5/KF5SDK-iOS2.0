@@ -49,7 +49,7 @@ if ([KFUserManager shareUserManager].user.userToken.length == 0) {
 [self.navigationController pushViewController:[[KFTicketListViewController alloc]init] animated:YES];
 ```
    
-**工单自定义字段**需要在创建工单时设置,对应字段为`KFCreateTicketViewController`中的`custom_fields`属性,格式为@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}]。   
+**工单自定义字段**需要在创建工单前设置,对应方法为`KFCreateTicketViewController`中的`setCustomFields`方法,格式为@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}]。   
 >注：工单部分有工单列表、工单内容、创建工单、工单详细信息，分别对应控制器为`KFTicketListViewController`、`KFTicketViewController`、`KFCreateTicketViewController`、`KFDetailMessageViewController`。更详细的信息请见相关类的头文件。
 #### 3、添加支持即时通讯功能
 引入`#import "KF5SDKChat.h"`    
@@ -80,9 +80,11 @@ KFLogger为日志打印类，当有错误信息时，会输入日志。开启方
 1、KF5SDKUI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。     
 2、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 ## 七、最新版本            
+#### V2.4.0 最后更新于 2017-05-23	  	
+新增支持IM服务时间,优化代码,修复部分bug        
+### 历史版本              
 #### V2.3.0 最后更新于 2017-05-09	  	
 新增机器人关闭状态先发送消息后排队的设置,修复部分bug        
-### 历史版本              
 #### V2.2.1 最后更新于 2017-04-17	  	
 优化体验,修复部分bug        
 #### V2.2.0 最后更新于 2017-04-01		

@@ -26,12 +26,12 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
 }
 
 - (void)initializeWithEmail:(NSString *)email completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
-    NSAssert([KFHelper validateEmail:email], @"邮箱不能为空且格式必须正确");
+    NSAssert(email.length > 0, @"邮箱不能为空");
     [self initializeWithParams:@{KF5Email:email?:@""} completion:completion];
 }
 
 - (void)initializeWithPhone:(NSString *)phone completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
-    NSAssert([KFHelper validatePhone:phone], @"手机号不能为空且格式必须正确");
+    NSAssert(phone.length > 0, @"手机号不能为空");
     [self initializeWithParams:@{KF5Phone:phone?:@""} completion:completion];
 }
 

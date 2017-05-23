@@ -165,8 +165,6 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 
 #pragma mark - helper
 + (BOOL)isNetworkEnable;
-+ (BOOL)validateEmail:(nonnull NSString *)email;
-+ (BOOL)validatePhone:(nonnull NSString *)phone;
 
 + (nullable NSString *)disable_emoji:(nonnull NSString *)text;
 + (nonnull UILabel *)labelWithFont:(nonnull UIFont *)font textColor:(nonnull UIColor *)textColor;

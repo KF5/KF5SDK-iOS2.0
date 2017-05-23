@@ -12,5 +12,9 @@
 
 /**每页的数量*/
 @property (nonatomic, assign) NSUInteger prePage;
+/**
+ 是否隐藏右侧按钮,默认NO
+ */
+@property (nonatomic, assign) BOOL isHideRightButton;
 
 @end

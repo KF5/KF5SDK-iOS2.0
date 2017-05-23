@@ -266,24 +266,6 @@ static NSBundle *bundle = nil;
     return isNetwork;
 }
 
-+ (BOOL)validateEmail:(NSString *)email{
-    if (![email isKindOfClass:[NSString class]]) return NO;
-    if (email.length ==0) return NO;
-    NSString *emailRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Z0-9a-z]{2,10}";
-    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
-    BOOL b = [emailTest evaluateWithObject:email];
-    return b;
-}
-
-+ (BOOL)validatePhone:(NSString *)phone{
-    if (![phone isKindOfClass:[NSString class]]) return NO;
-    if (phone.length ==0) return NO;
-    NSString *emailRegex = @"^1\\d{10}$";
-    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
-    BOOL b = [emailTest evaluateWithObject:phone];
-    return b;
-}
-
 /**
  *  禁止系统表情的输入
  */

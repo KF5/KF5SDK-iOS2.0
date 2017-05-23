@@ -63,6 +63,9 @@ typedef NS_ENUM(NSInteger,KFErrorCode) {
     KFErrorCodeDeprecated           = 1000,  // 过期方法错误提醒
     KFErrorCodeAgentOffline         = 1001,  // 没有客服在线
     KFErrorCodeAgentBusy            = 1002,  // 客服忙碌
+    KFErrorCodeNotInServiceTime     = 1003,  // 不在服务时间
+    KFErrorCodeQueueError           = 1004,  // 排队失败
+    KFErrorCodeQueueTooLong         = 1005,  // 排队人数过多,超出限制
     KFErrorCodeSocketError          = 5000,  // 服务器连接失败
     KFErrorCodeSocketTimeOut        = 303,   // 服务器请求超时
     KFErrorCodeParamError           = 40000, // 参数错误

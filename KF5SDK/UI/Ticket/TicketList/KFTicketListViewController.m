@@ -9,7 +9,7 @@
 #import "KFTicketListViewController.h"
 
 #import "KFTicketViewController.h"
-
+#import "KFCreateTicketViewController.h"
 #import "KFTicketListViewCell.h"
 
 #import "UITableView+KFRefresh.h"
@@ -48,12 +48,18 @@
     }];
     
     [KFProgressHUD showDefaultLoadingTo:self.view];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self refreshWithisHeader:YES];
-    });
+    [self refreshWithisHeader:YES];
+
+    if (!self.isHideRightButton && !self.navigationItem.rightBarButtonItem) {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:KF5Localized(@"kf5_contact_us") style:UIBarButtonItemStyleDone target:self action:@selector(pushCreateTicket)];
+    }
     
-    
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateFrame) name:KKF5NoteNeedLoadTicketListData object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshData) name:KKF5NoteNeedLoadTicketListData object:nil];
+}
+
+- (void)pushCreateTicket{
+    KFCreateTicketViewController *createTicketView = [[KFCreateTicketViewController alloc] init];
+    [self.navigationController pushViewController:createTicketView animated:YES];
 }
 
 - (void)updateFrame{
@@ -69,6 +75,10 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if(nextPage == 0)[self.tableView kf5_endRefreshingWithNoMoreData];
     });
+}
+
+- (void)refreshData{
+    [self.tableView kf5_beginHeaderRefreshing];
 }
 
 - (void)refreshWithisHeader:(BOOL)isHeader{

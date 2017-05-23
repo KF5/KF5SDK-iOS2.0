@@ -23,6 +23,10 @@
     [self.mj_footer endRefreshingWithNoMoreData];
 }
 
+- (void)kf5_beginHeaderRefreshing{
+    [self.mj_header beginRefreshing];
+}
+
 - (void)kf5_endHeaderRefreshing{
     [self.mj_header endRefreshing];
 }

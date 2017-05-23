@@ -23,6 +23,10 @@
  */
 @property (nonatomic, assign,getter=isShowAlertWhenNoAgent) BOOL showAlertWhenNoAgent;
 /**
+ 是否隐藏右侧按钮,默认NO
+ */
+@property (nonatomic, assign) BOOL isHideRightButton;
+/**
  *  当没有客服在线或取消排队留言时,弹出alertView,点击"确定"按钮的事件处理,默认跳转到反馈工单界面
  */
 @property (nullable, nonatomic, copy) void (^noAgentAlertActionBlock)();

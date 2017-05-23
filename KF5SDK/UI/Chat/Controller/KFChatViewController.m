@@ -28,8 +28,8 @@
 #define KFHasDoc 0
 #endif
 
-#if __has_include("KFCreateTicketViewController.h")
-#import "KFCreateTicketViewController.h"
+#if __has_include("KF5SDKTicket.h")
+#import "KF5SDKTicket.h"
 #define KFHasTicket 1
 #else
 #define KFHasTicket 0
@@ -161,7 +161,19 @@
     self.webView = webView;
     
     [self addObserver:self forKeyPath:@"chatToolView.frame" options:NSKeyValueObservingOptionNew context:nil];
+    
+#if KFHasTicket
+    if (!self.isHideRightButton && !self.navigationItem.rightBarButtonItem) {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:KF5Localized(@"kf5_ticket") style:UIBarButtonItemStyleDone target:self action:@selector(pushTicket)];
+    }
+#endif
 }
+
+#if KFHasTicket
+- (void)pushTicket{
+    [self.navigationController pushViewController:[[KFTicketListViewController alloc] init] animated:YES];
+}
+#endif
 
 - (void)updateFrame{
     [self.photoGroupView dismissAnimated:NO completion:nil];
@@ -213,11 +225,22 @@
         
         [self removeQueueMessage];
         
-        [self showMessageWithText:KF5Localized(@"kf5_no_agent_online")];
+        NSString *message = nil;
+        if (error.code == KFErrorCodeAgentOffline) {
+            message = KF5Localized(@"kf5_no_agent_online");
+        }else if (error.code == KFErrorCodeNotInServiceTime){
+            message = KF5Localized(@"kf5_not_in_service_time");
+        }else if (error.code == KFErrorCodeQueueTooLong){
+            message = KF5Localized(@"kf5_queue_too_long");
+        }else{
+            message = KF5Localized(@"kf5_queue_error");
+        }
+        
+        [self showMessageWithText:message];
         
         if (self.isShowAlertWhenNoAgent) {
             __weak typeof(self)weakSelf = self;
-            [JKAlert showMessage:KF5Localized(@"kf5_no_agent_online_leaving_message") OKHandler:^(JKAlertItem *item) {
+            [JKAlert showMessage:[NSString stringWithFormat:@"%@,%@",message,KF5Localized(@"kf5_leaving_message")] OKHandler:^(JKAlertItem *item) {
                 if (weakSelf.noAgentAlertActionBlock) {
                     weakSelf.noAgentAlertActionBlock();
                 }else{
