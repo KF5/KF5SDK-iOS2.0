@@ -19,7 +19,7 @@
  */
 @property (nonnull, nonatomic, copy) NSString *appId;
 /**
- 应用名称,默认"IOSAPP"
+ 应用名称,默认"iOSAPP"
  */
 @property (nullable, nonatomic, copy) NSString *appName;
 /**
@@ -38,7 +38,7 @@
 - (void)initializeWithHostName:(nonnull NSString *)hostName appId:(nonnull NSString *)appId;
 
 /**
- 获取当前SDK的版本(当前SDK版本为2.4.0)
+ 获取当前SDK的版本(当前SDK版本为2.4.1)
 
  @return 版本号
  */

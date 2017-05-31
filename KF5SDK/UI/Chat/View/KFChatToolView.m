@@ -148,6 +148,15 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     [self.faceBoardView setClickBlock:^(NSString * _Nonnull text) {
         [weakSelf.textView insertText:text];
     }];
+    
+    [self addObserver:self forKeyPath:@"textView.frame" options:NSKeyValueObservingOptionNew context:nil];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
+    if ([keyPath isEqualToString:@"textView.frame"]) {
+        self.speakBtn.kf5_x = self.textView.kf5_x;
+        self.speakBtn.kf5_w = self.textView.kf5_w;
+    }
 }
 
 - (void)updateFrame{
@@ -171,7 +180,6 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
                 [self layoutForAIView];
                 break;
                 
-            
             case KFChatStatusQueue:// 当前为排队状态
                 [self layoutForQueueView];
                 break;
@@ -180,9 +188,7 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
                 break;
         }
     });
-
     
-    self.speakBtn.kf5_w = self.textView.kf5_w;
     self.textView.kf5_h = self.textView.textHeight;
     
     CGFloat maxY = CGRectGetMaxY(self.frame);
@@ -199,6 +205,8 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     self.faceBtn.hidden = NO;
     self.pictureBtn.hidden = NO;
     self.transferBtn.hidden = YES;
+    self.speakBtn.hidden = YES;
+    self.textView.hidden = NO;
     self.textView.placeholderText = nil;
     [self.textView setEditable:YES];
 }
@@ -211,6 +219,9 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     self.faceBtn.hidden = YES;
     self.pictureBtn.hidden = YES;
     self.transferBtn.hidden = NO;
+    // 隐藏语音按钮
+    if (self.voiceBtn.tag == 1) [self clickVoiceBtn:self.voiceBtn];
+    
     self.textView.placeholderText = nil;
     [self.textView setEditable:YES];
 }
@@ -223,7 +234,8 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     self.faceBtn.hidden = YES;
     self.pictureBtn.hidden = YES;
     self.transferBtn.hidden = YES;
-    
+    // 隐藏语音按钮
+    if (self.voiceBtn.tag == 1) [self clickVoiceBtn:self.voiceBtn];
     // 如果有这条消息,则不能再编辑内容
     if ([KFHelper hasChatQueueMessage]) {
         [self.textView resignFirstResponder];
@@ -302,10 +314,14 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     if (self.faceBtn.tag == 1) {
         [self clickFaceBtn:self.faceBtn];
     }
+    
+    self.speakBtn.hidden = btn.tag;
+    self.textView.hidden = !btn.tag;
+    
     if (!btn.tag) { // 初始状态
         
         if ([self.delegate respondsToSelector:@selector(chatToolViewWithClickVoiceAction:)]) {
-           BOOL canSend = [self.delegate chatToolViewWithClickVoiceAction:self];
+            BOOL canSend = [self.delegate chatToolViewWithClickVoiceAction:self];
             if (!canSend) return;
         }
         
@@ -331,8 +347,6 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
             [self.textView becomeFirstResponder];
         }
     }
-    self.speakBtn.hidden = btn.tag;
-    self.textView.hidden = !btn.tag;
     
     btn.tag = !btn.tag;
 }
@@ -374,7 +388,7 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     [UIView animateWithDuration:0.1f animations:^{
         textView.kf5_h = textView.textHeight;
         CGFloat maxY = CGRectGetMaxY(self.frame);
-        self.kf5_h = textView ? textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2 : KFChatToolView.defaultHeight;
+        self.kf5_h = !textView.hidden ? textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2 : KFChatToolView.defaultHeight;
         self.kf5_y = maxY - self.kf5_h;
     }];
 }
@@ -393,6 +407,10 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
         return NO; //这里返回NO，就代表return键值失效，即页面上按下return，不会出现换行，如果为yes，则输入页面会换行
     }
     return YES;
+}
+
+- (void)dealloc{
+    [self removeObserver:self forKeyPath:@"textView.frame"];
 }
 
 @end
