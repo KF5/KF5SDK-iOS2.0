@@ -23,13 +23,13 @@
 - (void)willRotateFromInterface:(NSNotification *)note{
     [self.view endEditing:YES];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        [self updateFrame];
+        [self rotateFrame];
     });
 }
 
 // ios7以下系统的横屏的事件
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
-    [self updateFrame];
+    [self rotateFrame];
     [self.view endEditing:YES];
 }
 
@@ -40,21 +40,27 @@
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         self.view.bounds = CGRectMake(0, 0, size.width, size.height);
-        [self updateFrame];
+        [self rotateFrame];
     }];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.extendedLayoutIncludesOpaqueBars = YES;
     self.hidesBottomBarWhenPushed = YES;
     self.view.backgroundColor = [UIColor whiteColor];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    if (KF5iOS7 && KF5ViewLandscape) {
-        [self updateFrame];
-    }
+    [self rotateFrame];
+}
+
+- (void)rotateFrame{
+    CGFloat top = [UIApplication sharedApplication].statusBarFrame.size.height + self.navigationController.navigationBar.frame.size.height;
+    [KFHelper configTableView:self.tableView top:top];
+    [self updateFrame];
 }
 
 - (void)updateFrame{}
@@ -85,13 +91,13 @@
 - (void)willRotateFromInterface:(NSNotification *)note{
     [self.view endEditing:YES];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        [self updateFrame];
+        [self rotateFrame];
     });
 }
 
 // ios7以下系统的横屏的事件
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
-    [self updateFrame];
+    [self rotateFrame];
     [self.view endEditing:YES];
 }
 
@@ -102,21 +108,27 @@
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         self.view.bounds = CGRectMake(0, 0, size.width, size.height);
-        [self updateFrame];
+        [self rotateFrame];
     }];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.extendedLayoutIncludesOpaqueBars = YES;
     self.hidesBottomBarWhenPushed = YES;
     self.view.backgroundColor = [UIColor whiteColor];
 }
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    if (KF5iOS7 && KF5ViewLandscape) {
-        [self updateFrame];
-    }
+    [self rotateFrame];
+}
+
+- (void)rotateFrame{
+    CGFloat top = [UIApplication sharedApplication].statusBarFrame.size.height + self.navigationController.navigationBar.frame.size.height;
+    [KFHelper configTableView:self.tempTableView top:top];
+    
+    [self updateFrame];
 }
 
 - (void)updateFrame{}

@@ -194,7 +194,7 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     CGFloat maxY = CGRectGetMaxY(self.frame);
     self.kf5_h = self.textView ? self.textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2 : KFChatToolView.defaultHeight;
     self.kf5_y = maxY - self.kf5_h;
-
+    
 }
 
 - (void)layoutForChattingView{

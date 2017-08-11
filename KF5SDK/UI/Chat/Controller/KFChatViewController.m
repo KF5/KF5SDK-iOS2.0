@@ -130,6 +130,7 @@
 - (void)setupView{
     
     KFChatTableView *tableView = [[KFChatTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - KFChatToolView.defaultHeight) style:UITableViewStylePlain];
+    self.tempTableView = tableView;
     tableView.tableDelegate = self;
     tableView.autoresizingMask =  UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
     [self.view addSubview:tableView];
@@ -268,7 +269,9 @@
     message.created = [NSDate date].timeIntervalSince1970;
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.tableView.messageModelArray removeObject:self.queueMessageModel];
+        if (self.queueMessageModel) {
+            [self.tableView.messageModelArray removeObject:self.queueMessageModel];
+        }
         self.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
         [self.tableView.messageModelArray addObject:self.queueMessageModel];
         @try {

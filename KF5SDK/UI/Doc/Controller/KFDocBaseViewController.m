@@ -16,6 +16,13 @@
 #import "KFProgressHUD.h"
 #import "KFUserManager.h"
 
+#if __has_include("KF5SDKTicket.h")
+#import "KF5SDKTicket.h"
+#define KFHasTicket 1
+#else
+#define KFHasTicket 0
+#endif
+
 static BOOL isHeaderRefresh = YES;
 
 @interface KFDocBaseViewController ()<UISearchBarDelegate,UISearchDisplayDelegate>
@@ -26,7 +33,13 @@ static BOOL isHeaderRefresh = YES;
 
 @end
 
+static BOOL HideRightButton = NO;
+
 @implementation KFDocBaseViewController
+
++ (void)setIsHideRightButton:(BOOL)isHideRightButton {
+    HideRightButton = isHideRightButton;
+}
 
 - (void)viewDidLoad{
     [super viewDidLoad];
@@ -55,11 +68,21 @@ static BOOL isHeaderRefresh = YES;
     searchDisplayController.searchResultsDelegate = self;
     searchDisplayController.searchResultsTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     self.searchDisplayController = searchDisplayController;
+#if KFHasTicket
+    if (!HideRightButton && !self.navigationItem.rightBarButtonItem) {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:KF5Localized(@"kf5_contact_us") style:UIBarButtonItemStyleDone target:self action:@selector(pushTicket)];
+    }
+#endif
     
     [KFProgressHUD showDefaultLoadingTo:self.view];
     [self refreshWithisHeader:YES];
 }
 
+#if KFHasTicket
+- (void)pushTicket{
+    [self.navigationController pushViewController:[[KFTicketListViewController alloc] init] animated:YES];
+}
+#endif
 
 - (void)refreshData:(BOOL)isHeader resultBlock:(void (^)(NSArray<NSDictionary *> *, NSInteger, NSError *))resultBlock{
     NSAssert(NO, @"子类必须覆盖此方法");
@@ -112,7 +135,11 @@ static BOOL isHeaderRefresh = YES;
 - (void)setNextPage:(NSUInteger)nextPage{
     _nextPage = nextPage;
     dispatch_async(dispatch_get_main_queue(), ^{
-        if(nextPage == 0)[self.tableView kf5_endRefreshingWithNoMoreData];
+        if(nextPage == 0){
+          [self.tableView kf5_endRefreshingWithNoMoreData];
+        }else {
+            [self.tableView kf5_resetNoMoreData];
+        }
     });
 }
 

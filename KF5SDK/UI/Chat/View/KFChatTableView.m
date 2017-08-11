@@ -175,28 +175,6 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
     [self endRefreshing];
 }
 
-- (KFMessage *)getPrevChatMessageWithIndexPath:(NSIndexPath *)indexPath{
-    KFMessage *prevChatMessage = nil;
-    
-    NSInteger preRow = indexPath.row - 1;
-    if (preRow >= 0) {
-        KFMessage *preMessage = self.messageModelArray[preRow].message;
-        if ([preMessage isKindOfClass:[KFMessage class]]){
-            prevChatMessage = preMessage;
-        }
-    }
-    if (prevChatMessage == nil) {
-        NSInteger preRow = indexPath.row - 2;
-        if (preRow >= 0) {
-            KFMessage *preMessage = self.messageModelArray[preRow].message;
-            if ([preMessage isKindOfClass:[KFMessage class]]){
-                prevChatMessage = preMessage;
-            }
-        }
-    }
-    return prevChatMessage;
-}
-
 #pragma mark 向下滚动
 - (void)scrollViewBottomHasMainQueue:(BOOL)hasMainQueue{
     if (self.contentSize.height > self.frame.size.height)

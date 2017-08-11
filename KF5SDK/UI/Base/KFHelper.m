@@ -296,6 +296,20 @@ static NSBundle *bundle = nil;
     return rect.size;
 }
 
++ (void)configTableView:(UITableView *)tableView top:(CGFloat)top{
+#ifdef __IPHONE_11_0
+    if (@available(iOS 11.0, *)) {
+        tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        tableView.contentInset = UIEdgeInsetsMake(top, 0, 0, 0);
+        tableView.scrollIndicatorInsets = tableView.contentInset;
+        [tableView setContentSize:CGSizeZero];
+        tableView.estimatedRowHeight = 0;
+        tableView.estimatedSectionHeaderHeight = 0;
+        tableView.estimatedSectionFooterHeight = 0;
+    }
+#endif
+}
+
 + (BOOL)hasChatQueueMessage{
     NSString *userToken = [KFUserManager shareUserManager].user.userToken;
     if (userToken.length == 0) return NO;

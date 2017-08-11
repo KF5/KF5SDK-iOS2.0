@@ -14,7 +14,7 @@
 - (void)kf5_footerWithRefreshingBlock:(void (^)())refreshingBlock;
 
 - (void)kf5_endRefreshingWithNoMoreData;
-
+- (void)kf5_resetNoMoreData;
 - (void)kf5_beginHeaderRefreshing;
 - (void)kf5_endHeaderRefreshing;
 - (void)kf5_endFooterRefreshing;

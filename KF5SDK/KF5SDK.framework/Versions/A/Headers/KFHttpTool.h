@@ -58,7 +58,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  用户创建
 
  @param params 参数,如下
- @{
+ @{ // 注意:KF5Email为静态常量,下同
     KF5Email:@"",  // 用户的邮箱,选其一
     KF5Phone:@"",  // 用户的手机号,选其一
     KF5Name:@""    // 用户的昵称,选填
@@ -70,9 +70,9 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  用户登录
 
  @param params 参数,如下
- @{
-    KF5Phone:@""   // 用户的手机号,选其一
+ @{ // 注意:KF5Email为静态常量,下同
     KF5Email:@"",  // 用户的邮箱,选其一
+    KF5Phone:@""   // 用户的手机号,选其一
  };
  @warning   email和phone只能选其一,两者都填默认优先使用手机号验证用户,如果手机号没有查找到用户,则使用邮箱验证用户
  */
@@ -80,7 +80,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
 /**
  获取用户信息
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@""    // 用户唯一标示,可通过创建或登录用户获得,必填
  };
  */
@@ -89,7 +89,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  更新用户信息
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5Email:@"",       // 邮箱,选填
     KF5Phone:@"",       // 手机号,选填
@@ -101,7 +101,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  保存deviceToken
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5DeviceToken:@""  // 用户deviceToken,必填
  };
@@ -111,7 +111,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  删除deviceToken
  
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5DeviceToken:@""  // 用户deviceToken,必填
  };
@@ -124,7 +124,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  获取文档分区列表
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5PerPage:@(),    // 每页的数量,默认30,选填
     KF5Page:@()         // 当前请求第几页,默认1,选填
@@ -135,7 +135,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  获取文档分类列表
  
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5CategoryId:@(),  // 分区的id,如果为空,获取所有的分类,选填
     KF5PerPage:@(),     // 每页的数量,默认30,选填
@@ -147,7 +147,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  获取文档列表
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5ForumId:@(),     // 分类的id,如果为空,获取所有的文档列表,选填
     KF5PerPage:@(),     // 每页的数量,默认30,选填
@@ -159,7 +159,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  获取文档内容
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5PostId:@(),      // 文档的id,必填
  };
@@ -169,7 +169,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  搜索文档
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5Query:@"",       // 搜索关键字,必填
     KF5FullSearch:@()   // 是否开启全文搜索,0或1,默认不开启,选填
@@ -182,7 +182,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  获取工单列表
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5PerPage:@(),     // 每页工单的数量,默认30,选填
     KF5Page:@()         // 当前请求第几页,默认1,选填
@@ -193,7 +193,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  获取工单内容
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5TicketId:@(),    // 工单的id,必填
     KF5PerPage:@(),     // 每页工单的数量,默认30,选填
@@ -205,7 +205,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  获取工单详情
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5TicketId:@()     // 工单的id,必填
  };
@@ -215,7 +215,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  回复工单
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5TicketId:@(),    // 工单的id,必填
     KF5Content:@"",     // 回复内容,必填
@@ -227,11 +227,11 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  工单满意度评价
  
  @param params 参数,如下:
- @{
- KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
- KF5TicketId:@(),    // 工单的id,必填
- KF5Rating:@(),      // 满意度,必填
- KF5Content:@""      // 满意度评价内容,选填
+ @{ // 注意:KF5UserToken为静态常量,下同
+    KF5UserToken:@"",   // 用户唯一标示,可通过创建或登录用户获得,必填
+    KF5TicketId:@(),    // 工单的id,必填
+    KF5Rating:@(),      // 满意度,必填
+    KF5Content:@""      // 满意度评价内容,选填
  };
  */
 + (nullable NSURLSessionDataTask *)ratingTicketWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion;
@@ -239,7 +239,7 @@ static NSString * _Nonnull const KF5FullSearch   = @"full_search";
  创建工单
 
  @param params 参数,如下:
- @{
+ @{ // 注意:KF5UserToken为静态常量,下同
     KF5UserToken:@"",       // 用户唯一标示,可通过创建或登录用户获得,必填
     KF5Title:@"",           // 工单的标题,必填
     KF5Content:@"",         // 回复内容,必填

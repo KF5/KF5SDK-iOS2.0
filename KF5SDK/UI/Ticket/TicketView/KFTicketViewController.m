@@ -104,6 +104,7 @@
 
 - (void)setupView{
     KFTicketTableView *tableView = [[KFTicketTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - KFTicketToolView.defaultHeight) style:UITableViewStylePlain];
+    self.tempTableView = tableView;
     tableView.cellDelegate = self;
     tableView.autoresizingMask =  UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
     [self.view addSubview:tableView];
@@ -164,11 +165,18 @@
 - (void)ticketCell:(KFTicketViewCell *)cell clickImageWithIndex:(NSInteger)index{
     [self.view endEditing:YES];
     UIView *fromView = nil;
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    if (!indexPath || self.tableView.commentModelArray.count <= indexPath.row) { return; }
+    
     NSMutableArray *items = [NSMutableArray new];
-    NSArray <KFAttachment *>*pics = cell.commentModel.attachments;
-    for (NSUInteger i = 0, max = pics.count; i < max; i++) {
-        UIView *imgView = cell.photoImageView.subviews[i];
+    NSArray <KFAttachment *>*pics = ((KFCommentModel *)self.tableView.commentModelArray[indexPath.row]).comment.attachments;
+    for (NSUInteger i = 0; i < pics.count; i++) {
         KFAttachment *pic = pics[i];
+        if (![pic.url isKindOfClass:[NSString class]]) {
+            continue;
+        }
+        UIView *imgView = cell.photoImageView.subviews[i];
         KFPhotoGroupItem *item = [KFPhotoGroupItem new];
         item.thumbView = imgView;
         item.largeImageURL = [NSURL URLWithString:pic.url];
@@ -176,6 +184,9 @@
         if (i == index) {
             fromView = imgView;
         }
+    }
+    if (items.count == 0) {
+        return;
     }
     KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:items];
     [v presentFromImageView:fromView toContainer:self.navigationController.view animated:YES completion:nil];

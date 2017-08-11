@@ -15,13 +15,13 @@
  */
 @property (nonatomic, assign) NSInteger Id;
 /**
- 客服的头像
- */
-@property (nullable, nonatomic, copy) NSString *photoUrl;
-/**
  客服的昵称
  */
 @property (nullable, nonatomic, copy) NSString *displayName;
+/**
+ 客服的头像
+ */
+@property (nullable, nonatomic, copy) NSString *photoUrl;
 /**
  客服角色(人工客服/机器人客服)
  */

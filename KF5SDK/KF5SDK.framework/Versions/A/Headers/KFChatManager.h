@@ -120,6 +120,7 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  更新自定义信息
 
  @param metadata   格式如:@[@{@"name":@"姓名",@"value":@"小明"},@{@"name":@"性别",@"value":@"男"}]
+ @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
  */
 - (void)uploadMetadata:(nullable NSArray <NSDictionary *>*)metadata completion:(nullable void (^)(NSError * _Nullable error))completion;
 /**
@@ -240,6 +241,13 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  @warning 需先初始化initializeWithUserToken
  */
 - (nonnull NSString *)dbPath;
+
+/**
+ 根据id查询数据库中的agent
+
+ @param agentId 客服id
+ */
+- (nullable KFAgent *)agentWithId:(NSInteger)agentId;
 
 #pragma mark 其他
 /**

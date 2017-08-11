@@ -9,6 +9,7 @@
 #import "KFBaseMessageCell.h"
 #import "KFHelper.h"
 #import "KFLoadView.h"
+#import "UIImageView+WebCache.h"
 
 @implementation KFBaseMessageCell
 
@@ -25,6 +26,8 @@
         
         //  头像
         UIImageView *headerImageView = [[UIImageView alloc]init];
+        headerImageView.layer.masksToBounds = YES;
+        headerImageView.layer.cornerRadius = KF5Helper.KF5ChatCellHeaderHeight / 2;
         [self.contentView addSubview:headerImageView];
         _headerImageView = headerImageView;
         
@@ -60,7 +63,12 @@
     _timeLabel.text = messageModel.timeText;
     _timeLabel.frame = messageModel.timeFrame;
     
-    _headerImageView.image = messageModel.headerImage;
+    if (messageModel.message.messageFrom == KFMessageFromOther) {
+        [_headerImageView sd_setImageWithURL:[NSURL URLWithString:[[KFChatManager sharedChatManager] agentWithId:messageModel.message.user_id].photoUrl] placeholderImage:messageModel.headerImage];
+    }else{
+        _headerImageView.image = messageModel.headerImage;
+    }
+
     _headerImageView.frame = messageModel.headerFrame;
     
     _messageBgView.image = messageModel.messageViewBgImage;

@@ -10,6 +10,8 @@
 
 @interface KFBaseViewController : UIViewController
 
+@property (nonatomic,weak) UITableView *tempTableView;
+
 - (void)updateFrame;
 
 @end

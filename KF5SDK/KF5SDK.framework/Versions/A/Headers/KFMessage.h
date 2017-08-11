@@ -16,6 +16,14 @@
  */
 @property (nonatomic, assign) NSInteger message_id;
 /**
+ 发送人的id
+ */
+@property (nonatomic, assign) NSInteger user_id;
+/**
+ 发送人的昵称
+ */
+@property (nonatomic, assign) NSString *name;
+/**
  发送人
  */
 @property (nonatomic, assign) KFMessageFrom messageFrom;

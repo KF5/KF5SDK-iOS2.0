@@ -18,6 +18,9 @@
 ///下一页
 @property (nonatomic, assign) NSUInteger nextPage;
 
+///是否显示右侧按钮
++ (void)setIsHideRightButton:(BOOL)isHideRightButton;
+
 - (void)refreshData:(BOOL)isHeader resultBlock:(void (^)(NSArray <NSDictionary *>*dictArray,NSInteger nextPage,NSError *error))resultBlock;
 
 @end

@@ -172,6 +172,8 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 + (CGSize)sizeWithText:(nonnull NSString *)text font:(nonnull UIFont *)font;
 ///多行计算尺寸
 + (CGSize)sizeWithText:(nonnull NSString *)text font:(nonnull UIFont *)font maxSize:(CGSize)maxSize;
+///解决ios11的MJRefresh的bug
++ (void)configTableView:(nullable UITableView *)tableView top:(CGFloat)top;
 
 + (BOOL)hasChatQueueMessage;
 + (void)setHasChatQueueMessage:(BOOL)hasChatQueueMessage;

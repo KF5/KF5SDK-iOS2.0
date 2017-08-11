@@ -23,6 +23,10 @@
     [self.mj_footer endRefreshingWithNoMoreData];
 }
 
+- (void)kf5_resetNoMoreData{
+    [self.mj_footer resetNoMoreData];
+}
+
 - (void)kf5_beginHeaderRefreshing{
     [self.mj_header beginRefreshing];
 }
