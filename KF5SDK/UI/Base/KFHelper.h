@@ -108,6 +108,7 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 @property (nonnull, nonatomic, strong) UIColor *KF5PlaceHolderBgColor;
 
 @property (nonnull, nonatomic, strong) UIFont *KF5TitleFont;
+@property (nonnull, nonatomic, strong) UIFont *KF5ContentFont;
 @property (nonnull, nonatomic, strong) UIFont *KF5NameFont;
 @property (nonnull, nonatomic, strong) UIFont *KF5TimeFont;
 
@@ -148,6 +149,13 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatTextCellOtherLabelUrlColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatTextCellMeLabelTextColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatTextCellOtherLabelTextColor;
+
+#pragma mark 卡片cell
+@property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellTitleLabelTextColor;
+@property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellPriceLabelTextColor;
+@property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellLinkBtnTextColor;
+@property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellLinkBtnBackgroundColor;
+@property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellBackgroundColor;
 
 
 #pragma mark - NSObject

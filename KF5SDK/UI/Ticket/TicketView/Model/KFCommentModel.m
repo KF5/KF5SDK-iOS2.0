@@ -9,6 +9,7 @@
 #import "KFCommentModel.h"
 #import "KFContentLabelHelp.h"
 #import "KFHelper.h"
+#import "YYTextLayout.h"
 
 @interface KFCommentModel()
 

@@ -11,6 +11,7 @@
 #import "KFImageMessageCell.h"
 #import "KFVoiceMessageCell.h"
 #import "KFSystemMessageCell.h"
+#import "KFCardMessageCell.h"
 
 @class KFMessageModel;
 @class KFChatTableView;

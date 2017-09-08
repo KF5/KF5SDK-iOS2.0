@@ -12,6 +12,15 @@
 @class KFChatViewModel;
 @class KFMessageModel;
 
+typedef NS_ENUM(NSInteger,KFChatRatingScore) {
+    KFChatRatingScoreNone = -1, // 未评价
+    KFChatRatingScoreBad = 0,    // 不满意
+    KFChatRatingScoreSoso = 2,   // 不太满意
+    KFChatRatingScoreOk = 3,     // 一般
+    KFChatRatingScoreGood = 4,   // 基本满意
+    KFChatRatingScoreGreat = 1   // 满意
+};
+
 @protocol KFChatViewModelDelegate <NSObject>
 /**连接服务器失败*/
 - (void)chat:(nonnull KFChatViewModel *)chat connectError:(nullable NSError *)error;
@@ -57,7 +66,7 @@
 /**
  连接服务器
  */
-- (void)configChatWithCompletion:(nullable void (^)())completion;
+- (void)configChatWithCompletion:(nullable void (^)(NSError *_Nullable))completion;
 /**
  断开连接
  */
@@ -65,9 +74,9 @@
 /**
  发送满意度评价
 
- @param rating     是否满意
+ @param rating     满意度分数
  */
-- (void)sendRating:(BOOL)rating completion:(nullable void (^)(NSError * _Nullable error))completion;
+- (void)sendRating:(NSInteger)rating completion:(nullable void (^)(NSError * _Nullable error))completion;
 /**
  发送消息
 
@@ -89,11 +98,23 @@
 /**
  加入排队
  */
-- (void)queueUpWithCompletion:(nullable void (^)())completion;
+- (void)queueUpWithCompletion:(nullable void (^)(NSError *_Nullable))completion;
+/**
+ 取消排队
+ */
 - (void)cancleWithCompletion:(nullable void (^)( NSError * _Nullable ))completion;
 /**
  从数据库中获取新数据
  */
 - (nonnull NSArray<KFMessageModel *> *)queryMessageModelsWithLimit:(NSInteger)limit;
+
+/**
+ 获取要显示的满意度
+ */
+- (nonnull NSArray <NSNumber *> *)rateLevelArray;
+/**
+ 满意度字符串
+ */
++ (nullable NSString *)stringForRatingScore:(KFChatRatingScore)ratingScore;
 
 @end

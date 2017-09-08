@@ -135,6 +135,7 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
     self.KF5PlaceHolderBgColor = KF5ColorFromRGB(0xefeff4);
     
     self.KF5TitleFont = [UIFont systemFontOfSize:16];
+    self.KF5ContentFont = [UIFont systemFontOfSize:15];
     self.KF5NameFont = [UIFont systemFontOfSize:13];
     self.KF5TimeFont = [UIFont systemFontOfSize:12];
     
@@ -173,6 +174,13 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
     self.KF5ChatTextCellMeLabelTextColor = [UIColor whiteColor];
     self.KF5ChatTextCellOtherLabelUrlColor = KF5ColorFromRGB(0x64cbf4);
     self.KF5ChatTextCellOtherLabelTextColor = [UIColor blackColor];
+    
+    
+    self.KF5ChatCardCellTitleLabelTextColor = KF5ColorFromRGB(0x424345);
+    self.KF5ChatCardCellPriceLabelTextColor = KF5ColorFromRGB(0xa0a0a0);
+    self.KF5ChatCardCellLinkBtnTextColor = [UIColor whiteColor];
+    self.KF5ChatCardCellLinkBtnBackgroundColor = KF5ColorFromRGB(0x0099ff);
+    self.KF5ChatCardCellBackgroundColor = KF5ColorFromRGB(0xf7f7f8);
 }
 
 #pragma mark - NSObject

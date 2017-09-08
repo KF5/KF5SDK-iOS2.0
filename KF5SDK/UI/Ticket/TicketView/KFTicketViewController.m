@@ -86,6 +86,7 @@
             if ([result kf5_numberForKeyPath:@"data.request.rating_flag"].boolValue) {
                 ratingModel = [[KFRatingModel alloc] init];
                 ratingModel.ratingScore = [result kf5_numberForKeyPath:@"data.request.rating"].integerValue;
+                ratingModel.rateLevelCount = [result kf5_numberForKeyPath:@"data.request.rate_level_count"].integerValue;
                 ratingModel.ratingContent = [result kf5_stringForKeyPath:@"data.request.rating_content"];
             }
             dispatch_async(dispatch_get_main_queue(), ^{

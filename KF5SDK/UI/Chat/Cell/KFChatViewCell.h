@@ -16,6 +16,7 @@
 - (void)cell:(nonnull KFChatViewCell *)cell reSendMessageWithMessageModel:(nullable KFMessageModel *)model;
 - (void)cell:(nonnull KFChatViewCell *)cell clickImageWithMessageModel:(nullable KFMessageModel *)model;
 - (void)cell:(nonnull KFChatViewCell *)cell clickVoiceWithMessageModel:(nullable KFMessageModel *)model;
+- (void)cell:(nonnull KFChatViewCell *)cell clickCardLinkWithUrl:(nullable NSString *)linkUrl;
 - (void)cell:(nonnull KFChatViewCell *)cell clickLabelWithInfo:(nullable NSDictionary *)info;
 - (void)reloadCell:(nonnull KFChatViewCell *)cell;
 

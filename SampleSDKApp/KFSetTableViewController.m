@@ -185,7 +185,10 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 - (void)chat{
     self.hidesBottomBarWhenPushed = YES;
     
-    [self.navigationController pushViewController:[[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"iOS"},@{@"name":@"SDK版本",@"value":[[KFConfig shareConfig] version]}]] animated:YES];
+    KFChatViewController *chat = [[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"iOS"},@{@"name":@"SDK版本",@"value":[[KFConfig shareConfig] version]}]];
+//    [chat setCardDict:@{@"img_url":@"https://www.kf5.com/image.png", @"title":@"标题",@"price":@"¥200",@"link_title":@"发送链接",@"link_url":@"https://www.kf5.com"}];
+    [self.navigationController pushViewController:chat animated:YES];
+    
     self.hidesBottomBarWhenPushed = NO;
 }
 

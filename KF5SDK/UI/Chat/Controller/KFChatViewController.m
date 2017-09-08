@@ -52,6 +52,10 @@
 @property (nullable, nonatomic, weak) UIWebView *webView;
 
 @property (nullable, nonatomic, strong) NSArray <NSDictionary *>*metadata;
+/**
+ 卡片消息
+ */
+@property (nullable, nonatomic,strong) NSDictionary *cardDict;
 
 @end
 
@@ -104,7 +108,7 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     
     // 连接服务器
-    [self connect];
+    [self connect:YES];
 
     NSMutableArray <KFMessageModel *>*newDatas = [NSMutableArray arrayWithArray:[self.viewModel queryMessageModelsWithLimit:self.limit]];
     if (newDatas.count < self.limit) {
@@ -115,13 +119,19 @@
 }
 
 #pragma mark 连接服务器
-- (void)connect{
+- (void)connect:(BOOL)isFirst{
     self.title = KF5Localized(@"kf5_connecting");
     [KFProgressHUD showLoadingTo:self.view title:nil];
     __weak typeof(self)weakSelf = self;
-    [self.viewModel configChatWithCompletion:^() {
+    __block BOOL first = isFirst;
+    [self.viewModel configChatWithCompletion:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [KFProgressHUD hideHUDForView:weakSelf.view];
+            if (weakSelf.cardDict && !error && first) {
+                KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:[KFChatManager createMessageWithType:KFMessageTypeCard data:[KFHelper JSONStringWithObject:weakSelf.cardDict]]];
+                [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
+            }
+            first = NO;
         });
     }];
 }
@@ -288,12 +298,14 @@
         
         JKAlert *alert = [JKAlert alertWithTitle:KF5Localized(@"kf5_reminder") andMessage:KF5Localized(@"kf5_rating_content")];
         [alert addCancleButtonWithTitle:KF5Localized(@"kf5_cancel") handler:nil];
-        [alert addCommonButtonWithTitle:KF5Localized(@"kf5_satisfied") handler:^(JKAlertItem *item) {
-            [weakSelf sendRating:YES];
-        }];
-        [alert addCommonButtonWithTitle:KF5Localized(@"kf5_unsatisfied") handler:^(JKAlertItem *item) {
-            [weakSelf sendRating:NO];
-        }];
+        for (NSNumber *ratingNum in self.viewModel.rateLevelArray) {
+            NSString *title = [KFChatViewModel stringForRatingScore:ratingNum.integerValue];
+            if (title.length > 0) {
+                [alert addCommonButtonWithTitle:title handler:^(JKAlertItem *item) {
+                    [weakSelf sendRating:ratingNum.integerValue];
+                }];
+            }
+        }
         [alert show];
     });
 }
@@ -386,7 +398,7 @@
     }else{
        [KFProgressHUD showLoadingTo:self.view title:@""];
         __weak typeof(self)weakSelf = self;
-        [self.viewModel queueUpWithCompletion:^() {
+        [self.viewModel queueUpWithCompletion:^(NSError *error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [KFProgressHUD hideHUDForView:weakSelf.view];
             });
@@ -495,6 +507,14 @@
         });
     }];
 }
+
+- (void)cell:(KFChatViewCell *)cell clickCardLinkWithUrl:(NSString *)linkUrl{
+    if (linkUrl.length == 0) {
+        return;
+    }
+    [self.viewModel sendMessageWithMessageType:KFMessageTypeText data:linkUrl];
+}
+
 - (void)cell:(KFChatViewCell *)cell clickLabelWithInfo:(NSDictionary *)info{
     
     KFTextMessageCell *textCell = (KFTextMessageCell *)cell;
@@ -643,7 +663,7 @@
     [self.viewModel disconnect];
 }
 - (void)willEnterForeground:(NSNotification *)note{
-    [self connect];
+    [self connect:NO];
 }
 - (void)showMessageWithText:(NSString *)text alerType:(KF5AlertType)type{
     if (text.length == 0) return;
@@ -669,7 +689,7 @@
     }
     return canSend;
 }
-- (void)sendRating:(BOOL)rating{
+- (void)sendRating:(NSInteger)rating{
     
     __weak typeof(self)weakSelf = self;
     [self.viewModel sendRating:rating completion:^(NSError *error) {

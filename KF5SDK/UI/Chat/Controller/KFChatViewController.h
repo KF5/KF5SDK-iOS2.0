@@ -17,6 +17,14 @@
  */
 -(nonnull instancetype)initWithMetadata:(nullable NSArray <NSDictionary *>*)metadata;
 /**
+ 设置卡片展示的信息
+
+ @param cardDict 卡片信息,格式如:@{@"img_url":@"https://www.kf5.com/image.png", @"title":@"标题",@"price":@"¥200",@"link_title":@"发送链接",@"link_url":@"https://www.kf5.com"}
+ @warning 需要在跳转到聊天界面前设置
+ */
+- (void)setCardDict:(nonnull NSDictionary *)cardDict;
+
+/**
  *  当没有客服在线时是否弹出alertView,默认为YES
  *
  *  注:当设置为NO时,noAgentAlertShowTitle,agentBusyAlertShowTitle和noAgentAlertActionBlock将失效

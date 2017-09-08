@@ -49,6 +49,10 @@ BOOL isShowTime(double time){
            _timeText =  [NSDate kf5_stringForDisplayFromDate:[NSDate dateWithTimeIntervalSince1970:_message.created]];
         }
         
+        if (_message.messageType == KFMessageTypeCard) {
+            _cardDict = [KFHelper dictWithJSONString: self.message.content];
+            return;
+        }
         if (_message.messageFrom == KFMessageFromMe) {
             _headerImage = KF5Helper.endUserImage;
             _messageViewBgImage = KF5Helper.chat_ctnMeBg;
@@ -107,6 +111,10 @@ BOOL isShowTime(double time){
             CGSize timeSize = [KFHelper sizeWithText:_timeText font:KF5Helper.KF5TimeFont maxSize:CGSizeMake(KF5SCREEN_WIDTH, MAXFLOAT)];
             _timeFrame = CGRectMake(0, 0, KF5SCREEN_WIDTH, timeSize.height);
         }
+        if (_message.messageType == KFMessageTypeCard) {
+            [self updateCardFrame];
+            return;
+        }
         
         _headerFrame = CGRectMake(KF5Helper.KF5MiddleSpacing, CGRectGetMaxY(_timeFrame) + KF5Helper.KF5DefaultSpacing, KF5Helper.KF5ChatCellHeaderHeight, KF5Helper.KF5ChatCellHeaderHeight);
         
@@ -152,6 +160,22 @@ BOOL isShowTime(double time){
         
         _cellHeight = ceilf(CGRectGetMaxY(_systemBackgroundFrame) + KF5Helper.KF5DefaultSpacing);
     }
+}
+#pragma mark 卡片消息的frame
+- (void)updateCardFrame{
+    _cardImageFrame = CGRectMake(KF5Helper.KF5MiddleSpacing, KF5Helper.KF5MiddleSpacing, 60, 60);
+    CGFloat x = CGRectGetMaxX(_cardImageFrame) + KF5Helper.KF5DefaultSpacing;
+    CGFloat width = KF5SCREEN_WIDTH - x - KF5Helper.KF5MiddleSpacing;
+    _cardTitleFrame = CGRectMake(x, CGRectGetMinY(_cardImageFrame), width, 40);
+    _cardPriceFrame = CGRectMake(x, CGRectGetMaxY(_cardTitleFrame), width, 20);
+    
+    CGFloat maxWidth = KF5SCREEN_WIDTH - KF5Helper.KF5MiddleSpacing * 4;
+    
+    CGSize size = [KFHelper sizeWithText:_cardDict[@"link_title"] font:KF5Helper.KF5TitleFont];
+    CGFloat linkWidth = MAX(80, MIN(maxWidth, size.width)) + KF5Helper.KF5MiddleSpacing * 2;
+    _cardLinkBtnFrame = CGRectMake((KF5SCREEN_WIDTH - linkWidth) / 2, CGRectGetMaxY(_cardImageFrame) + KF5Helper.KF5DefaultSpacing, linkWidth, 30);
+    
+    _cellHeight = CGRectGetMaxY(_cardLinkBtnFrame) + KF5Helper.KF5MiddleSpacing;
 }
 
 

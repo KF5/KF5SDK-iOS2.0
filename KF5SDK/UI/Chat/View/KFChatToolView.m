@@ -181,7 +181,7 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
                 break;
                 
             case KFChatStatusQueue:// 当前为排队状态
-                [self layoutForQueueView];
+                [self layoutForChattingView];
                 break;
                 
             default:

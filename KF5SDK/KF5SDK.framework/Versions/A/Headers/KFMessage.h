@@ -22,7 +22,7 @@
 /**
  发送人的昵称
  */
-@property (nonatomic, assign) NSString *name;
+@property (nullable, nonatomic, copy) NSString *name;
 /**
  发送人
  */

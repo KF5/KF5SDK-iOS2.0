@@ -36,9 +36,9 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  接受聊天消息通知
 
  @param chatManager  聊天管理对象
- @param chatMessage  消息
+ @param chatMessages  消息数组
  */
-- (void)chatManager:(nonnull KFChatManager *)chatManager receiveMessage:(nonnull KFMessage *)chatMessage;
+- (void)chatManager:(nonnull KFChatManager *)chatManager receiveMessages:(nonnull NSArray <KFMessage *>*)chatMessages;
 /**
  用户排队的当前位置通知
 
@@ -102,6 +102,12 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  @warning socket连接成功后有效
  */
 @property (nonatomic, assign,readonly) KFChatStatus chatStatus;
+/**
+ 满意度评价等级
+ 
+ @warning 三种级别可选:两级、三级、五级,socket连接成功后有效.
+ */
+@property (nonatomic, assign) NSInteger rateLevelCount;
 
 #pragma mark 方法
 /**
@@ -123,12 +129,6 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
  */
 - (void)uploadMetadata:(nullable NSArray <NSDictionary *>*)metadata completion:(nullable void (^)(NSError * _Nullable error))completion;
-/**
- 同步离线消息
-
- @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
- */
-- (void)syncMessageWithCompletion:(nullable void (^)(NSArray <KFMessage *> * _Nonnull history, NSError * _Nullable error))completion;
 /**
  给机器人发送文本消息
 
@@ -199,11 +199,11 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
 /**
  发送满意度
 
- @param rating     是否满意
+ @param rating     满意度分数(0->不满意,2->不太满意,3->一般,4->基本满意,1->满意)
  
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
  */
-- (void)sendRating:(BOOL)rating completion:(nullable void (^)(NSError * _Nullable error))completion;
+- (void)sendRating:(NSInteger)rating completion:(nullable void (^)(NSError * _Nullable error))completion;
 /**
  获取历史记录
 
@@ -257,4 +257,12 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  */
 - (void)getUnReadMessageCountWithCompletion:(nullable void (^)(NSInteger unReadMessageCount, NSError * _Nullable error))completion;
 
+/**
+ 快捷创建消息
+
+ @param type 类型
+ @param data 内容
+ @return 消息实体
+ */
++ (nonnull KFMessage *)createMessageWithType:(KFMessageType)type data:(nonnull id)data;
 @end

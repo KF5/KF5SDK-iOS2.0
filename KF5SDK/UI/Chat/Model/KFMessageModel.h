@@ -33,9 +33,9 @@
 @property (nullable, nonatomic, strong) NSData *voiceData;
 /**音频长度*/
 @property (nonatomic, assign) CGFloat voiceLength;
-///是否正在播放
+/*是否正在播放*/
 @property (nonatomic, assign) BOOL isPlaying;
-///是否显示时间
+/**是否显示时间*/
 @property (nonatomic, assign,getter=isShowTime) BOOL showTime;
 /**时间的frame*/
 @property (nonatomic, assign) CGRect timeFrame;
@@ -55,6 +55,17 @@
 @property (nonatomic, assign) CGRect systemBackgroundFrame;
 /**系统消息文本*/
 @property (nullable, nonatomic, strong) YYTextLayout *systemTextLayout;
+
+/**卡片消息的frame*/
+@property (nonatomic, assign) CGRect cardImageFrame;
+/**卡片消息标题的frame*/
+@property (nonatomic, assign) CGRect cardTitleFrame;
+/**卡片消息价格的frame*/
+@property (nonatomic, assign) CGRect cardPriceFrame;
+/**卡片消息按钮的frame*/
+@property (nonatomic, assign) CGRect cardLinkBtnFrame;
+/**卡片消息需要的数据*/
+@property (nullable, nonatomic, strong) NSDictionary *cardDict;
 
 
 

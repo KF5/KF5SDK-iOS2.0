@@ -40,7 +40,7 @@
     [super viewDidLoad];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:KF5Localized(@"kf5_submit") style:UIBarButtonItemStyleDone target:self action:@selector(submitRating)];
-    self.navigationItem.rightBarButtonItem.enabled = self.ratingModel.ratingScore != KFRatingScoreNone;
+    self.navigationItem.rightBarButtonItem.enabled = self.ratingModel.ratingScore != KFTicketRatingScoreNone;
     
     self.title = KF5Localized(@"kf5_rate");
     
@@ -118,7 +118,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 5;
+    return self.ratingModel.rateLevelArray.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -129,7 +129,7 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     
-    NSInteger ratingScore = indexPath.row + 1;
+    NSInteger ratingScore = self.ratingModel.rateLevelArray[indexPath.row].integerValue;
     
     cell.accessoryType = self.ratingModel.ratingScore == ratingScore ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     cell.textLabel.text = [KFRatingModel stringForRatingScore:ratingScore];
@@ -140,7 +140,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    self.ratingModel.ratingScore = indexPath.row + 1;
+    self.ratingModel.ratingScore = self.ratingModel.rateLevelArray[indexPath.row].integerValue;
     [tableView reloadData];
     // 选中满意度评分后,即可以提交满意度
     self.navigationItem.rightBarButtonItem.enabled = YES;

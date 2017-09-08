@@ -51,11 +51,11 @@
     [[KFChatManager sharedChatManager]setUserOffline];
 }
 #pragma mark - 连接请求
-- (void)configChatWithCompletion:(void (^)())completion{
+- (void)configChatWithCompletion:(void (^)(NSError *))completion{
     
     // 没有网络,直接结束
     if (![KFHelper isNetworkEnable]){
-        if (completion)completion();
+        if (completion)completion(nil);
         NSError *error = [NSError errorWithDomain:KF5Localized(@"kf5_no_internet") code:KFErrorCodeNetWorkOff userInfo:nil];
         [self delegateWithConnectError:error];
         
@@ -73,28 +73,27 @@
     __weak typeof(self)weakSelf = self;
     [[KFChatManager sharedChatManager]connectWithCompletion:^(NSError *error) {
         if (error) {
-            if(completion)completion();
+            if(completion)completion(error);
             [weakSelf delegateWithConnectError:error];
         }else{
             [weakSelf getAgentWithCompletion:completion];
-            [weakSelf syncMessage];
             [weakSelf updateMetadata];
         }
     }];
 }
 
 #pragma mark 判断是否有正在进行的对话
-- (void)getAgentWithCompletion:(void (^)())completion{
+- (void)getAgentWithCompletion:(void (^)(NSError *))completion{
     switch ([KFChatManager sharedChatManager].chatStatus) {
         case KFChatStatusChatting:
         case KFChatStatusQueue:
         case KFChatStatusAIAgent:{ // 正在进行聊天,排队,机器人
-            if(completion)completion();
+            if(completion)completion(nil);
         }
             break;
         default:{// KFChatStatusNone或其他值
             if (self.assignAgentWhenSendedMessage) {
-                if (completion) completion();
+                if (completion) completion(nil);
             }else{
                 [self queueUpWithCompletion:completion];
             }
@@ -104,11 +103,11 @@
 }
 
 #pragma mark 用户排队
-- (void)queueUpWithCompletion:(void (^)())completion{
+- (void)queueUpWithCompletion:(void (^)(NSError *))completion{
         
     __weak typeof(self)weakSelf = self;
     [[KFChatManager sharedChatManager]queueUpWithCompletion:^(NSError *error) {
-        if (completion)completion();
+        if (completion)completion(error);
         if (error) {
             [weakSelf delegateWithQueueError:error];
         }else{
@@ -126,15 +125,6 @@
     }];
 }
 
-#pragma mark - KFChatManager主动请求
-- (void)syncMessage{
-    __weak KFChatViewModel *weakSelf = self;
-    [[KFChatManager sharedChatManager]syncMessageWithCompletion:^(NSArray<KFMessage *> *history, NSError *error) {
-        if (history.count > 0) {
-            [weakSelf delegateWithaddMessages:history];
-        }
-    }];
-}
 #pragma mark 发送消息
 - (void)sendMessageWithMessageType:(KFMessageType)messageType data:(id)data{
     
@@ -153,7 +143,7 @@
                     if (error) return ;
                     
                     if (weakSelf.assignAgentWhenSendedMessage && [KFChatManager sharedChatManager].chatStatus == KFChatStatusNone) {
-                        [weakSelf queueUpWithCompletion:^{
+                        [weakSelf queueUpWithCompletion:^(NSError *error) {
                             // 排队期间发送一条消息用于提问,之后就不能发送消息了
                             [KFHelper setHasChatQueueMessage:YES];
                             [weakSelf delegateWithStatusChanage];
@@ -204,7 +194,7 @@
 }
 
 #pragma mark 发送满意度
-- (void)sendRating:(BOOL)rating completion:(void (^)(NSError * _Nullable))completion{
+- (void)sendRating:(NSInteger)rating completion:(void (^)(NSError * _Nullable))completion{
     [[KFChatManager sharedChatManager]sendRating:rating completion:completion];
 }
 #pragma mark 更新IM自定义信息
@@ -231,7 +221,7 @@ static BOOL isCanSendChecking = NO;
     
     if (![KFChatManager sharedChatManager].currentAgent && !self.assignAgentWhenSendedMessage) {
         isCanSendChecking = YES;
-        [self queueUpWithCompletion:^() {
+        [self queueUpWithCompletion:^(NSError *error) {
             if(completion)completion();
             isCanSendChecking = NO;
         }];
@@ -239,11 +229,44 @@ static BOOL isCanSendChecking = NO;
     }
     return YES;
 }
+#pragma mark 满意度评价显示数组
+- (NSArray <NSNumber *> *)rateLevelArray{
+    if ([KFChatManager sharedChatManager].rateLevelCount == 5){
+        return @[@(KFChatRatingScoreGreat),@(KFChatRatingScoreGood),@(KFChatRatingScoreOk),@(KFChatRatingScoreSoso),@(KFChatRatingScoreBad)];
+    }else if ([KFChatManager sharedChatManager].rateLevelCount == 3){
+        return @[@(KFChatRatingScoreGreat), @(KFChatRatingScoreOk),@(KFChatRatingScoreBad)];
+    } else{
+        return @[@(KFChatRatingScoreGreat), @(KFChatRatingScoreBad)];
+    }
+}
+#pragma mark 满意度对应的内容
++ (NSString *)stringForRatingScore:(KFChatRatingScore)ratingScore{
+    switch (ratingScore) {
+        case KFChatRatingScoreBad:
+            return KF5Localized(@"kf5_bad");
+            break;
+        case KFChatRatingScoreSoso:
+            return KF5Localized(@"kf5_soso");
+            break;
+        case KFChatRatingScoreOk:
+            return KF5Localized(@"kf5_ok");
+            break;
+        case KFChatRatingScoreGood:
+            return KF5Localized(@"kf5_good");
+            break;
+        case KFChatRatingScoreGreat:
+            return KF5Localized(@"kf5_great");
+            break;
+        default:
+            return nil;
+            break;
+    }
+}
 
 #pragma mark - KFChatManagerDelegate
 // 接受聊天消息通知
-- (void)chatManager:(KFChatManager *)chatManager receiveMessage:(KFMessage *)chatMessage{
-    [self delegateWithaddMessages:@[chatMessage]];
+- (void)chatManager:(KFChatManager *)chatManager receiveMessages:(nonnull NSArray<KFMessage *> *)chatMessages{
+    [self delegateWithaddMessages:chatMessages];
 }
 // 用户排队的当前位置通知
 - (void)chatManager:(KFChatManager *)chatManager queueIndex:(NSInteger)queueIndex{

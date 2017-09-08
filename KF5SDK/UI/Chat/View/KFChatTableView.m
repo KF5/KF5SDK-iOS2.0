@@ -13,6 +13,7 @@ static NSString *kChatMessageVoiceCellID = @"chatMessageVoiceCellID";
 static NSString *kChatMessageTextCellID = @"chatMessageTextCellID";
 static NSString *kChatMessageImageCellID = @"chatMessageImageCellID";
 static NSString *kChatMessageSystemCellID = @"chatMessageSystemCellID";
+static NSString *kChatMessageCardCellID = @"chatMessageCardCellID";
 static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
 
 #define KFContentInsetTop  KF5Helper.KF5VerticalSpacing
@@ -105,6 +106,13 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
             cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageSystemCellID];
             if (!cell) {
                 cell = [[KFSystemMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageSystemCellID];
+            }
+        }
+            break;
+        case KFMessageTypeCard:{
+            cell = [tableView dequeueReusableCellWithIdentifier:kChatMessageCardCellID];
+            if (!cell) {
+                cell = [[KFCardMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kChatMessageCardCellID];
             }
         }
             break;
