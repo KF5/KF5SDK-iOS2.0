@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
         ss.public_header_files = 'KF5SDK/UI/Base/**/*.h','KF5SDK/UI/Category/**/*.h','KF5SDK/UI/Lib/**/*.h'
         ss.resources    = "KF5SDK/UI/KF5SDK.bundle"
         ss.dependency 'MBProgressHUD', '~> 1.0.0'
-        ss.dependency 'AFNetworking/Reachability', '~> 3.1.0'
+        ss.dependency 'AFNetworking/Reachability'
         ss.dependency 'YYText', '~> 1.0.7'
     end
 
@@ -49,7 +49,6 @@ Pod::Spec.new do |s|
         ss.dependency 'KF5SDK/Ticket'
         ss.dependency 'SDWebImage', '~> 3.8.2'
         ss.dependency 'TZImagePickerController', '~> 1.7.9'
-        ss.dependency 'AFNetworking/NSURLSession', '~> 3.1.0'
     end
 
 end
