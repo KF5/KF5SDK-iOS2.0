@@ -32,7 +32,7 @@
 
 @end
 
-@interface KFChatVoiceManager()
+@interface KFChatVoiceManager()<NSURLSessionDelegate>
 
 @property (nonatomic, strong) MLAudioRecorder *recorder;
 @property (nonatomic, strong) AmrRecordWriter *amrWriter;
@@ -235,22 +235,18 @@ static KFChatVoiceManager *sharedManager = nil;
     [self.messageList addObject:[[KFChatVoice alloc] initWithURL:url completion:completion]];
     
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    
-    AFURLSessionManager *manager = [[AFURLSessionManager alloc]initWithSessionConfiguration:configuration];
-    
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
     __weak typeof(self)weakSelf = self;
-    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
+
+    NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithRequest:request completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSURL *downloadURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
         NSURL *localURL= [downloadURL URLByAppendingPathComponent:[NSString stringWithFormat:@"KF5SDK/%@",[KFHelper md5HexDigest:url]]];
-        return localURL;
-    } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
         __block KFChatVoice *oldVoice = nil;
         [weakSelf.messageList enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(KFChatVoice *voice, BOOL * _Nonnull stop) {
             if ([voice.url isEqualToString:url]) {
-                voice.completionBlock(filePath.path,error);
+                voice.completionBlock(localURL.path,error);
                 oldVoice = voice;
                 *stop = YES;
             }
@@ -259,7 +255,7 @@ static KFChatVoiceManager *sharedManager = nil;
             [weakSelf.messageList removeObject:oldVoice];
         }
     }];
-    
+
     [downloadTask resume];
 }
 
@@ -277,5 +273,15 @@ static KFChatVoiceManager *sharedManager = nil;
     }
 }
 
+#pragma mark - NSURLSessionDelegate
+
+- (void)URLSession:(NSURLSession *)session
+      downloadTask:(NSURLSessionDownloadTask *)downloadTask
+didFinishDownloadingToURL:(NSURL *)location
+{
+    NSURL *downloadURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
+    NSURL *localURL= [downloadURL URLByAppendingPathComponent:[NSString stringWithFormat:@"KF5SDK/%@",[KFHelper md5HexDigest:downloadTask.originalRequest.URL.absoluteString]]];
+    [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
+}
 
 @end
