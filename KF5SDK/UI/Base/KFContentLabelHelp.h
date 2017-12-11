@@ -33,53 +33,49 @@ typedef enum : NSUInteger {
  *  @param string    文件名称
  *  @param urlString 点击的url
  *  @param font      文本字体
- *  @param urlColor  文本颜色
+ *  @param color  文本颜色
  */
-+ (NSMutableAttributedString *)documentStringWithString:(NSString *)string urlString:(NSString *)urlString font:(UIFont *)font urlColor:(UIColor *)urlColor;
++ (NSMutableAttributedString *)documentStringWithString:(NSString *)string urlString:(NSString *)urlString font:(UIFont *)font color:(UIColor *)color;
 /**
  *  自定义消息
  *
  *  @param JSONString JSON字符串
  *  @param font       字体
- *  @param textColor  文本颜色
- *  @param urlColor   链接颜色
+ *  @param color  文本颜色
  */
-+ (NSMutableAttributedString *)customMessageWithJSONString:(NSString *)JSONString font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
++ (NSMutableAttributedString *)customMessageWithJSONString:(NSString *)JSONString font:(UIFont *)font color:(UIColor *)color;
 /**
  系统消息匹配{{去留言}}
 
  @param string     内容
  @param font       字体
- @param textColor  文字颜色
- @param urlColor   链接颜色
+ @param color  文字颜色
  */
-+ (NSMutableAttributedString *)systemMessageWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
++ (NSMutableAttributedString *)systemMessageWithString:(NSString *)string font:(UIFont *)font color:(UIColor *)color;
 /**
  *  聊天消息匹配电话,url,http,a标签
  *
  *  @param string    内容
  *  @param font      字体
- *  @param textColor 文本颜色
- *  @param urlColor  链接颜色
+ *  @param color 文本颜色
  */
-+ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
++ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string font:(UIFont *)font color:(UIColor *)color;
 /**
  *  匹配电话,url,http,a标签
  *
  *  @param string    内容
  *  @param optional  要解析的方式
  *  @param font      字体
- *  @param textColor 文本颜色
- *  @param urlColor  链接颜色
+ *  @param color 文本颜色
  */
-+ (NSMutableAttributedString *)attributedString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font textColor:(UIColor *)textColor urlColor:(UIColor *)urlColor;
++ (NSMutableAttributedString *)attributedString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font color:(UIColor *)color;
 /**
  *  制作高亮富文本
  *
  *  @param string   内容
  *  @param userInfo 需要附加的信息
  *  @param font     字体
- *  @param color    颜色
+ *  @param color 文本颜色
  */
 + (NSMutableAttributedString *)hightlightBorderWithString:(NSString *)string userInfo:(NSDictionary *)userInfo font:(UIFont *)font color:(UIColor *)color;
 @end

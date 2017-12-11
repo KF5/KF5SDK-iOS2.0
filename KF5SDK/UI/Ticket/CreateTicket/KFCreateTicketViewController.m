@@ -8,14 +8,17 @@
 
 #import "KFCreateTicketViewController.h"
 #import "KFHelper.h"
-#import "JKAlert.h"
 #import "KFProgressHUD.h"
 #import "KFUserManager.h"
 #import "KFTicketManager.h"
 #import "SDImageCache.h"
 #import "TZImagePickerController.h"
 
-@interface KFCreateTicketViewController ()<KFCreateTicketViewDelegate>
+#import "KFAutoLayout.h"
+
+@interface KFCreateTicketViewController ()
+
+@property (nonatomic,strong) NSLayoutConstraint *scrollBottomLayout;
 
 @end
 
@@ -23,20 +26,16 @@ static NSArray *CustomFields = nil;
 
 @implementation KFCreateTicketViewController
 
-- (void)loadView{
-    KFCreateTicketView *createView = [[KFCreateTicketView alloc] initWithFrame:CGRectMake(0, 0, KF5SCREEN_WIDTH, KF5SCREEN_HEIGHT) viewDelegate:self];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChangeWithNote:)  name:UITextViewTextDidChangeNotification object:createView.textView];
-    self.createView = createView;
-    self.view = createView;
-}
-
 + (void)setCustomFields:(NSArray *)customFields{
     CustomFields = customFields;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self setupView];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChangeWithNote:)  name:UITextViewTextDidChangeNotification object:self.createView.textView];
     
     if (!self.title.length) self.title =  KF5Localized(@"kf5_feedback");
     
@@ -51,19 +50,71 @@ static NSArray *CustomFields = nil;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 }
 
-- (void)updateFrame{
-    [self.createView updateFrame];
+- (void)setupView{
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    UIScrollView *scrollView = [[UIScrollView alloc] init];
+    scrollView.alwaysBounceVertical = YES;
+    [self.view addSubview:scrollView];
+    
+    KFCreateTicketView *createView = [[KFCreateTicketView alloc] init];
+    __weak typeof(self)weakSelf = self;
+    createView.clickAttBtn = ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf addAttachment];
+        });
+    };
+    self.createView = createView;
+    [scrollView addSubview:createView];
+    
+    [scrollView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self.kf5_safeAreaTopLayoutGuide);
+        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        self.scrollBottomLayout = make.bottom.equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
+    }];
+    
+    [createView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(scrollView);
+        make.left.equalTo(scrollView);
+        make.right.equalTo(scrollView);
+        make.bottom.equalTo(scrollView);
+        make.width.equalTo(scrollView);
+        make.height.greaterThanOrEqualTo(scrollView).priority(UILayoutPriorityDefaultLow);
+    }];
+}
+
+- (void)addAttachment{
+    [self.createView.textView resignFirstResponder];
+    
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:6 delegate:nil];
+    imagePickerVc.selectedAssets = [self.createView.photoImageView.items valueForKeyPath:@"asset"];
+    imagePickerVc.allowPickingOriginalPhoto = NO;
+    imagePickerVc.barItemTextFont = [UIFont boldSystemFontOfSize:17];
+    __weak typeof(self)weakSelf = self;
+    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            weakSelf.createView.photoImageView.items = [KFAssetImage assetImagesWithImages:photos assets:assets];
+        });
+    }];
+    
+    [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
 
 - (void)createTicket:(UIBarButtonItem *)btnItem{
     
+    if (![KFHelper isNetworkEnable]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
+        });
+        return ;
+    }
     
     self.navigationItem.rightBarButtonItem.enabled = NO;
     
     [self.createView.textView resignFirstResponder];
     
     if (![KFHelper isNetworkEnable]) {
-        [JKAlert showMessage:KF5Localized(@"kf5_no_internet")];
+        [[KFHelper alertWithMessage:KF5Localized(@"kf5_no_internet")]showToVC:self];
         return ;
     }
     
@@ -77,10 +128,10 @@ static NSArray *CustomFields = nil;
     __block NSError *failure = nil;
     
     __weak typeof(self)weakSelf = self;
-    if (self.createView.photoImageView.images.count > 0) {
+    if (self.createView.photoImageView.items.count > 0) {
         
-        NSMutableArray *array = [NSMutableArray arrayWithCapacity:self.createView.photoImageView.images.count];
-        for (KFAssetImage *assetImage in self.createView.photoImageView.images) {
+        NSMutableArray *array = [NSMutableArray arrayWithCapacity:self.createView.photoImageView.items.count];
+        for (KFAssetImage *assetImage in self.createView.photoImageView.items) {
             KFFileModel *model = [[KFFileModel alloc] init];
             model.fileData = UIImageJPEGRepresentation(assetImage.image, 1.0);
             [array addObject:model];
@@ -93,7 +144,7 @@ static NSArray *CustomFields = nil;
                 for (NSInteger i = 0; i < urls.count; i++) {
                     NSString *url = urls[i];
                     if ([url isKindOfClass:[NSString class]]) {
-                        [[SDImageCache sharedImageCache] storeImage:weakSelf.createView.photoImageView.images[i].image forKey:url];
+                        [[SDImageCache sharedImageCache]storeImage:((KFAssetImage *)weakSelf.createView.photoImageView.items[i]).image forKey:url completion:nil];
                     }
                 }
             }else{
@@ -107,7 +158,7 @@ static NSArray *CustomFields = nil;
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         if (failure) {
             [KFProgressHUD hideHUDForView:weakSelf.view];
-            [JKAlert showMessage:KF5Localized(@"kf5_image_upload_error")];
+            [[KFHelper alertWithMessage:KF5Localized(@"kf5_image_upload_error")]showToVC:weakSelf];
             return;
         }
         
@@ -136,71 +187,35 @@ static NSArray *CustomFields = nil;
                     // 同时工单列表更新
                     [[NSNotificationCenter defaultCenter]postNotificationName:KKF5NoteNeedLoadTicketListData object:nil];
                 }else{
-                    [JKAlert showMessage:error.localizedDescription];
+                    [[KFHelper alertWithMessage:error.localizedDescription]showToVC:weakSelf];
                 }
             });
         }];
     });
 }
-#pragma mark - KFCreateTicketView代理方法
-- (CGFloat)createTicketViewWithOffsetTop:(KFCreateTicketView *)view{
-    return self.navigationController.navigationBar.kf5_h + [UIApplication sharedApplication].statusBarFrame.size.height;
-}
-
-- (void)createTicketViewWithAddAttachmentAction:(KFCreateTicketView *)view{
-    [self.createView.textView resignFirstResponder];
-    
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:6 delegate:nil];
-    imagePickerVc.selectedAssets = [self.createView.photoImageView.images valueForKeyPath:@"asset"];
-    imagePickerVc.allowPickingOriginalPhoto = NO;
-    imagePickerVc.barItemTextFont = [UIFont boldSystemFontOfSize:17];
-    
-    __weak typeof(self)weakSelf = self;
-    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            weakSelf.createView.photoImageView.images = [KFAssetImage assetImagesWithImages:photos assets:assets];
-        });
-    }];
-    
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
-}
 
 #pragma mark 收到键盘弹出通知后的响应
 - (void)keyboardWillShow:(NSNotification *)info {
-    //保存info
+    
     NSDictionary *dict = info.userInfo;
     //得到键盘的显示完成后的frame
     CGRect keyboardBounds = [dict[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    //得到键盘弹出动画的时间
-    double duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    //坐标系转换
-    CGRect keyboardBoundsRect = [self.view convertRect:keyboardBounds toView:nil];
     //得到键盘的高度，即输入框需要移动的距离
-    double offsetY = keyboardBoundsRect.size.height;
-    
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-    //添加动画
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        CGFloat h = KF5SCREEN_HEIGHT - offsetY;
-        self.createView.kf5_h = h;
-        [self.createView updateFrame];
+    self.scrollBottomLayout.constant = -(keyboardBounds.size.height  - self.view.kf5_safeAreaInsets.bottom);
+
+    [UIView animateWithDuration:[dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
     } completion:nil];
-    
 }
 
 #pragma mark 隐藏键盘通知的响应
 - (void)keyboardWillHide:(NSNotification *)info {
-    //输入框回去的时候就不需要高度了，直接取动画时间和曲线还原回去
     NSDictionary *dict = info.userInfo;
-    double duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-    
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        self.createView.kf5_h = KF5SCREEN_HEIGHT;
-        [self.createView updateFrame];
+    self.scrollBottomLayout.constant = 0;
+    [UIView animateWithDuration:[dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
     } completion:nil];
 }
-
 
 - (void)cancelView{
     if (self.navigationController.viewControllers.count == 1) {
@@ -217,11 +232,6 @@ static NSArray *CustomFields = nil;
     }else{
         self.navigationItem.rightBarButtonItem.enabled = NO;
     }
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 @end

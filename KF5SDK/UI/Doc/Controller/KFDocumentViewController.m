@@ -8,7 +8,6 @@
 
 #import "KFDocumentViewController.h"
 
-#import "UITableView+KFRefresh.h"
 #import "KFHelper.h"
 #import "KFDocument.h"
 #import "KFProgressHUD.h"
@@ -21,25 +20,6 @@
 @end
 
 @implementation KFDocumentViewController
-
-- (void)loadView{
-    UIWebView *webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, KF5SCREEN_WIDTH, KF5SCREEN_HEIGHT)];
-    webView.backgroundColor = [UIColor clearColor];
-    webView.allowsInlineMediaPlayback = YES;
-    webView.mediaPlaybackRequiresUserAction = NO;
-    webView.dataDetectorTypes = UIDataDetectorTypeNone;
-    webView.opaque = NO;
-    for (UIView* subview in [webView.scrollView subviews]) {
-        if ([subview isKindOfClass:[UIImageView class]]) {
-            ((UIImageView*)subview).image = nil;
-            subview.backgroundColor = [UIColor clearColor];
-        }
-    }
-    webView.delegate = self;
-
-    self.webView = webView;
-    self.view = webView;
-}
 
 - (instancetype)initWithPost:(KFDocItem *)post{
     self = [super init];
@@ -55,16 +35,42 @@
     if (!self.title.length) {
         if (self.post)self.title = self.post.title;
     }
+    
+    UIWebView *webView = [[UIWebView alloc]init];
+    webView.delegate = self;
+    webView.backgroundColor = [UIColor clearColor];
+    webView.allowsInlineMediaPlayback = YES;
+    webView.mediaPlaybackRequiresUserAction = NO;
+    webView.dataDetectorTypes = UIDataDetectorTypeNone;
+    webView.opaque = NO;
+    for (UIView* subview in [webView.scrollView subviews]) {
+        if ([subview isKindOfClass:[UIImageView class]]) {
+            ((UIImageView*)subview).image = nil;
+            subview.backgroundColor = [UIColor clearColor];
+        }
+    }
+    [self.view addSubview:webView];
+    self.webView = webView;
+    
+    [webView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self.view);
+        make.left.equalTo(self.view);
+        make.bottom.equalTo(self.view);
+        make.right.equalTo(self.view);
+    }];
         
     [KFProgressHUD showDefaultLoadingTo:self.view];
     
     [self reloadData];
 }
 
-
-
 - (void)reloadData{
-    
+    if (![KFHelper isNetworkEnable]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
+        });
+        return ;
+    }
     NSDictionary *params =
     @{
       KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",

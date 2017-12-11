@@ -22,6 +22,7 @@
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
+        self.hidden = YES;
          UIActivityIndicatorView *loadingView =[[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
         loadingView.hidden = YES;
         [self addSubview:loadingView];
@@ -33,6 +34,20 @@
         [failureBtn addTarget:self action:@selector(clickFailureBtn) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:failureBtn];
         _failureBtn = failureBtn;
+        
+        [loadingView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.left.equalTo(self);
+            make.right.equalTo(self);
+            make.top.equalTo(self);
+            make.bottom.equalTo(self);
+        }];
+        [failureBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.left.equalTo(self);
+            make.right.equalTo(self);
+            make.top.equalTo(self);
+            make.bottom.equalTo(self);
+        }];
+        
     }
     return self;
 }
@@ -67,13 +82,6 @@
                 break;
         }
     });
-}
-
-- (void)layoutSubviews{
-    [super layoutSubviews];
-    
-    self.failureBtn.frame = self.bounds;
-    self.loadingView.frame = self.bounds;
 }
 
 @end

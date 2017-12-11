@@ -7,8 +7,8 @@
 //
 
 #import "KFChatViewCell.h"
-#import "KFLabel.h"
 
+@class KFLabel;
 @interface KFSystemMessageCell : KFChatViewCell
 
 @property (nullable, nonatomic, weak) KFLabel *systemMessageLabel;

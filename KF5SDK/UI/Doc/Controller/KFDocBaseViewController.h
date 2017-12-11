@@ -11,7 +11,9 @@
 
 @interface KFDocBaseViewController : KFBaseTableViewController
 
-@property (nonatomic, strong) NSMutableArray *docArray;
+@property (nonatomic,strong) UITableView *searchTableView;
+
+@property (nonatomic, strong) NSMutableArray <KFDocItem *>*docArray;
 
 ///每页的数量
 @property (nonatomic, assign) NSUInteger prePage;

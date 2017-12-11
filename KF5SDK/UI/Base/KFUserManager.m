@@ -59,19 +59,17 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
     }];
 }
 
-- (void)updateUserWithEmail:(NSString *)email phone:(NSString *)phone name:(NSString *)name completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
+- (void)updateUserWithParams:(NSDictionary *)params completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
     if (self.user.userToken.length == 0) {
         NSError *error = [NSError errorWithDomain:@"请先调用KFUserManager的初始化方法" code:KFErrorCodeParamError userInfo:nil];
         if (completion) completion(nil,error);
     }
     
-    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:3];
-    if (self.user.userToken.length > 0) [params setObject:self.user.userToken forKey:KF5UserToken];
-    if (email.length > 0) [params setObject:email forKey:KF5Email];
-    if (phone.length > 0) [params setObject:phone forKey:KF5Phone];
-    if (name.length > 0) [params setObject:name forKey:KF5Name];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:params];
+    if (self.user.userToken.length > 0) [dict setObject:self.user.userToken forKey:KF5UserToken];
+    
     __weak typeof(self)weakSelf = self;
-    [KFHttpTool updateUserWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
+    [KFHttpTool updateUserWithParams:dict completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
         if (!error) {
             weakSelf.user = [KFUser userWithDict:[result kf5_dictionaryForKeyPath:@"data.user"]];
             if(completion)completion(weakSelf.user,error);
@@ -79,6 +77,16 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
             if(completion)completion(nil,error);
         }
     }];
+}
+
+- (void)updateUserWithEmail:(NSString *)email phone:(NSString *)phone name:(NSString *)name completion:(void (^)(KFUser * _Nullable, NSError * _Nullable))completion{
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:3];
+    if (self.user.userToken.length > 0) [params setObject:self.user.userToken forKey:KF5UserToken];
+    if (email.length > 0) [params setObject:email forKey:KF5Email];
+    if (phone.length > 0) [params setObject:phone forKey:KF5Phone];
+    if (name.length > 0) [params setObject:name forKey:KF5Name];
+    
+    [self updateUserWithParams:params completion:completion];
 }
 
 - (void)setUser:(KFUser *)user{

@@ -29,8 +29,7 @@
         _meTextColor = meTextColor;
         _otherTextColor = otherTextColor;
         
-        UILabel *timeLabel = [[UILabel alloc]init];
-        timeLabel.font = textFont;
+        UILabel *timeLabel = [KFHelper labelWithFont:textFont textColor:nil];
         [self addSubview:timeLabel];
         _timeLabel  = timeLabel;
         
@@ -40,7 +39,6 @@
         [self addSubview:voiceImageView];
         _voiceImageView = voiceImageView;
         
-
     }
     return self;
 }
@@ -77,23 +75,24 @@
 
 - (void)layoutSubviews{
     
-    CGSize timeSize = [self.timeLabel sizeThatFits:CGSizeMake(100, 20)];
+    CGSize timeSize = [self.timeLabel sizeThatFits:CGSizeMake(150, 20)];
+    timeSize.width += 3;
     if (_messageForm == KFMessageFromMe) {
         self.voiceImageView.image = KF5Helper.chat_meWaves.lastObject;
         self.timeLabel.textColor = self.meTextColor;
         
-        self.voiceImageView.frame = CGRectMake(self.kf5_w - 20 + 5, 0, 20, 20);
-        self.timeLabel.frame = CGRectMake(0, 0, timeSize.width, self.kf5_h);
+        self.voiceImageView.frame = CGRectMake(self.frame.size.width - 20 + 5, 0, 20, 20);
+        self.timeLabel.frame = CGRectMake(0, 0, timeSize.width, self.frame.size.height);
     }else{
         self.voiceImageView.image = KF5Helper.chat_otherWaves.lastObject;
         self.timeLabel.textColor = self.otherTextColor;
         
         self.voiceImageView.frame = CGRectMake(-5, 0, 20, 20);
-        self.timeLabel.frame = CGRectMake(self.kf5_w - timeSize.width, 0, timeSize.width, self.kf5_h);
+        self.timeLabel.frame = CGRectMake(self.frame.size.width - timeSize.width, 0, timeSize.width, self.frame.size.height);
     }
     
-    self.voiceImageView.center = CGPointMake(self.voiceImageView.center.x, self.kf5_h / 2);
-    self.timeLabel.center = CGPointMake(self.timeLabel.center.x, self.kf5_h / 2);
+    self.voiceImageView.center = CGPointMake(self.voiceImageView.center.x, self.frame.size.height / 2);
+    self.timeLabel.center = CGPointMake(self.timeLabel.center.x, self.frame.size.height / 2);
 }
 
 

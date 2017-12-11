@@ -36,15 +36,20 @@
 
 @property (nullable, nonatomic, weak) UIResponder *inputNextResponder;
 
+/**
+ 是否能输入emoji,默认为YES
+ */
+@property (nonatomic,assign) BOOL canEmoji;
+
 
 /**
  限制的最大高度,用于计算textHeight,如果没有设置默认MAXFLOAT
  */
 @property (nonatomic, assign) CGFloat maxTextHeight;
-/**
- 文本在TextView.width下的sizeFit高度
- */
-@property (nonatomic, assign,readonly) CGFloat textHeight;
+
+@property (nonatomic,strong) NSLayoutConstraint * _Nullable heightLayout;
+
+- (CGFloat)textHeight;
 /**
  清空内容
  */

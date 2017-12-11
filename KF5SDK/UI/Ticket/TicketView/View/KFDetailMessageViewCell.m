@@ -25,37 +25,46 @@
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        [self setup];
+        [self setupView];
+        [self layoutView];
     }
     return self;
 }
 
-- (void)setup{
+- (void)setupView{
     // 标题
-    UILabel *titleLabel = [[UILabel alloc]init];
-    titleLabel.font = KF5Helper.KF5TitleFont;
-    titleLabel.textColor = KF5Helper.KF5TitleColor;
+    UILabel *titleLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor];
     titleLabel.numberOfLines = 0;
     self.titleLabel = titleLabel;
     [self.contentView addSubview:titleLabel];
     
     // 内容
-    UILabel *contentLabel = [[UILabel alloc]init];
+    UILabel *contentLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5NameColor];
     contentLabel.textAlignment = NSTextAlignmentRight;
-    contentLabel.font = KF5Helper.KF5TitleFont;
-    contentLabel.textColor = KF5Helper.KF5NameColor;
     contentLabel.numberOfLines = 0;
-    self.contentLabel.lineBreakMode = NSLineBreakByTruncatingTail ;
+    self.contentLabel.lineBreakMode = NSLineBreakByTruncatingTail;
     self.contentLabel = contentLabel;
     [self.contentView addSubview:contentLabel];
 }
 
-- (void)setTicketFieldModel:(KFTicketFieldModel *)ticketFieldModel{
-    _titleLabel.text = ticketFieldModel.title;
-    _titleLabel.frame = ticketFieldModel.titleFrame;
-    
-    _contentLabel.text = ticketFieldModel.content;
-    _contentLabel.frame = ticketFieldModel.contentFrame;
+- (void)layoutView{
+    UIView *superView = self.contentView;
+    [self.titleLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(superView).offset(KF5Helper.KF5MiddleSpacing);
+        make.left.equalTo(superView).offset(KF5Helper.KF5HorizSpacing);
+        make.right.greaterThanOrEqualTo(self.contentLabel.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        make.bottom.equalTo(superView).offset(-KF5Helper.KF5MiddleSpacing);
+    }];
+    [self.contentLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.centerY.equalTo(self.titleLabel);
+        make.right.equalTo(superView).offset(-KF5Helper.KF5HorizSpacing);
+    }];
+}
+
+- (void)setTicketFieldDict:(NSDictionary *)ticketFieldDict{
+    _ticketFieldDict = ticketFieldDict;
+    _titleLabel.text = [ticketFieldDict kf5_stringForKeyPath:@"name"];
+    _contentLabel.text = [ticketFieldDict kf5_stringForKeyPath:@"value"];
 }
 
 @end

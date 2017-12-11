@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "KFTicketModel.h"
+#import "KFTicket.h"
 
 @interface KFTicketListViewCell : UITableViewCell
 
@@ -16,6 +16,6 @@
 @property (nonatomic, weak) UILabel *statusLabel;
 @property (nonatomic, weak) UIView *pointView;
 
-@property (nonatomic, strong) KFTicketModel *ticketModel;
+@property (nonatomic, strong) KFTicket *ticket;
 
 @end

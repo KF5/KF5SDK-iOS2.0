@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "KFCommentModel.h"
+#import "KFComment.h"
 #import "KFTicketViewCell.h"
 #import "KFRatingModel.h"
 
@@ -22,9 +22,9 @@
 
 @property (nullable, nonatomic, weak) id <KFTicketTableViewDelegate,KFTicketViewCellDelegate> cellDelegate;
 
-@property (nullable, nonatomic, strong) NSMutableArray <KFCommentModel *>*commentModelArray;
+@property (nullable, nonatomic, strong) NSMutableArray <KFComment *>*commentList;
 
-- (void)scrollViewBottomHasMainQueue:(BOOL)hasMainQueue;
+- (void)scrollViewBottomWithAnimated:(BOOL)animated;
 - (void)scrollViewBottomWithAfterTime:(int16_t)afterTime;
 
 

@@ -58,13 +58,6 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
     return self;
 }
 
-- (void)updateFrame{
-    for (KFMessageModel *model in self.messageModelArray) {
-        [model updateFrame];
-    }
-    [self reloadData];
-}
-
 #pragma mark - tableView代理
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     KFMessageModel *messageModel = self.messageModelArray[indexPath.row];
@@ -75,7 +68,7 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
     return self.messageModelArray.count;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{    
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     KFMessageModel *messageModel = self.messageModelArray[indexPath.row];
     
     KFChatViewCell *cell = nil;
@@ -131,7 +124,7 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
-    if (self.superview)[self.superview endEditing:YES];
+    if (self.superview)[self.superview endEditing:NO];
     scrollView.tag = 1;
 }
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
@@ -159,10 +152,14 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
 
 - (void)refreshHeaderData{
     UIActivityIndicatorView *loadingView =[[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    [loadingView startAnimating];
-    loadingView.frame = CGRectMake(0, 0, 20, 20);
-    loadingView.center = CGPointMake(self.kf5_centerX, -KFContentInsetTop/2);
     [self addSubview:loadingView];
+    [loadingView startAnimating];
+    [loadingView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.width.kf_equal(20);
+        make.height.kf_equal(20);
+        make.centerX.equalTo(self.kf5_centerX);
+        make.centerY.equalTo(self.kf5_top).offset(-KFContentInsetTop/2);
+    }];
     
     if ([self.tableDelegate respondsToSelector:@selector(tableViewWithRefreshData:)]) {
         [self.tableDelegate tableViewWithRefreshData:self];
@@ -184,25 +181,19 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
 }
 
 #pragma mark 向下滚动
-- (void)scrollViewBottomHasMainQueue:(BOOL)hasMainQueue{
-    if (self.contentSize.height > self.frame.size.height)
-    {
-        CGPoint offset = CGPointMake(0, self.contentSize.height - self.frame.size.height);
-        
-        if (hasMainQueue) {
-            dispatch_async(dispatch_get_main_queue(), ^{// 调用线程会影响外部包裹的动画
-                [self setContentOffset:offset animated:YES];
-            });
-        }else{
-            [UIView animateWithDuration:0.25f animations:^{
-                [self setContentOffset:offset];
-            }];
+- (void)scrollViewBottomWithAnimated:(BOOL)animated{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger rowCount = [self numberOfRowsInSection:0];
+        if (rowCount > 1) {
+            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:rowCount-1 inSection:0];
+            [self layoutIfNeeded];
+            [self scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:animated];
         }
-    }
+    });
 }
 - (void)scrollViewBottomWithAfterTime:(int16_t)afterTime{
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(afterTime * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        [self scrollViewBottomHasMainQueue:NO];
+        [self scrollViewBottomWithAnimated:YES];
     });
 }
 
@@ -211,6 +202,15 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
         return YES;
     }
     return [super touchesShouldCancelInContentView:view];
+}
+
+- (void)drawRect:(CGRect)rect{
+    [super drawRect:rect];
+    for (KFMessageModel *model in self.messageModelArray) {
+        [model updateFrame];
+    }
+    [self reloadData];
+    [self scrollViewBottomWithAnimated:YES];
 }
 
 @end

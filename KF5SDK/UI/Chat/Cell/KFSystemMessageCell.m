@@ -8,8 +8,9 @@
 
 #import "KFSystemMessageCell.h"
 #import "KFHelper.h"
+#import "KFLabel.h"
 
-@interface KFSystemMessageCell()<KFLabelDelegate>
+@interface KFSystemMessageCell()
 
 @end
 
@@ -25,24 +26,23 @@
         _backgroundLayer = backgroundLayer;
         
         KFLabel *systemMessageLabel = [[KFLabel alloc] init];
-        systemMessageLabel.labelDelegate = self;
-        systemMessageLabel.numberOfLines = 0;
+        systemMessageLabel.linkTextAttributes = @{NSForegroundColorAttributeName:KF5Helper.KF5OtherURLColor};
+        __weak typeof(self)weakSelf = self;
+        systemMessageLabel.linkTapBlock = ^(KFLabel *label, NSDictionary *value) {
+            if ([weakSelf.cellDelegate respondsToSelector:@selector(cell:clickLabelWithInfo:)]) {
+                [weakSelf.cellDelegate cell:weakSelf clickLabelWithInfo:value];
+            }
+        };
         [self.contentView addSubview:systemMessageLabel];
         _systemMessageLabel = systemMessageLabel;
     }
     return self;
 }
 
-- (void)clickLabelWithInfo:(NSDictionary *)info{
-    if ([self.cellDelegate respondsToSelector:@selector(cell:clickLabelWithInfo:)]) {
-        [self.cellDelegate cell:self clickLabelWithInfo:info];
-    }
-}
-
 - (void)setMessageModel:(KFMessageModel *)messageModel{
     [super setMessageModel:messageModel];
     
-    _systemMessageLabel.textLayout = messageModel.systemTextLayout;
+    _systemMessageLabel.attributedText = messageModel.systemText;
     _systemMessageLabel.frame = messageModel.systemFrame;
     _backgroundLayer.frame = messageModel.systemBackgroundFrame;
 }

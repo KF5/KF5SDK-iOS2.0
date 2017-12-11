@@ -7,30 +7,15 @@
 //
 
 #import "KFChatVoiceManager.h"
-#import "AFURLSessionManager.h"
 #import "KFHelper.h"
 #import "MLAudioMeterObserver.h"
 #import "MLAudioPlayer.h"
 #import "AmrPlayerReader.h"
 #import "AmrRecordWriter.h"
+#import "KFMessageModel.h"
 
-@interface KFChatVoice : NSObject
-@property (nonnull, nonatomic, copy) NSString *url;
-@property (nullable, nonatomic, strong) void (^completionBlock)(NSString *local_path, NSError *error);
-@end
-@implementation KFChatVoice
-
-- (instancetype)initWithURL:(NSString *)url completion:(void (^)(NSString *local_path,NSError *error))completion
-{
-    self = [super init];
-    if (self) {
-        _url = url;
-        _completionBlock = completion;
-    }
-    return self;
-}
-
-@end
+NSString * const KFChatVoiceDidDownloadNotification = @"KF5ChatVoiceDidDownloadNotification";
+NSString * const KFChatVoiceStopPlayNotification = @"KF5ChatVoiceStopPlayNotification";
 
 @interface KFChatVoiceManager()
 
@@ -40,11 +25,9 @@
 @property (nonatomic, strong) AmrPlayerReader *amrReader;
 @property (nonatomic, strong) MLAudioPlayer *player;
 
+@property (nonatomic, strong) NSMutableSet <KFMessageModel *>*messageList;
 
-@property (nonatomic, strong) NSMutableSet <KFChatVoice *>*messageList;
-
-/**正在播放的语音*/
-@property (nonnull, nonatomic, copy) NSString *localPath;
+@property (nonatomic,weak) KFMessageModel *currentPlayingMessageModel;
 
 @end
 
@@ -171,22 +154,35 @@ static KFChatVoiceManager *sharedManager = nil;
 }
 
 #pragma mark 播放音频消息
-- (void)playVoiceWithLocalPath:(NSString *)localPath completion:(void (^)(NSError *))completion{
+- (void)playVoiceWithMessageModel:(KFMessageModel *)messageModel completion:(nullable void (^)(NSError * _Nullable))completion{
     if ([self.player isPlaying]) [self.player stopPlaying];
     
-    _localPath = localPath;
+    messageModel.isPlaying = YES;
+    
+    if (messageModel.message.local_path.length == 0) {
+        messageModel.isPlaying = NO;
+        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceStopPlayNotification object:messageModel];
+        if (completion)completion(nil);
+        return;
+    }
+    
+    self.currentPlayingMessageModel = messageModel;
     
     MLAudioPlayer *player = [[MLAudioPlayer alloc]init];
     AmrPlayerReader *amrReader = [[AmrPlayerReader alloc]init];
-    amrReader.filePath = localPath;
+    amrReader.filePath = messageModel.message.local_path;
     player.fileReaderDelegate = amrReader;
+    __weak KFMessageModel *weakMessageModel = messageModel;
     player.receiveErrorBlock = ^(NSError *error){
+        weakMessageModel.isPlaying = NO;
+        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceStopPlayNotification object:weakMessageModel];
         if (completion)completion(error);
     };
     player.receiveStoppedBlock = ^{
+        weakMessageModel.isPlaying = NO;
+        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceStopPlayNotification object:weakMessageModel];
         if (completion)completion(nil);
     };
-    
     self.player = player;
     self.amrReader = amrReader;
     [player startPlaying];
@@ -201,65 +197,38 @@ static KFChatVoiceManager *sharedManager = nil;
     return [AmrPlayerReader durationOfAmrFilePath:localPath];
 }
 
-- (BOOL)isPlayingWithlocalPath:(NSString *)localPath{
-    return [localPath isEqualToString:_localPath] && self.player.isPlaying;
+- (BOOL)isPlayingWithMessageModel:(KFMessageModel *)messageModel{
+    return self.currentPlayingMessageModel == messageModel  && self.player.isPlaying;
 }
 
 #pragma mark - 下载相关
-- (void)downloadDataWithURL:(NSString *)url completion:(void (^)(NSString * _Nullable, NSError * _Nullable))completion{
-    if (url.length == 0){
-        NSError *error = [NSError errorWithDomain:@"url不能为空" code:0 userInfo:nil];
-        if(completion)completion(nil,error);
-        return;
-    }
-    __block BOOL hasOldVoice = NO;
-    [self.messageList enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(KFChatVoice *voice, BOOL * _Nonnull stop) {
-        if ([voice.url isEqualToString:url]) {// 如果存在旧的voice说明正在下载中,替换里面的message和completion
-            voice.url = url;
-            voice.completionBlock = completion;
-            *stop = YES;
-            hasOldVoice = YES;
-        }
-    }];
-    
-    if (hasOldVoice){
+- (void)downloadDataWithMessageModel:(KFMessageModel *)messageModel{
+    if (messageModel.message.url.length == 0 || messageModel.message.local_path.length > 0 || [self.messageList containsObject:messageModel]){
         return;
     }
     
-    NSString *local_path = [self voicePathWithURL:url];
-    if (local_path.length >0) {// 如果能再找地址,说明之前已经下载过,直接返回
-        if (completion) completion(local_path,nil);
+    NSString *local_path = [self voicePathWithURL:messageModel.message.url];
+    if (local_path.length > 0) {
+        messageModel.message.local_path = local_path;
+        messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:local_path];
+        [messageModel updateFrame];
+        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
         return;
     }
+    [self.messageList addObject:messageModel];
     
-    [self.messageList addObject:[[KFChatVoice alloc] initWithURL:url completion:completion]];
-    
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    
-    AFURLSessionManager *manager = [[AFURLSessionManager alloc]initWithSessionConfiguration:configuration];
-    
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
     __weak typeof(self)weakSelf = self;
-    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
-        NSURL *downloadURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
-        NSURL *localURL= [downloadURL URLByAppendingPathComponent:[NSString stringWithFormat:@"KF5SDK/%@",[KFHelper md5HexDigest:url]]];
-        return localURL;
-    } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
-        __block KFChatVoice *oldVoice = nil;
-        [weakSelf.messageList enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(KFChatVoice *voice, BOOL * _Nonnull stop) {
-            if ([voice.url isEqualToString:url]) {
-                voice.completionBlock(filePath.path,error);
-                oldVoice = voice;
-                *stop = YES;
-            }
-        }];
-        if (oldVoice) {
-            [weakSelf.messageList removeObject:oldVoice];
+    NSURLSessionDownloadTask *downloadTask = [[NSURLSession sharedSession] downloadTaskWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:messageModel.message.url]] completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (!error) {
+            NSURL *localURL= [[[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil] URLByAppendingPathComponent:[NSString stringWithFormat:@"KF5SDK/%@",[KFHelper md5HexDigest:messageModel.message.url]]];
+            [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
+            messageModel.message.local_path = localURL.path;
+            messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:messageModel.message.local_path];
+            [messageModel updateFrame];
+            [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
         }
+        [weakSelf.messageList removeObject:messageModel];
     }];
-    
     [downloadTask resume];
 }
 

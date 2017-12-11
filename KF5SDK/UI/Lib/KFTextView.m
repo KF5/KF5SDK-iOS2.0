@@ -9,6 +9,8 @@
 #import "KFTextView.h"
 #import "KFHelper.h"
 
+#import "KFAutoLayout.h"
+
 static NSString *KF5AttributedTextKey = @"attributedText";
 static NSString *KF5TextKey = @"text";
 static NSString *KF5FontKey = @"font";
@@ -26,13 +28,20 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
-        UILabel *placeholderLabel = [[UILabel alloc] init];
+        self.font = KF5Helper.KF5TitleFont;
+        self.scrollEnabled = YES;
+        self.canEmoji = YES;
+        UILabel *placeholderLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5CreateTicketPlaceholderTextColor];
         placeholderLabel.opaque = NO;
         placeholderLabel.backgroundColor = [UIColor clearColor];
-        placeholderLabel.textColor = [UIColor grayColor];
         placeholderLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         [self addSubview:placeholderLabel];
         self.placeholderLabel = placeholderLabel;
+        
+        [placeholderLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.top.equalTo(self).offset(KF5PlaceHolderLeft);
+            make.left.equalTo(self).offset(KF5PlaceHolderLeft);
+        }];
         
         // some observations
         [self addObserver:self forKeyPath:KF5AttributedTextKey
@@ -41,8 +50,9 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
                   options:NSKeyValueObservingOptionNew context:nil];
         [self addObserver:self forKeyPath:KF5FontKey
                   options:NSKeyValueObservingOptionNew context:nil];
-        
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(textViewDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
         self.delegate = self;
+        self.maxTextHeight = MAXFLOAT;
     }
     return self;
 }
@@ -65,12 +75,7 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
     if ([keyPath isEqualToString:KF5FontKey]) {
         self.placeholderLabel.font = self.font;
     }else if ([keyPath isEqualToString:KF5AttributedTextKey] || [keyPath isEqualToString:KF5TextKey]) {
-        
-        [self reloadPlaceholder];
-        
-        if ([self.textDelegate respondsToSelector:@selector(kf5_textViewDidChange:)]) {
-            [self.textDelegate kf5_textViewDidChange:self];
-        }
+        [self textViewDidChange:self];
     }
 }
 
@@ -78,6 +83,18 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
 - (void)textViewDidChange:(UITextView *)textView{
     
     [self reloadPlaceholder];
+    
+    if (self.text.length > 0 && !self.canEmoji) {
+        // 禁止系统表情的输入
+        NSString *text = [KFHelper disable_emoji:[self text]];
+        if (![text isEqualToString:self.text]) {
+            NSRange textRange = [self selectedRange];
+            self.text = text;
+            [self setSelectedRange:textRange];
+            return;
+        }
+    }
+    self.heightLayout.constant = self.textHeight;
     
     if ([self.textDelegate respondsToSelector:@selector(kf5_textViewDidChange:)]) {
         [self.textDelegate kf5_textViewDidChange:self];
@@ -91,7 +108,7 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
 }
 
 - (BOOL)textView:(KFTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
-    
+
     if ([self.textDelegate respondsToSelector:@selector(kf5_textView:shouldChangeTextInRange:replacementText:)]) {
         return [self.textDelegate kf5_textView:self shouldChangeTextInRange:range replacementText:text];
     }
@@ -119,7 +136,6 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
     scrollView.tag = 0;
 }
 
-
 #pragma mark - 私有方法
 
 - (void)reloadPlaceholder{
@@ -132,13 +148,9 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
 }
 
 - (CGFloat)textHeight{
-    if (self.maxTextHeight) {
-        CGFloat height = [self sizeThatFits:CGSizeMake(self.frame.size.width, self.maxTextHeight)].height;
-        return height > self.maxTextHeight ? self.maxTextHeight : height;
-    }else{
-        CGFloat height = [self sizeThatFits:CGSizeMake(self.frame.size.width, MAXFLOAT)].height;
-        return height;
-    }
+    CGFloat maxHeight = self.maxTextHeight > 0 ? self.maxTextHeight : MAXFLOAT;
+    CGFloat height =  floor([self sizeThatFits:CGSizeMake(self.frame.size.width, maxHeight)].height);
+    return height > maxHeight ? maxHeight : height;
 }
 
 - (UIResponder *)nextResponder {
@@ -154,13 +166,6 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
     }else{
         return [super canPerformAction:action withSender:sender];
     }
-}
-
-- (void)layoutSubviews{
-    [super layoutSubviews];
-    
-    CGSize placeholderSize = [self.placeholderLabel sizeThatFits:CGSizeMake(300, 100)];
-    self.placeholderLabel.frame = CGRectMake(KF5PlaceHolderLeft, KF5PlaceHolderLeft, placeholderSize.width, placeholderSize.height);
 }
 
 - (void)dealloc{

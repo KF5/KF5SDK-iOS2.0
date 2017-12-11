@@ -54,7 +54,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [super tableView:tableView didSelectRowAtIndexPath:indexPath];
     
-    if (tableView != self.searchDisplayController.searchResultsTableView) {
+    if (tableView != self.searchTableView) {
         KFDocItem *post = self.docArray[indexPath.row];
         KFDocumentViewController *viewController = [[KFDocumentViewController alloc]initWithPost:post];
         [self.navigationController pushViewController:viewController animated:YES];

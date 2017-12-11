@@ -14,7 +14,7 @@
 /**
  失败按钮的点击事件
  */
-@property (nullable, nonatomic, copy) void (^clickFailureBtnBlock)();
+@property (nullable, nonatomic, copy) void (^clickFailureBtnBlock)(void);
 /**
  设置状态
  */

@@ -8,35 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "KFTextView.h"
-#import "KFImageView.h"
+#import "KFSudokuView.h"
 
-@class KFCreateTicketView;
-
-@protocol KFCreateTicketViewDelegate <NSObject>
-
-/**
- 点击添加附件
- */
-- (void)createTicketViewWithAddAttachmentAction:(KFCreateTicketView *)view;
-
-/**
- 返回偏移量高度
- */
-- (CGFloat)createTicketViewWithOffsetTop:(KFCreateTicketView *)view;
-
-@end
-
-@interface KFCreateTicketView : UIScrollView
-
-- (instancetype)initWithFrame:(CGRect)frame viewDelegate:(id<KFCreateTicketViewDelegate>)viewDelegate;
+@interface KFCreateTicketView : UIView
 
 /// 输入框
 @property (nonatomic, strong) KFTextView *textView;
 /// 添加附件按钮
 @property (nonatomic, weak) UIButton *attBtn;
 /// 图片视图
-@property (nonatomic, weak) KFImageView *photoImageView;
+@property (nonatomic,weak) KFSudokuView *photoImageView;
 
-- (void)updateFrame;
+@property (nonatomic,copy) void(^clickAttBtn)(void);
 
 @end

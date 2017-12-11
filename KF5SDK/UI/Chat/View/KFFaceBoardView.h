@@ -1,17 +1,20 @@
 //
 //  KFFaceBoardView.h
-//  Pods
+//  KF5SDKUI2.0
 //
-//  Created by admin on 16/10/21.
-//
+//  Created by admin on 2017/11/24.
+//  Copyright © 2017年 kf5. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@interface KFFaceBoardView : UIView
+@interface KFFaceBoardView : UIInputView
 
-@property (nullable, nonatomic, copy) void (^clickBlock)(NSString * _Nonnull text);
-@property (nullable, nonatomic, copy) void (^sendBlock)();
-@property (nullable, nonatomic, copy) void (^deleteBlock)();
+@property (nullable, nonatomic, copy) void (^clickBlock)(NSString * _Nonnull title);
+@property (nullable, nonatomic, copy) void (^sendBlock)(void);
+@property (nullable, nonatomic, copy) void (^deleteBlock)(void);
 
+@end
+
+@interface KFFacePageControl : UIPageControl
 @end

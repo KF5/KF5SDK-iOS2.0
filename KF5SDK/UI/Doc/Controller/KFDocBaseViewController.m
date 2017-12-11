@@ -9,8 +9,6 @@
 #import "KFDocBaseViewController.h"
 
 #import "KFDocumentViewController.h"
-
-#import "JKAlert.h"
 #import "UITableView+KFRefresh.h"
 #import "KFHelper.h"
 #import "KFProgressHUD.h"
@@ -25,11 +23,11 @@
 
 static BOOL isHeaderRefresh = YES;
 
-@interface KFDocBaseViewController ()<UISearchBarDelegate,UISearchDisplayDelegate>
+@interface KFDocBaseViewController ()<UISearchBarDelegate,UISearchControllerDelegate>
 
-@property (nonatomic, strong) NSArray *searchArray;
+@property (nonatomic, strong) NSArray <KFDocItem *>*searchArray;
 
-@property (nonatomic, strong) UISearchDisplayController *searchDisplayController;
+@property (nonatomic, strong) UISearchController *searchController;
 
 @end
 
@@ -54,20 +52,22 @@ static BOOL HideRightButton = NO;
     [self.tableView kf5_footerWithRefreshingBlock:^{
         [weakSelf refreshWithisHeader:NO];
     }];
+
+    self.definesPresentationContext = YES;
+    KFBaseTableViewController *searchTV = [[KFBaseTableViewController alloc] init];
+    searchTV.tableView.delegate = self;
+    searchTV.tableView.dataSource = self;
+    searchTV.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.searchTableView = searchTV.tableView;
     
-    // 搜索框
-    UISearchBar *searchBar = [[UISearchBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
-    searchBar.placeholder = KF5Localized(@"kf5_search");
-    searchBar.delegate = self;
-    self.tableView.tableHeaderView = searchBar;
-    
-    // SearchDisplayController
-    UISearchDisplayController *searchDisplayController = [[UISearchDisplayController alloc] initWithSearchBar:searchBar contentsController:self];
-    searchDisplayController.delegate = self;
-    searchDisplayController.searchResultsDataSource = self;
-    searchDisplayController.searchResultsDelegate = self;
-    searchDisplayController.searchResultsTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-    self.searchDisplayController = searchDisplayController;
+    UISearchController *searchController = [[UISearchController alloc] initWithSearchResultsController:searchTV];
+    self.searchController = searchController;
+    searchController.searchBar.delegate = self;
+    searchController.delegate = self;
+    [searchController.searchBar sizeToFit];
+    searchController.searchBar.placeholder = KF5Localized(@"kf5_search");
+    self.tableView.tableHeaderView = searchController.searchBar;
+
 #if KFHasTicket
     if (!HideRightButton && !self.navigationItem.rightBarButtonItem) {
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:KF5Localized(@"kf5_contact_us") style:UIBarButtonItemStyleDone target:self action:@selector(pushTicket)];
@@ -90,9 +90,8 @@ static BOOL HideRightButton = NO;
 
 - (void)refreshWithisHeader:(BOOL)isHeader{
     if (![KFHelper isNetworkEnable]) {
-        [JKAlert showMessage:KF5Localized(@"kf5_no_internet")];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [KFProgressHUD hideHUDForView:self.view];
+            [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
             if (isHeader) {
                 [self.tableView kf5_endHeaderRefreshing];
             }else{
@@ -136,7 +135,7 @@ static BOOL HideRightButton = NO;
     _nextPage = nextPage;
     dispatch_async(dispatch_get_main_queue(), ^{
         if(nextPage == 0){
-          [self.tableView kf5_endRefreshingWithNoMoreData];
+            [self.tableView kf5_endRefreshingWithNoMoreData];
         }else {
             [self.tableView kf5_resetNoMoreData];
         }
@@ -149,11 +148,12 @@ static BOOL HideRightButton = NO;
 
 #pragma mark - tableView DataSource and Delegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    if (tableView == self.searchDisplayController.searchResultsTableView) {
-        return self.searchArray.count;
-    }else{
-        return self.docArray.count;
-    }
+        return tableView == self.searchTableView ? self.searchArray.count : self.docArray.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    CGFloat  height =  KF5Helper.KF5VerticalSpacing * 2 + ceilf(KF5Helper.KF5TitleFont.lineHeight);
+    return height;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -166,78 +166,65 @@ static BOOL HideRightButton = NO;
         cell.textLabel.font = KF5Helper.KF5TitleFont;
         cell.textLabel.textColor = KF5Helper.KF5TitleColor;
     }
-    
-    if (tableView == self.searchDisplayController.searchResultsTableView) {
-        KFDocItem *post = self.searchArray[indexPath.row];
-        cell.textLabel.text = post.title;
-    }else{
-        KFDocItem *docList = self.docArray[indexPath.row];
-        cell.textLabel.text = docList.title;
-    }
-    
+    cell.textLabel.text = tableView == self.searchTableView ? self.searchArray[indexPath.row].title : self.docArray[indexPath.row].title;
     return cell;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    CGFloat  height =  KF5Helper.KF5VerticalSpacing * 2 + ceilf(KF5Helper.KF5TitleFont.lineHeight);
-    return height;
-}
-
--(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar{
-    [searchBar resignFirstResponder];
-    [KFProgressHUD showDefaultLoadingTo:self.view];
-    __weak typeof(self)weakSelf = self;
-    NSDictionary *params =
-    @{
-      KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
-      KF5Query:searchBar.text?:@""
-      };
-    [KFHttpTool searchDocumentWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
-        weakSelf.searchArray = [KFDocItem docItemsWithDictArray:[result kf5_arrayForKeyPath:@"data.posts"]];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf showSearchNoResult:YES];
-            [weakSelf.searchDisplayController.searchResultsTableView reloadData];
-            [KFProgressHUD hideHUDForView:weakSelf.view];
-        });
-    }];
-}
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText{
-    if (searchText.length == 0) {
-        self.searchArray = nil;
-        [self.searchDisplayController.searchResultsTableView reloadData];
-    }
-}
-
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString{
-    
-    [self showSearchNoResult:NO];
-    return YES;
-}
-
-- (void)showSearchNoResult:(BOOL)isShow{
-    self.searchDisplayController.searchResultsTableView.backgroundColor = isShow ? [UIColor whiteColor] : [UIColor colorWithWhite:0 alpha:0.4];
-    for( UIView *subview in self.searchDisplayController.searchResultsTableView.subviews ) {
-        if( [subview class] == [UILabel class] ) {
-            UILabel *lbl = (UILabel*)subview;
-            lbl.text = isShow ? KF5Localized(@"kf5_search_noResult") : @"";
-        }
-    }
-}
-
-- (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller{
-    self.searchArray = nil;
-    [self.searchDisplayController.searchResultsTableView reloadData];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    if (tableView == self.searchDisplayController.searchResultsTableView) {
+    if (tableView == self.searchTableView) {
         KFDocItem *post = self.searchArray[indexPath.row];
         KFDocumentViewController *viewController = [[KFDocumentViewController alloc]initWithPost:post];
         [self.navigationController pushViewController:viewController animated:YES];
     }
 }
+
+#pragma mark - UISearchBarDelegate
+-(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar{
+    [searchBar resignFirstResponder];
+    [KFProgressHUD showDefaultLoadingTo:self.searchTableView];
+    __weak typeof(self)weakSelf = self;
+    NSDictionary *params =@{
+                            KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
+                            KF5Query:searchBar.text?:@""
+                          };
+    [KFHttpTool searchDocumentWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
+        weakSelf.searchArray = [KFDocItem docItemsWithDictArray:[result kf5_arrayForKeyPath:@"data.posts"]];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self reloadSearchResult:YES];
+            [weakSelf.searchTableView reloadData];
+            [KFProgressHUD hideHUDForView:weakSelf.searchTableView];
+        });
+    }];
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText{
+    if (searchText.length == 0) {
+        self.searchArray = nil;
+        [self reloadSearchResult:NO];
+    }
+}
+
+- (void)willDismissSearchController:(UISearchController *)searchController{
+    self.searchArray = nil;
+    [self reloadSearchResult:NO];
+}
+
+- (void)reloadSearchResult:(BOOL)showNoResult{
+    if (self.searchArray.count == 0 && showNoResult) {
+        UILabel *noResultLabel = [KFHelper labelWithFont:[UIFont boldSystemFontOfSize:15] textColor:KF5Helper.KF5NameColor];
+        noResultLabel.frame = CGRectMake(0, 0, 100, 60);
+        noResultLabel.text = KF5Localized(@"kf5_search_noResult");
+        noResultLabel.textAlignment = NSTextAlignmentCenter;
+        self.searchTableView.tableHeaderView = noResultLabel;
+    }else{
+        self.searchTableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectZero];
+    }
+    [self.searchTableView reloadData];
+}
+
+
 
 @end

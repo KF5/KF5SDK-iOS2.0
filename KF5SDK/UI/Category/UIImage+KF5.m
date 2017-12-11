@@ -72,8 +72,7 @@
     CGFloat imageH = self.size.height * 0.8;
     return [self resizableImageWithCapInsets:UIEdgeInsetsMake(imageH, imageW, imageH, imageW) resizingMode:UIImageResizingModeTile];
 }
-- (UIImage*)kf5_imageCompressForSize:(CGSize)size
-{
+- (UIImage*)kf5_imageCompressForSize:(CGSize)size{
     UIGraphicsBeginImageContextWithOptions(size, NO, [UIScreen mainScreen].scale);
     [self drawInRect:CGRectMake(0,0,size.width,size.height)];
     UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -173,10 +172,6 @@
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
-}
-
-+ (UIImage *)kf5_imageWithColor:(UIColor *)color {
-    return [self kf5_imageWithColor:color size:CGSizeMake(1, 1)];
 }
 
 + (UIImage *)kf5_imageWithColor:(UIColor *)color size:(CGSize)size {

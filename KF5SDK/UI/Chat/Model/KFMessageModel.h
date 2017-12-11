@@ -7,9 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
 #import "KFHelper.h"
-#import "YYTextLayout.h"
 
 @interface KFMessageModel : NSObject
 
@@ -26,7 +24,7 @@
 
 
 /**内容*/
-@property (nullable, nonatomic, strong) YYTextLayout *textLayout;
+@property (nullable, nonatomic, strong) NSMutableAttributedString *text;
 /**图片*/
 @property (nullable, nonatomic, strong) UIImage *image;
 /**语音*/
@@ -54,7 +52,7 @@
 /**系统消息背景的frame*/
 @property (nonatomic, assign) CGRect systemBackgroundFrame;
 /**系统消息文本*/
-@property (nullable, nonatomic, strong) YYTextLayout *systemTextLayout;
+@property (nullable, nonatomic, strong) NSMutableAttributedString *systemText;
 
 /**卡片消息的frame*/
 @property (nonatomic, assign) CGRect cardImageFrame;
@@ -66,8 +64,6 @@
 @property (nonatomic, assign) CGRect cardLinkBtnFrame;
 /**卡片消息需要的数据*/
 @property (nullable, nonatomic, strong) NSDictionary *cardDict;
-
-
 
 /**cell高度*/
 @property (nonatomic, assign) CGFloat cellHeight;

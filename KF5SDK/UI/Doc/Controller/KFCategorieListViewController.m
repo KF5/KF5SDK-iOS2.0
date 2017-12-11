@@ -39,7 +39,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [super tableView:tableView didSelectRowAtIndexPath:indexPath];
     
-    if (tableView != self.searchDisplayController.searchResultsTableView) {
+    if (tableView != self.searchTableView) {
         KFDocItem *category = self.docArray[indexPath.row];
         KFForumListViewController *viewController = [[KFForumListViewController alloc]initWithCategory:category];
         [self.navigationController pushViewController:viewController animated:YES];

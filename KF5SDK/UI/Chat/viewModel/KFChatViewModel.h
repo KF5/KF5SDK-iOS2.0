@@ -36,6 +36,9 @@ typedef NS_ENUM(NSInteger,KFChatRatingScore) {
 - (void)chatWithEndChat:(nonnull KFChatViewModel *)chat;
 /**刷新数据*/
 - (void)chat:(nonnull KFChatViewModel *)chat addMessageModels:(nullable NSArray <KFMessageModel *>*)messageModels;
+
+/**获取要选择的客服组模型*/
+- (void)chat:(nonnull KFChatViewModel *)chat selectQuestionWithOptions:(nonnull NSArray <NSDictionary*>*)options selectBlock:(void (^_Nullable)(NSArray <NSNumber *>* _Nullable agentIds, BOOL cancel))selectBlock;
 @end
 
 @interface KFChatViewModel : NSObject
@@ -61,7 +64,7 @@ typedef NS_ENUM(NSInteger,KFChatRatingScore) {
 /**
  是否能发送消息
  */
-- (BOOL)canSendMessageWithCompletion:(nullable void (^)())completion;
+- (BOOL)canSendMessageWithCompletion:(nullable void (^)(void))completion;
 
 /**
  连接服务器
@@ -116,5 +119,10 @@ typedef NS_ENUM(NSInteger,KFChatRatingScore) {
  满意度字符串
  */
 + (nullable NSString *)stringForRatingScore:(KFChatRatingScore)ratingScore;
+
+/**
+ 获取聊天消息未读数
+ */
++ (void)getUnReadMessageCountWithCompletion:(nullable void (^)(NSInteger unReadMessageCount, NSError * _Nullable error))completion;
 
 @end

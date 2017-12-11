@@ -8,6 +8,9 @@
 
 #import "KFTicketListViewCell.h"
 #import "KFHelper.h"
+#import "KFTicketManager.h"
+
+#import "KFAutoLayout.h"
 
 @implementation KFTicketListViewCell
 
@@ -35,24 +38,48 @@
         UILabel *statusLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:KF5Helper.KF5NameColor];
         [self.contentView addSubview:statusLabel];
         self.statusLabel = statusLabel;
+        
+        [self layoutView];
+        
     }
     return self;
 }
 
-- (void)setTicketModel:(KFTicketModel *)ticketModel{
-    _ticketModel = ticketModel;
+- (void)layoutView{
+    UIView *superview = self.contentView;
+    [self.pointView kf5_makeConstraints:^(KFAutoLayout *make) {
+        make.centerX.equalTo(superview.kf5_left).offset(KF5Helper.KF5HorizSpacing/2);
+        make.centerY.equalTo(superview.kf5_centerY);
+        make.height.kf_equal(KF5Helper.KF5TicketPointViewWitdh);
+        make.width.kf_equal(KF5Helper.KF5TicketPointViewWitdh);
+    }];
     
-    self.contentLabel.text = ticketModel.content;
-    self.contentLabel.frame = ticketModel.contentFrame;
+    [self.contentLabel kf5_makeConstraints:^(KFAutoLayout *make) {
+        make.top.equalTo(superview).offset(KF5Helper.KF5DefaultSpacing);
+        make.left.equalTo(superview).offset(KF5Helper.KF5HorizSpacing);
+        make.right.equalTo(superview);
+    }];
+
+    [self.timeLabel kf5_makeConstraints:^(KFAutoLayout *make) {
+        make.left.equalTo(self.contentLabel);
+        make.top.equalTo(self.contentLabel.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+        make.bottom.equalTo(superview).offset(-KF5Helper.KF5DefaultSpacing);
+    }];
     
-    self.timeLabel.text = ticketModel.time;
-    self.timeLabel.frame = ticketModel.timeFrame;
+    [self.statusLabel kf5_makeConstraints:^(KFAutoLayout *make) {
+        make.centerY.equalTo(self.timeLabel);
+        make.left.greaterThanOrEqualTo(self.timeLabel.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(self.contentLabel);
+    }];
+}
+
+- (void)setTicket:(KFTicket *)ticket{
+    _ticket = ticket;
     
-    self.statusLabel.text = ticketModel.status;
-    self.statusLabel.frame = ticketModel.statusFrame;
-    
-    self.pointView.hidden = !ticketModel.hasNewComment;
-    self.pointView.frame = ticketModel.pointViewFrame;
+    self.contentLabel.text = ticket.ticket_description;
+    self.timeLabel.text = [NSDate dateWithTimeIntervalSince1970:ticket.created_at].kf5_string;
+    self.statusLabel.text = ticket.statusString;
+    self.pointView.hidden = ![KFTicketManager hasNewCommentWithTicket:ticket];
 }
 
 @end

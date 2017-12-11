@@ -8,125 +8,113 @@
 
 #import "KFCreateTicketView.h"
 #import "KFHelper.h"
+#import "KFAutoLayout.h"
 
-static const CGFloat kKF5MinTextHeight = 60;
+static CGFloat kAttBtnLength = 30;
 
-@interface KFCreateTicketView()<KFTextViewDelegate,KFImageViewDelegate,UIScrollViewDelegate>
-
-@property (nullable, nonatomic, weak) id<KFCreateTicketViewDelegate> viewDelegate;
+@interface KFCreateTicketView()
 
 @end
 
 @implementation KFCreateTicketView
 
-- (instancetype)initWithFrame:(CGRect)frame viewDelegate:(id<KFCreateTicketViewDelegate>)viewDelegate{
-    self = [super initWithFrame:frame];
+- (instancetype)init{
+    self = [super init];
     if (self) {
-        
+
         // 文本框
         KFTextView *textView = [[KFTextView alloc] init];
-        textView.font = KF5Helper.KF5TitleFont;
+        textView.canEmoji = NO;
         textView.placeholderText = KF5Localized(@"kf5_edittext_hint");
-        textView.placeholderTextColor = KF5Helper.KF5CreateTicketPlaceholderTextColor;
-        textView.textDelegate = self;
-        textView.scrollEnabled = NO;
         [self addSubview:textView];
-        _textView = textView;
+        self.textView = textView;
         
         // 图片
-        KFImageView *photoImageView = [[KFImageView alloc]init];
-        photoImageView.delegate = self;
+        KFSudokuView *photoImageView = [[KFSudokuView alloc]init];
         [self addSubview:photoImageView];
-        _photoImageView = photoImageView;
+        self.photoImageView = photoImageView;
         
         // 添加图片按钮
         UIButton *attBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [attBtn setImage:KF5Helper.ticket_createAtt forState:UIControlStateNormal];
         [attBtn addTarget:self action:@selector(addAtt:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:attBtn];
-        _attBtn = attBtn;
+        self.attBtn = attBtn;
         
-        self.alwaysBounceVertical = YES;
-        self.delegate = self;
-        _viewDelegate = viewDelegate;
-
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapView:)];
-        [self addGestureRecognizer:tap];
-        
-        [self addObserver:self forKeyPath:@"photoImageView.frame" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
-        [self addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
-        [self updateFrame];
+        [self layoutView];
+        [self configureView];
     }
     return self;
 }
 
-- (void)updateFrame{
-    // textView
-    CGFloat textHeight = _textView.textHeight;
-    textHeight = textHeight<kKF5MinTextHeight?kKF5MinTextHeight:textHeight;
-    _textView.frame = CGRectMake(KF5Helper.KF5DefaultSpacing, KF5Helper.KF5DefaultSpacing, self.kf5_w - KF5Helper.KF5DefaultSpacing * 2, textHeight);
-    // photoImageView的frame改变,就会通知改变attBtn的frame,以及self.contentSize
-    _photoImageView.kf5_w = _textView.kf5_w;
+- (void)configureView{
     
-    _photoImageView.frame = CGRectMake(_textView.kf5_x, CGRectGetMaxY(_textView.frame), _textView.kf5_w, _photoImageView.imageViewHeight);
+    [self addObserver:self forKeyPath:@"photoImageView.items" options:NSKeyValueObservingOptionNew context:nil];
     
-    [_photoImageView updateFrame];
+    __weak typeof(self)weakSelf = self;
+    self.photoImageView.clickCellBlock = ^(KFSudokuViewCell *cell) {
+        [[KFHelper alertWithMessage:KF5Localized(@"kf5_delete_this_image") confirmHandler:^(UIAlertAction * _Nonnull action) {
+            NSMutableArray *items = [NSMutableArray arrayWithArray:weakSelf.photoImageView.items];
+            [items removeObject:cell.item];
+            weakSelf.photoImageView.items = items;
+        }]showToVC:nil];
+    };
+    
+}
+
+- (void)layoutView{
+    
+    [self.textView kf5_makeConstraints:^(KFAutoLayout *make) {
+        make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
+    }];
+    
+    [self.photoImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.textView);
+        make.right.equalTo(self.textView);
+        make.top.equalTo(self.textView.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+    }];
+    
+    [self.attBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+        make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        // scrollView需要使用这个计算contentSize
+        make.top.greaterThanOrEqualTo(self.photoImageView);
+        make.width.kf_equal(kAttBtnLength);
+        make.height.kf_equal(kAttBtnLength);
+    }];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
-    if (([keyPath isEqualToString:@"photoImageView.frame"] || [keyPath isEqualToString:@"frame"]) && !CGRectEqualToRect(((NSValue *)change[NSKeyValueChangeNewKey]).CGRectValue, ((NSValue *)change[NSKeyValueChangeOldKey]).CGRectValue)) {
-        // attBtn
-        CGSize attBtnSize = [_attBtn imageForState:UIControlStateNormal].size;
-        attBtnSize = CGSizeMake(attBtnSize.width + KF5Helper.KF5DefaultSpacing, attBtnSize.height + KF5Helper.KF5DefaultSpacing);
-        CGFloat attBtnOrignY = 0;
-        if (self.photoImageView.kf5_h == 0) {
-            attBtnOrignY = CGRectGetHeight(self.frame) - attBtnSize.height - self.offsetTop;
-            attBtnOrignY = attBtnOrignY < CGRectGetMaxY(_photoImageView.frame)?CGRectGetMaxY(_photoImageView.frame):attBtnOrignY;
-        }else{
-            attBtnOrignY = CGRectGetMaxY(_photoImageView.frame);
-        }
-        _attBtn.frame = CGRectMake(0, attBtnOrignY, attBtnSize.width, attBtnSize.height);
-        self.contentSize = CGSizeMake(self.kf5_w, CGRectGetMaxY(_attBtn.frame));
-    }
-}
-
-- (CGFloat)offsetTop{
-    if ([self.viewDelegate respondsToSelector:@selector(createTicketViewWithOffsetTop:)]) {
-        CGFloat height = [self.viewDelegate createTicketViewWithOffsetTop:self];
-        return height;
-    }
-    return 0;
-}
-
-#pragma mark - KFTextViewDelegate
-- (void)kf5_textViewDidChange:(KFTextView *)textView{
-    if (textView.text.length > 0) {
-        // 禁止系统表情的输入
-        NSString *text = [KFHelper disable_emoji:[textView text]];
-        if (![text isEqualToString:textView.text]) {
-            NSRange textRange = [textView selectedRange];
-            textView.text = text;
-            [textView setSelectedRange:textRange];
+    if ([keyPath isEqualToString:@"photoImageView.items"]) {
+        if (self.photoImageView.items.count > 0 && self.attBtn.tag == 0) {
+            [self.attBtn kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
+                make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+                make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+                make.top.equalTo(self.photoImageView.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+                make.width.kf_equal(kAttBtnLength);
+                make.height.kf_equal(kAttBtnLength);
+            }];
+            self.attBtn.tag = 1;
         }
     }
-    [self updateFrame];
 }
 
 // 添加附件
 - (void)addAtt:(UIButton *)btn{
-    if ([self.viewDelegate respondsToSelector:@selector(createTicketViewWithAddAttachmentAction:)]) {
-        [self.viewDelegate createTicketViewWithAddAttachmentAction:self];
+    if (self.clickAttBtn) {
+        self.clickAttBtn();
     }
 }
 
-// 点击屏幕弹出键盘
-- (void)tapView:(UITapGestureRecognizer *)tap{
-    [self.textView becomeFirstResponder];
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+     [self.textView becomeFirstResponder];
 }
 
 - (void)dealloc{
-    [self removeObserver:self forKeyPath:@"photoImageView.frame"];
-    [self removeObserver:self forKeyPath:@"frame"];
+    [self removeObserver:self forKeyPath:@"photoImageView.items"];
 }
 
 @end

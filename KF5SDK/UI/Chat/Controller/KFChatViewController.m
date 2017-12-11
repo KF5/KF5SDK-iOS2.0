@@ -12,13 +12,13 @@
 #import "KFChatViewModel.h"
 #import "KFHelper.h"
 #import "KFAlertMessage.h"
-#import "JKAlert.h"
 #import "KFProgressHUD.h"
 #import "KFRecordView.h"
 #import "KFChatVoiceManager.h"
-#import "KFPhotoGroupView.h"
+#import "KFPreviewController.h"
 #import "KFContentLabelHelp.h"
 #import "TZImagePickerController.h"
+#import "KFSelectQuestionController.h"
 
 #if __has_include("KFDocumentViewController.h")
 #import "KFDocumentViewController.h"
@@ -35,17 +35,14 @@
 #define KFHasTicket 0
 #endif
 
-
 @interface KFChatViewController () <KFChatTooViewDelegate,KFChatViewModelDelegate,KFChatVoiceManagerDelegate,KFChatTableViewDelegate,KFChatViewCellDelegate,UIWebViewDelegate>{
-    dispatch_once_t scrollBTMOnce;
+    dispatch_once_t _scrollBTMOnce;
 }
 
 @property (nonatomic, weak) KFChatTableView *tableView;
 @property (nonatomic, weak) KFChatToolView *chatToolView;
 @property (nonatomic, strong) KFChatViewModel *viewModel;
 @property (nonatomic, weak) KFRecordView *recordView;
-
-@property (nullable, nonatomic, weak) KFPhotoGroupView *photoGroupView;
 
 @property (nonnull, nonatomic, strong) KFMessageModel *queueMessageModel;
 // 用于拨打电话
@@ -57,29 +54,30 @@
  */
 @property (nullable, nonatomic,strong) NSDictionary *cardDict;
 
+@property (nonatomic,weak) NSLayoutConstraint *toolBottomLayout;
+
 @end
 
 @implementation KFChatViewController
 
-- (instancetype)initWithMetadata:(NSArray<NSDictionary *> *)metadata
-{
+- (instancetype)initWithMetadata:(NSArray<NSDictionary *> *)metadata{
     self = [super init];
     if (self) {
         _metadata = metadata;
+        _limit = 30;
+        _showAlertWhenNoAgent = YES;
+        _isHideRightButton = NO;
+        _assignAgentWhenSendedMessage = NO;
     }
     return self;
 }
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.tableView reloadData];
-    dispatch_once(&scrollBTMOnce , ^{
+    dispatch_once(&_scrollBTMOnce , ^{
         if (self.tableView) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                NSUInteger rowCount = [self.tableView numberOfRowsInSection:0];
-                if (rowCount > 1) {
-                    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:rowCount-1 inSection:0];
-                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
-                }
+                [self.tableView scrollViewBottomWithAnimated:NO];
             });
         }
     });
@@ -88,8 +86,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.showAlertWhenNoAgent = YES;
     [self setupView];
+    [self layoutView];
     
     self.viewModel = [[KFChatViewModel alloc]init];
     self.viewModel.metadata = self.metadata;
@@ -108,7 +106,7 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     
     // 连接服务器
-    [self connect:YES];
+    [self connectServer];
 
     NSMutableArray <KFMessageModel *>*newDatas = [NSMutableArray arrayWithArray:[self.viewModel queryMessageModelsWithLimit:self.limit]];
     if (newDatas.count < self.limit) {
@@ -119,19 +117,18 @@
 }
 
 #pragma mark 连接服务器
-- (void)connect:(BOOL)isFirst{
+- (void)connectServer{
     self.title = KF5Localized(@"kf5_connecting");
     [KFProgressHUD showLoadingTo:self.view title:nil];
     __weak typeof(self)weakSelf = self;
-    __block BOOL first = isFirst;
     [self.viewModel configChatWithCompletion:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [KFProgressHUD hideHUDForView:weakSelf.view];
-            if (weakSelf.cardDict && !error && first) {
+            if (weakSelf.cardDict && !error && weakSelf.view.tag == 0) {
                 KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:[KFChatManager createMessageWithType:KFMessageTypeCard data:[KFHelper JSONStringWithObject:weakSelf.cardDict]]];
                 [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
+                weakSelf.view.tag = 1;
             }
-            first = NO;
         });
     }];
 }
@@ -139,15 +136,13 @@
 #pragma mark 初始化subView
 - (void)setupView{
     
-    KFChatTableView *tableView = [[KFChatTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - KFChatToolView.defaultHeight) style:UITableViewStylePlain];
-    self.tempTableView = tableView;
+    KFChatTableView *tableView = [[KFChatTableView alloc]init];
     tableView.tableDelegate = self;
-    tableView.autoresizingMask =  UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
     [self.view addSubview:tableView];
     self.tableView = tableView;
     
     // 添加输入框视图
-    KFChatToolView *chatToolView = [[KFChatToolView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(tableView.frame), self.view.frame.size.width, KFChatToolView.defaultHeight)];
+    KFChatToolView *chatToolView = [[KFChatToolView alloc]init];
     chatToolView.tag = kKF5ChatToolViewTag;
     chatToolView.assignAgentWhenSendedMessage = self.assignAgentWhenSendedMessage;
     chatToolView.delegate = self;
@@ -156,22 +151,17 @@
     self.chatToolView = chatToolView;
     
     // 录音视图
-    KFRecordView *recordView = [[KFRecordView alloc]initWithFrame:CGRectMake(0, 0, 150, 132)];
-    recordView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleBottomMargin;
-    recordView.center = self.view.center;
+    KFRecordView *recordView = [[KFRecordView alloc]init];
     recordView.tag = kKF5RecordViewTag;
     recordView.hidden = YES;
     self.recordView = recordView;
     [self.view addSubview:recordView];
     
     // 用于打电话
-    UIWebView *webView = [[UIWebView alloc] init];
+    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
     webView.delegate = self;
-    webView.frame = CGRectZero;
     [self.view addSubview:webView];
     self.webView = webView;
-    
-    [self addObserver:self forKeyPath:@"chatToolView.frame" options:NSKeyValueObservingOptionNew context:nil];
     
 #if KFHasTicket
     if (!self.isHideRightButton && !self.navigationItem.rightBarButtonItem) {
@@ -180,25 +170,51 @@
 #endif
 }
 
+- (void)layoutView {
+    [self.tableView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        make.top.equalTo(self.view);
+        make.bottom.equalTo(self.chatToolView.kf5_top);
+    }];
+    
+    [self.chatToolView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        self.toolBottomLayout = make.bottom.equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
+    }];
+    
+    [self.recordView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.width.kf_equal(150);
+        make.height.kf_equal(132);
+        make.centerX.equalTo(self.view);
+        make.centerY.equalTo(self.view);
+    }];
+    UIView *bottomView = [[UIView alloc] init];
+    bottomView.backgroundColor = self.chatToolView.backgroundColor;
+    UIView *lineView = [[UIView alloc]init];
+    lineView.backgroundColor = KF5Helper.KF5ChatToolViewLineColor;
+    [bottomView addSubview:lineView];
+    [self.view insertSubview:bottomView belowSubview:self.chatToolView];
+    [lineView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(bottomView);
+        make.left.equalTo(bottomView);
+        make.right.equalTo(bottomView);
+        make.height.kf_equal(0.5);
+    }];
+    [bottomView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self.chatToolView).offset(-0.5);
+        make.left.equalTo(self.view);
+        make.right.equalTo(self.view);
+        make.bottom.equalTo(self.view);
+    }];
+}
+
 #if KFHasTicket
 - (void)pushTicket{
     [self.navigationController pushViewController:[[KFTicketListViewController alloc] init] animated:YES];
 }
 #endif
-
-- (void)updateFrame{
-    [self.photoGroupView dismissAnimated:NO completion:nil];
-    self.chatToolView.kf5_y = self.view.kf5_h - self.chatToolView.kf5_h;
-    [self.tableView updateFrame];
-    [self.chatToolView updateFrame];
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
-    if ([keyPath isEqualToString:@"chatToolView.frame"]) {
-        self.tableView.kf5_h = CGRectGetMinY(self.chatToolView.frame);
-        [self.tableView scrollViewBottomHasMainQueue:NO];
-    }
-}
 
 #pragma mark - KFChatViewModelDelegate
 #pragma mark 连接服务器失败
@@ -251,7 +267,7 @@
         
         if (self.isShowAlertWhenNoAgent) {
             __weak typeof(self)weakSelf = self;
-            [JKAlert showMessage:[NSString stringWithFormat:@"%@,%@",message,KF5Localized(@"kf5_leaving_message")] OKHandler:^(JKAlertItem *item) {
+            [[KFHelper alertWithMessage:[NSString stringWithFormat:@"%@,%@",message,KF5Localized(@"kf5_leaving_message")] confirmHandler:^(UIAlertAction *action) {
                 if (weakSelf.noAgentAlertActionBlock) {
                     weakSelf.noAgentAlertActionBlock();
                 }else{
@@ -261,7 +277,7 @@
 #warning 没有添加KF5SDKUI/Ticket
 #endif
                 }
-            }];
+            }]showToVC:self];
         }
     });
 }
@@ -271,7 +287,7 @@
     
     KFMessage *message = [[KFMessage alloc] init];
     if (queueIndex == -1) {
-       message.content = KF5Localized(@"kf5_update_queue");
+        message.content = KF5Localized(@"kf5_update_queue");
     }else{
         message.content = [NSString stringWithFormat:KF5Localized(@"kf5_update_queue_%ld"),queueIndex + 1];
     }
@@ -284,10 +300,8 @@
         }
         self.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
         [self.tableView.messageModelArray addObject:self.queueMessageModel];
-        @try {
-            [self.tableView reloadData];
-        } @catch (NSException *exception) {}
-        [self.tableView scrollViewBottomHasMainQueue:NO];
+        [self.tableView reloadData];
+        [self.tableView scrollViewBottomWithAnimated:YES];
     });
 }
 
@@ -296,17 +310,17 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         __weak typeof(self)weakSelf = self;
         
-        JKAlert *alert = [JKAlert alertWithTitle:KF5Localized(@"kf5_reminder") andMessage:KF5Localized(@"kf5_rating_content")];
-        [alert addCancleButtonWithTitle:KF5Localized(@"kf5_cancel") handler:nil];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:KF5Localized(@"kf5_reminder") message:KF5Localized(@"kf5_rating_content") preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:KF5Localized(@"kf5_cancel") style:UIAlertActionStyleCancel handler:nil]];
         for (NSNumber *ratingNum in self.viewModel.rateLevelArray) {
             NSString *title = [KFChatViewModel stringForRatingScore:ratingNum.integerValue];
             if (title.length > 0) {
-                [alert addCommonButtonWithTitle:title handler:^(JKAlertItem *item) {
+                [alert addAction:[UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     [weakSelf sendRating:ratingNum.integerValue];
-                }];
+                }]];
             }
         }
-        [alert show];
+        [self presentViewController:alert animated:YES completion:nil];
     });
 }
 
@@ -320,22 +334,10 @@
 - (void)chat:(KFChatViewModel *)chat addMessageModels:(NSArray <KFMessageModel *>*)messageModels{
     if (messageModels.count == 0) return;
     dispatch_async(dispatch_get_main_queue(), ^{
-        @try {
-            NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:messageModels.count];
-            for (int i = 0; i< messageModels.count; i++) {
-                NSInteger row = self.tableView.messageModelArray.count + i;
-                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:0];
-                [indexPaths addObject:indexPath];
-            }
-            [self.tableView.messageModelArray addObjectsFromArray:messageModels];
-            
-            [self.tableView beginUpdates];
-            [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-            [self.tableView endUpdates];
-        } @catch (NSException *exception) {
-        }
+        [self.tableView.messageModelArray addObjectsFromArray:messageModels];
+        [self.tableView reloadData];
+        [self.tableView scrollViewBottomWithAnimated:YES];
     });
-    [self.tableView scrollViewBottomWithAfterTime:600];
 }
 #pragma mark 删除排队消息
 - (void)removeQueueMessage{
@@ -343,11 +345,15 @@
         if (self.queueMessageModel) {
             [self.tableView.messageModelArray removeObject:self.queueMessageModel];
             [self.tableView reloadData];
-            [self.tableView scrollViewBottomHasMainQueue:NO];
+            [self.tableView scrollViewBottomWithAnimated:YES];
         }
     });
 }
-    
+#pragma mark 获取分配的问题
+- (void)chat:(KFChatViewModel *)chat selectQuestionWithOptions:(NSArray<NSDictionary *> *)options selectBlock:(void (^)(NSArray<NSNumber *> * _Nullable, BOOL))selectBlock{
+    [KFSelectQuestionController selectQuestionWithViewController:self questions:options selectBlock:selectBlock];
+}
+
 #pragma mark - KFChatVoiceManagerDelegate
 - (void)chatVoiceManager:(KFChatVoiceManager *)chatManager recordVoice:(NSData *)data error:(NSError *)error{
     if (error) {
@@ -366,9 +372,8 @@
 #pragma mark - KFChatToolViewDelegate
 #pragma mark textView需要发送信息
 - (void)chatToolView:(KFChatToolView *)chatToolView shouldSendContent:(NSString  *)content{
-   NSString *text = [content stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *text = [content stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if (text.length == 0) return;
-    
     [self.viewModel sendMessageWithMessageType:KFMessageTypeText data:text];
 }
 #pragma mark 添加图片按钮点击事件
@@ -396,7 +401,7 @@
     }else if (self.viewModel.chatStatus == KFChatStatusQueue){
         [KFProgressHUD showTitleToView:self.view title:KF5Localized(@"kf5_chat_queued") hideAfter:0.7];
     }else{
-       [KFProgressHUD showLoadingTo:self.view title:@""];
+        [KFProgressHUD showLoadingTo:self.view title:@""];
         __weak typeof(self)weakSelf = self;
         [self.viewModel queueUpWithCompletion:^(NSError *error) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -420,43 +425,49 @@
 }
 #pragma mark 点击语音图标按钮点击事件
 - (BOOL)chatToolViewWithClickVoiceAction:(KFChatToolView *)chatToolView{
-   return [self canSendMessage];
+    return [self canSendMessage];
 }
 #pragma mark textView输入监听
 - (BOOL)chatToolView:(KFChatToolView *)chatToolView didChangeReplacementText:(NSString *)text{
     // 如果当前输入的字符大于0 ,则是正在输出内容,等于0,则为在删除数据
-    return text.length > 0 ? [self canSendMessage] : YES;
+    BOOL canSend = text.length > 0 ? [self canSendMessage] : YES;
+    if (canSend && ![text isEqualToString:@"\n"]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+            if (self.tableView.contentOffset.y + self.tableView.frame.size.height != self.tableView.contentSize.height) {
+                [self.tableView scrollViewBottomWithAnimated:NO];
+            }
+        });
+        
+    }
+    return canSend;
 }
 
 #pragma mark - KFChatTableViewDelegate
 - (void)tableViewWithRefreshData:(KFChatTableView *)tableView{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSArray *newDatas = [self.viewModel queryMessageModelsWithLimit:self.limit];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(800 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-            if (self.tableView.messageModelArray.count > 0 && newDatas.count > 0) {
-                [self.tableView.messageModelArray insertObjects:newDatas atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newDatas.count)]];
-                CGFloat offsetOfButtom = self.tableView.contentSize.height-self.tableView.contentOffset.y;
-                [self.tableView reloadData];
-                self.tableView.contentOffset = CGPointMake(0.0f, self.tableView.contentSize.height-offsetOfButtom);
-            }
-            
-            if (newDatas.count < self.limit) {
-                [tableView endRefreshingWithNoMoreData];
-            }else{
-                [tableView endRefreshing];
-            }
-        });
+    NSArray *newDatas = [self.viewModel queryMessageModelsWithLimit:self.limit];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+        if (self.tableView.messageModelArray.count > 0 && newDatas.count > 0) {
+            [self.tableView.messageModelArray insertObjects:newDatas atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newDatas.count)]];
+            [self.tableView reloadData];
+            [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:newDatas.count inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+        }
+        
+        if (newDatas.count < self.limit) {
+            [tableView endRefreshingWithNoMoreData];
+        }else{
+            [tableView endRefreshing];
+        }
     });
 }
 - (CGFloat)tableViewWithOffsetTop:(KFChatTableView *)tableView{
-    return self.navigationController.navigationBar.kf5_h + [UIApplication sharedApplication].statusBarFrame.size.height;
+    return self.navigationController.navigationBar.frame.size.height + [UIApplication sharedApplication].statusBarFrame.size.height;
 }
 #pragma mark - KFChatViewCellDelegate
 #pragma mark - 失败消息重发
 - (void)cell:(KFChatViewCell *)cell reSendMessageWithMessageModel:(KFMessageModel *)model{
     if (self.viewModel.chatStatus != KFChatStatusChatting) return;
     __weak typeof(self)weakSelf = self;
-    [JKAlert showMessage:KF5Localized(@"kf5_resend_message") OKHandler:^(JKAlertItem *item) {
+    [[KFHelper alertWithMessage:KF5Localized(@"kf5_resend_message") confirmHandler:^(UIAlertAction * _Nonnull action) {
         NSIndexPath *indexPath = [weakSelf.tableView indexPathForCell:cell];
         if (!indexPath || indexPath.row > weakSelf.tableView.messageModelArray.count - 1) return;
         
@@ -477,35 +488,20 @@
             } @catch (NSException *exception) {
             }
         });
-    }];
+    }]showToVC:self];
 }
 
 - (void)cell:(KFChatViewCell *)cell clickImageWithMessageModel:(KFMessageModel *)model{
     
-    [self.view endEditing:YES];
     KFImageMessageCell *imageCell = (KFImageMessageCell *)cell;
-    KFPhotoGroupItem *item = [KFPhotoGroupItem new];
-    item.thumbView = imageCell.messageImageView;
+    NSURL *largeImageURL = nil;
     if (model.message.local_path.length > 0) {
-        item.largeImageURL = [NSURL fileURLWithPath:model.message.local_path];
+        largeImageURL = [NSURL fileURLWithPath:model.message.local_path];
     }else{
-        item.largeImageURL = [NSURL URLWithString:model.message.url];
+        largeImageURL = [NSURL URLWithString:model.message.url];
     }
-    KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:@[item]];
-    [v presentFromImageView:imageCell.messageImageView toContainer:self.navigationController.view animated:YES completion:nil];
-    self.photoGroupView = v;
-}
-- (void)cell:(KFChatViewCell *)cell clickVoiceWithMessageModel:(KFMessageModel *)model{
-    model.isPlaying = YES;
-    __weak typeof(self)weakSelf = self;
-    [[KFChatVoiceManager sharedChatVoiceManager]playVoiceWithLocalPath:model.message.local_path completion:^(NSError * _Nullable error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            model.isPlaying = NO;
-            if (error) {
-                [KFProgressHUD showLoadingTo:weakSelf.view title:KF5Localized(@"kf5_play_error") hideAfter:0.7f];
-            }
-        });
-    }];
+    [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
+    [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:largeImageURL placeholder:imageCell.messageImageView.image]] selectIndex:0];
 }
 
 - (void)cell:(KFChatViewCell *)cell clickCardLinkWithUrl:(NSString *)linkUrl{
@@ -517,10 +513,8 @@
 
 - (void)cell:(KFChatViewCell *)cell clickLabelWithInfo:(NSDictionary *)info{
     
-    KFTextMessageCell *textCell = (KFTextMessageCell *)cell;
-    
     kKFLinkType type = [info kf5_numberForKeyPath:KF5LinkType].unsignedIntegerValue;
-
+    
     switch (type) {
         case kKFLinkTypePhone:{
             NSString *phone = [NSString stringWithFormat:@"tel://%@",info[KF5LinkKey]];
@@ -532,17 +526,11 @@
             break;
         case kKFLinkTypeURL:{// 聊天和工单都使用
             NSString *formatName = info[KF5LinkTitle];
-
+            
             if ([formatName isEqualToString:@"[图片]"]) {
                 [self.view endEditing:YES];
-                KFPhotoGroupItem *item = [KFPhotoGroupItem new];
-                item.thumbView = textCell.messageLabel;
-                item.largeImageURL = [NSURL URLWithString:info[KF5LinkKey]];
-                
-                KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:@[item]];
-                [v presentFromImageView:textCell.messageLabel toContainer:self.navigationController.view animated:YES completion:nil];
-                self.photoGroupView = v;
-                
+                [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
+                [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc]initWithValue:[NSURL URLWithString:info[KF5LinkKey]] placeholder:KF5Helper.placeholderImage]] selectIndex:0];
             }else{
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
             }
@@ -578,7 +566,7 @@
             break;
         case kKFLinkTypeLeaveMessage:{
             __weak typeof(self)weakSelf = self;
-            [JKAlert showMessage:KF5Localized(@"kf5_cancel_queue_to_feedback") OKHandler:^(JKAlertItem *item) {
+            [[KFHelper alertWithMessage:KF5Localized(@"kf5_cancel_queue_to_feedback") confirmHandler:^(UIAlertAction * _Nonnull action) {
                 [weakSelf.viewModel cancleWithCompletion:^(NSError *error) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         if (!error) {
@@ -590,17 +578,17 @@
                     });
                 }];
                 [weakSelf.view endEditing:YES];
-
+                
                 if (weakSelf.noAgentAlertActionBlock) {
                     weakSelf.noAgentAlertActionBlock();
                 }else{
 #if KFHasTicket
-                [weakSelf presentViewController:[[UINavigationController alloc] initWithRootViewController:[KFCreateTicketViewController new]] animated:YES completion:nil];
+                    [weakSelf presentViewController:[[UINavigationController alloc] initWithRootViewController:[KFCreateTicketViewController new]] animated:YES completion:nil];
 #else
 #warning 没有添加KF5SDKUI/Ticket
 #endif
                 }
-            }];
+            }]showToVC:self];
         }
             break;
         default:
@@ -624,37 +612,25 @@
 
 #pragma mark - webView的代理方法,用于拨打电话
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
-    [JKAlert showMessage:KF5Localized(@"kf5_phone_error")];
+    [[KFHelper alertWithMessage:KF5Localized(@"kf5_phone_error")]showToVC:self];
 }
 #pragma mark 收到键盘弹出通知后的响应
 - (void)keyboardWillShow:(NSNotification *)info {
-    //保存info
-    NSDictionary *dict = info.userInfo;
-    //得到键盘的显示完成后的frame
-    CGRect keyboardBounds = [dict[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    //得到键盘弹出动画的时间
-    double duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    //坐标系转换
-    CGRect keyboardBoundsRect = [self.view convertRect:keyboardBounds toView:nil];
     //得到键盘的高度，即输入框需要移动的距离
-    double offsetY = keyboardBoundsRect.size.height;
-    
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-    //添加动画
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        self.chatToolView.kf5_y = self.view.kf5_h - offsetY - self.chatToolView.kf5_h;
+    self.toolBottomLayout.constant = -([info.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height  - self.view.kf5_safeAreaInsets.bottom);
+    [UIView animateWithDuration:[info.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[info.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
+        if (self.tableView.contentSize.height > self.tableView.frame.size.height){
+            [self.tableView setContentOffset:CGPointMake(0, self.tableView.contentSize.height - self.tableView.frame.size.height) animated:NO];
+        }
     } completion:nil];
 }
 
 #pragma mark 隐藏键盘通知的响应
 - (void)keyboardWillHide:(NSNotification *)info {
-    //输入框回去的时候就不需要高度了，直接取动画时间和曲线还原回去
-    NSDictionary *dict = info.userInfo;
-    double duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        self.chatToolView.kf5_y = self.view.kf5_h - self.chatToolView.kf5_h;
+    self.toolBottomLayout.constant = 0;
+    [UIView animateWithDuration:[info.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[info.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
     } completion:nil];
 }
 
@@ -663,12 +639,12 @@
     [self.viewModel disconnect];
 }
 - (void)willEnterForeground:(NSNotification *)note{
-    [self connect:NO];
-}
-- (void)showMessageWithText:(NSString *)text alerType:(KF5AlertType)type{
-    if (text.length == 0) return;
-    KFAlertMessage *alert = [[KFAlertMessage alloc]initWithViewController:self title:text duration:4 showType:type];
-    [alert showAlert];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UIDevice currentDevice].systemVersion.floatValue >= 11.0f) {
+            [self.view endEditing:NO];
+        }
+        [self connectServer];
+    });
 }
 - (void)showMessageWithText:(NSString *)text{
     if (text.length == 0) return;
@@ -702,14 +678,12 @@
         message.messageType = KFMessageTypeSystem;
         message.created = [NSDate date].timeIntervalSince1970;
         KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:message];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
-        });
+        [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
     }];
 }
-- (NSInteger)limit{
-    if (_limit == 0)_limit = 30;
-    return _limit;
+
++ (void)getUnReadMessageCountWithCompletion:(void (^)(NSInteger, NSError * _Nullable))completion{
+    [KFChatViewModel getUnReadMessageCountWithCompletion:completion];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -719,7 +693,6 @@
 
 - (void)dealloc{
     [[NSNotificationCenter defaultCenter]removeObserver:self];
-    [self removeObserver:self forKeyPath:@"chatToolView.frame"];
 }
 
 @end

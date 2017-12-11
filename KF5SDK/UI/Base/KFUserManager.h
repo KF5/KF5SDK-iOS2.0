@@ -36,6 +36,15 @@
  */
 - (void)initializeWithPhone:(nonnull NSString *)phone completion:(nullable void (^) (KFUser * _Nullable user,NSError * _Nullable error))completion;
 /**
+ 更新用户信息
+ 
+ @param email 更新邮箱,为空不更新
+ @param phone 更新手机号,为空不更新
+ @param name  更新昵称,为空不更新
+ @warning   必须初始化完成后,才能使用
+ */
+- (void)updateUserWithEmail:(nullable NSString *)email phone:(nullable NSString *)phone name:(nullable NSString *)name completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
+/**
  初始化用户
 
  @param params 参数,如下
@@ -48,12 +57,14 @@
 - (void)initializeWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
 /**
  更新用户信息
-
- @param email 更新邮箱,为空不更新
- @param phone 更新手机号,为空不更新
- @param name  更新昵称,为空不更新
+ @param params 参数,如下
+ @{
+ KF5Email:@"",  // 更新邮箱,选填,不传则不更新
+ KF5Phone:@""   // 更新手机号,选填,不传则不更新
+ KF5Name:@""    // 更新昵称,选填,不传则不更新
+ };
  @warning   必须初始化完成后,才能使用
  */
-- (void)updateUserWithEmail:(nullable NSString *)email phone:(nullable NSString *)phone name:(nullable NSString *)name completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
+- (void)updateUserWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
 
 @end

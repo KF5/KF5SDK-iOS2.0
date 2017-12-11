@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "KFCommentModel.h"
-#import "KFImageView.h"
+#import "KFComment.h"
+#import "KFSudokuView.h"
 #import "KFLabel.h"
 #import "KFLoadView.h"
 
@@ -25,7 +25,7 @@
 @property (nullable, nonatomic, weak) id<KFTicketViewCellDelegate> cellDelegate;
 
 /**附件**/
-@property (nullable, nonatomic, weak) KFImageView *photoImageView;
+@property (nullable, nonatomic, weak) KFSudokuView *photoImageView;
 /**头像*/
 @property (nullable, nonatomic, weak) UIImageView *headImageView;
 /**时间*/
@@ -38,6 +38,6 @@
 @property (nullable, nonatomic, weak) KFLoadView *loadView;
 
 
-@property (nullable, nonatomic, strong) KFCommentModel *commentModel;
+@property (nullable, nonatomic, strong) KFComment *comment;
 
 @end

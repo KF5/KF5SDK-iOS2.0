@@ -9,17 +9,15 @@
 #import <UIKit/UIKit.h>
 
 #import "NSDictionary+KF5.h"
-#import "UIView+KF5.h"
 #import "UIImage+KF5.h"
 #import "NSDate+KF5.h"
+#import "KFAutoLayout.h"
 
 #if __has_include("KF5SDK.h")
 #import "KF5SDK.h"
 #else
 #import <KF5SDK/KF5SDK.h>
-
 #endif
-
 
 #ifndef KF_CLAMP // return the clamped value
 #define KF_CLAMP(_x_, _low_, _high_)  (((_x_) > (_high_)) ? (_high_) : (((_x_) < (_low_)) ? (_low_) : (_x_)))
@@ -31,16 +29,8 @@
 #define KF5SrcName(file) [[KFHelper shareBundle].bundlePath stringByAppendingPathComponent:file]
 // iOS版本号
 #define KF5SystemVersion  [[[UIDevice currentDevice] systemVersion] doubleValue]
-// iOS7
-#define KF5iOS7    (KF5SystemVersion < 8.0)
 
 #define KF5Helper   [KFHelper shareHelper]
-
-#define KF5SCREEN_WIDTH  (KF5iOS7 ? (KF5ViewVertical?KF5Min:KF5Max) : [UIScreen mainScreen].bounds.size.width)
-#define KF5SCREEN_HEIGHT (KF5iOS7 ? (KF5ViewVertical?KF5Max:KF5Min) : [UIScreen mainScreen].bounds.size.height)
-
-#define KF5Max MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)
-#define KF5Min MIN([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)
 
 /**横屏*/
 #define KF5ViewLandscape UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation)
@@ -56,6 +46,7 @@ static NSString * _Nonnull const KF5LinkTitle           = @"KF5LinkTitle";//titl
 static NSString * _Nonnull const KF5LinkType            = @"KF5LinkType";//类型
 static NSString * _Nonnull const KF5LinkKey             = @"KF5LinkKey";//key
 static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
+
 
 @interface KFHelper : NSObject
 
@@ -122,7 +113,6 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 @property (nonatomic, assign) CGFloat KF5ChatCellMessageBtnArrowWidth;
 @property (nonatomic, assign) CGFloat KF5ChatCellMessageBtnInsterLeftRight;
 
-
 #pragma mark - 工单列表
 @property (nonnull, nonatomic, strong) UIColor *KF5TicketPointColor;
 @property (nonatomic, assign) CGFloat KF5TicketPointViewWitdh;
@@ -157,6 +147,8 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellLinkBtnBackgroundColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellBackgroundColor;
 
++ (CGSize)mainSize;
++ (CGRect)safe_mainFrame;
 
 #pragma mark - NSObject
 + (nullable NSString *)JSONStringWithObject:(nonnull id)object;
@@ -171,21 +163,25 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 + (nullable NSString *)localizedStringForKey:(nonnull NSString *)key value:(nullable NSString *)value;
 + (nullable NSString *)localizedStringForKey:(nonnull NSString *)key;
 
+#pragma mark - Alert
++ (UIAlertController *_Nonnull)alertWithTitle:(NSString *_Nullable)title message:(NSString *_Nullable)message;
++ (UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message confirmHandler:(void (^ __nullable)(UIAlertAction *_Nonnull action))handler;
++(UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message;
+
 #pragma mark - helper
 + (BOOL)isNetworkEnable;
 
 + (nullable NSString *)disable_emoji:(nonnull NSString *)text;
-+ (nonnull UILabel *)labelWithFont:(nonnull UIFont *)font textColor:(nonnull UIColor *)textColor;
++ (nonnull UILabel *)labelWithFont:(nonnull UIFont *)font textColor:(nullable UIColor *)textColor;
 ///单行计算尺寸
 + (CGSize)sizeWithText:(nonnull NSString *)text font:(nonnull UIFont *)font;
 ///多行计算尺寸
 + (CGSize)sizeWithText:(nonnull NSString *)text font:(nonnull UIFont *)font maxSize:(CGSize)maxSize;
-///解决ios11的MJRefresh的bug
-+ (void)configTableView:(nullable UITableView *)tableView top:(CGFloat)top;
 
-+ (BOOL)hasChatQueueMessage;
-+ (void)setHasChatQueueMessage:(BOOL)hasChatQueueMessage;
+@end
 
+@interface UIAlertController(KF5)
+- (void)showToVC:(UIViewController *_Nullable)vc;
 @end
 
 

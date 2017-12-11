@@ -20,7 +20,6 @@
 
 #import "KFComment.h"
 #import "KFTicket.h"
-#import "KFCommentModel.h"
 #import "KFAttachment.h"
 
 #endif /* KF5SDKTicket_h */

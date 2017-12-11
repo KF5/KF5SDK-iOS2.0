@@ -53,7 +53,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [super tableView:tableView didSelectRowAtIndexPath:indexPath];
     
-    if (tableView != self.searchDisplayController.searchResultsTableView) {
+    if (tableView != self.searchTableView) {
         KFDocItem *forum = self.docArray[indexPath.row];
 
         KFPostListViewController *viewController = [[KFPostListViewController alloc]initWithForum:forum];

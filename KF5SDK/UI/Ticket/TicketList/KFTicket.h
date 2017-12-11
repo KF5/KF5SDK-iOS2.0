@@ -38,6 +38,8 @@ typedef NS_ENUM(NSInteger,KFTicketStatus) {
 ///最后一条回复的id
 @property (nonatomic, assign) NSInteger lastComment_id;
 
+@property (nullable, nonatomic, copy, readonly) NSString *statusString;
+
 + (nonnull instancetype)ticketWithDict:(nonnull NSDictionary *)dict;
 
 + (nonnull NSArray <KFTicket *>*)ticketsWithDictArray:(nullable NSArray<NSDictionary *> *)dictArray;

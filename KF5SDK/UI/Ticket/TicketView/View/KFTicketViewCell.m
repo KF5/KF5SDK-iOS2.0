@@ -10,8 +10,9 @@
 #import "KFHelper.h"
 #import "KFTicketToolView.h"
 #import "KFProgressHUD.h"
+#import "KFContentLabelHelp.h"
 
-@interface KFTicketViewCell()<KFImageViewDelegate,KFLabelDelegate>
+@interface KFTicketViewCell()
 
 @end
 
@@ -20,15 +21,8 @@
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        if (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_7_1)
-        {
-            self.contentView.frame = self.bounds;
-            self.contentView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleRightMargin |UIViewAutoresizingFlexibleTopMargin |UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
-        }
-        self.userInteractionEnabled = YES;
-        self.backgroundColor = [UIColor clearColor];
         [self setupView];
-        
+        [self layoutView];
     }
     return self;
 }
@@ -36,23 +30,32 @@
 - (void)setupView{
     // 内容
     KFLabel *commentLabel = [[KFLabel alloc]init];
-    commentLabel.labelDelegate = self;
-    [commentLabel addGestureRecognizer: [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(longTap:)]];
-    commentLabel.numberOfLines = 0;
+    commentLabel.linkTextAttributes = @{NSForegroundColorAttributeName:KF5Helper.KF5OtherURLColor};
+    __weak typeof(self)weakSelf = self;
+    commentLabel.linkTapBlock = ^(KFLabel *label, NSDictionary *value) {
+        if ([weakSelf.cellDelegate respondsToSelector:@selector(ticketCell:clickLabelWithInfo:)]) {
+            [weakSelf.cellDelegate ticketCell:weakSelf clickLabelWithInfo:value];
+        }
+    };
+    commentLabel.commonLongPressBlock = ^(KFLabel *label) {
+        [weakSelf longPressToCopyText];
+    };
     [self.contentView addSubview:commentLabel];
     self.commentLabel = commentLabel;
-    
+
     // 附件
-    KFImageView *photoImageView = [[KFImageView alloc]init];
-    photoImageView.delegate = self;
+    KFSudokuView *photoImageView = [[KFSudokuView alloc]init];
+    photoImageView.clickCellBlock = ^(KFSudokuViewCell * _Nonnull cell) {
+        if ([weakSelf.cellDelegate respondsToSelector:@selector(ticketCell:clickImageWithIndex:)]) {
+            [weakSelf.cellDelegate ticketCell:weakSelf clickImageWithIndex:cell.indexPath.row];
+        }
+    };
     [self.contentView addSubview:photoImageView];
     self.photoImageView = photoImageView;
     
     // 时间
-    UILabel *timeLabel = [[UILabel alloc]init];
+    UILabel *timeLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:KF5Helper.KF5NameColor];
     self.timeLabel = timeLabel;
-    timeLabel.font = KF5Helper.KF5NameFont;
-    timeLabel.textColor = KF5Helper.KF5NameColor;
     [self.contentView addSubview:timeLabel];
     
     // 头像
@@ -61,9 +64,7 @@
     self.headImageView = headImageView;
     
     // 昵称
-    UILabel *nameLabel = [[UILabel alloc]init];
-    nameLabel.textColor = KF5Helper.KF5NameColor;
-    nameLabel.font = KF5Helper.KF5NameFont;
+    UILabel *nameLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:KF5Helper.KF5NameColor];
     [self.contentView addSubview:nameLabel];
     self.nameLabel = nameLabel;
     
@@ -72,40 +73,77 @@
     loadView.status = KFMessageStatusSuccess;
     [self.contentView addSubview:loadView];
     self.loadView = loadView;
-    
 }
 
-- (void)setCommentModel:(KFCommentModel *)commentModel{
-    _commentModel = commentModel;
+- (void)layoutView{
+    UIView *superview = self.contentView;
+    [self.commentLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(superview).offset(KF5Helper.KF5DefaultSpacing);
+        make.left.equalTo(superview).offset(KF5Helper.KF5HorizSpacing);
+        make.right.equalTo(superview).offset(-KF5Helper.KF5HorizSpacing);
+    }];
     
-    _commentLabel.textLayout = commentModel.textLayout;
-    _commentLabel.frame = commentModel.textFrame;
+    [self.photoImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.commentLabel);
+        make.right.equalTo(self.commentLabel);
+        make.top.equalTo(self.commentLabel.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+    }];
     
-    _photoImageView.frame = commentModel.attViewFrame;
-    [_photoImageView setAttachments:commentModel.attachments];
+    [self.timeLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.commentLabel);
+        make.right.lessThanOrEqualTo(self.headImageView.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.equalTo(self.photoImageView.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+        make.bottom.equalTo(superview).offset(-KF5Helper.KF5DefaultSpacing).priority(UILayoutPriorityDefaultHigh);
+    }];
+    [self.headImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.width.kf_equal(20);
+        make.height.kf_equal(20);
+        make.centerY.equalTo(self.timeLabel);
+        make.right.equalTo(self.nameLabel.kf5_left).offset(-5);
+    }];
     
-    _timeLabel.text = commentModel.timeText;
-    _timeLabel.frame = commentModel.timeFrame;
+    [self.nameLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.centerY.equalTo(self.timeLabel);
+        make.right.equalTo(self.commentLabel.kf5_right);
+    }];
     
-    _headImageView.image = commentModel.headerImage;
-    _headImageView.frame = commentModel.headerFrame;
+    [self.loadView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.centerY.equalTo(superview);
+        make.left.equalTo(superview);
+        make.width.kf_equal(20);
+        make.height.kf_equal(20);
+    }];
+}
+
+- (void)setComment:(KFComment *)comment{
+    _comment = comment;
     
-    _nameLabel.text = commentModel.name;
-    _nameLabel.frame = commentModel.nameFrame;
+    NSAttributedString *text = [KFContentLabelHelp attributedString:_comment.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:KF5Helper.KF5TitleFont color:KF5Helper.KF5TitleColor];
+    _commentLabel.attributedText = text;
+    _photoImageView.items = comment.attachments;
+    _timeLabel.text = [NSDate kf5_stringFromDate:[NSDate dateWithTimeIntervalSince1970:comment.created]];
+    _headImageView.image = comment.messageFrom == KFMessageFromMe ? KF5Helper.endUserImage : KF5Helper.agentImage;
+    _nameLabel.text = comment.author_name;
+    _loadView.status = comment.messageStatus;
     
-    _loadView.frame = commentModel.loadViewFrame;
-    _loadView.status = commentModel.comment.messageStatus;
+    [self.timeLabel kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.commentLabel);
+        make.right.lessThanOrEqualTo(self.headImageView.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        CGFloat offset = comment.attachments.count == 0 ? 0 : KF5Helper.KF5DefaultSpacing;
+        make.top.equalTo(self.photoImageView.kf5_bottom).offset(offset);
+        make.bottom.equalTo(self.contentView).offset(-KF5Helper.KF5DefaultSpacing).priority(500);
+    }];
 }
 
 /**
  *  长按出现复制菜单
  */
--(void)longTap:(UILongPressGestureRecognizer *)longTap{
+-(void)longPressToCopyText{
     UIView *superView = self.superview.superview.superview;
     KFTicketToolView *toolView = [superView viewWithTag:kKF5TicketToolViewTag];
     if ([toolView isKindOfClass:[KFTicketToolView class]]) {
-        if ([toolView.textView isFirstResponder]) {
-            toolView.textView.inputNextResponder = self;
+        if ([toolView.inputView.textView isFirstResponder]) {
+            toolView.inputView.textView.inputNextResponder = self;
         }else{
             [self becomeFirstResponder];
         }
@@ -129,22 +167,8 @@
 }
 
 -(void)copyItem:(id)sender{
-    [[UIPasteboard generalPasteboard]setString:(self.commentModel.comment.content)];
+    [[UIPasteboard generalPasteboard]setString:(self.comment.content)];
     [KFProgressHUD showTitleToView:self.superview title:KF5Localized(@"kf5_copied") hideAfter:0.7];
-}
-
-#pragma mark KFImageView的代理
-- (void)imageViewLookWithIndex:(NSInteger)index{
-    
-    if ([self.cellDelegate respondsToSelector:@selector(ticketCell:clickImageWithIndex:)]) {
-        [self.cellDelegate ticketCell:self clickImageWithIndex:index];
-    }
-}
-#pragma mark KFLabel的代理
-- (void)clickLabelWithInfo:(NSDictionary *)info{
-    if ([self.cellDelegate respondsToSelector:@selector(ticketCell:clickLabelWithInfo:)]) {
-        [self.cellDelegate ticketCell:self clickLabelWithInfo:info];
-    }
 }
 
 @end

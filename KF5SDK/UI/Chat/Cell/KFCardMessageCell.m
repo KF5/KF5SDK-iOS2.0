@@ -24,16 +24,12 @@
         self.headerImageView = headerImageView;
         [self.contentView addSubview:headerImageView];
         
-        UILabel *titleLabel = [[UILabel alloc] init];
+        UILabel *titleLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5ChatCardCellTitleLabelTextColor];
         titleLabel.numberOfLines = 2;
-        titleLabel.textColor = KF5Helper.KF5ChatCardCellTitleLabelTextColor;
-        titleLabel.font = KF5Helper.KF5TitleFont;
         self.titleLabel = titleLabel;
         [self.contentView addSubview:titleLabel];
         
-        UILabel *priceLabel = [[UILabel alloc] init];
-        priceLabel.font = KF5Helper.KF5ContentFont;
-        priceLabel.textColor = KF5Helper.KF5ChatCardCellPriceLabelTextColor;
+        UILabel *priceLabel = [KFHelper labelWithFont:KF5Helper.KF5ContentFont textColor:KF5Helper.KF5ChatCardCellPriceLabelTextColor];
         self.priceLabel = priceLabel;
         [self.contentView addSubview:priceLabel];
         

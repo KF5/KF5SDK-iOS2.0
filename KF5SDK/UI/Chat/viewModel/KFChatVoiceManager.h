@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class KFChatVoiceManager;
 @class KFMessageModel;
+@class KFChatVoiceManager;
+
+UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceDidDownloadNotification;
+UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
 
 @protocol KFChatVoiceManagerDelegate <NSObject>
 
@@ -57,9 +60,12 @@
 /**
  *  播放音频消息
  *
+ *  @param messageModel 消息模型
  *  @param completion 成功或失败的回调
+ *
+ @warning 通过KFChatVoiceDidDownloadNotification获取下载完成通知
  */
-- (void)playVoiceWithLocalPath:(nonnull NSString *)localPath completion:(nullable void (^)(NSError  * _Nullable error))completion;
+- (void)playVoiceWithMessageModel:(nonnull KFMessageModel *)messageModel  completion:(nullable void (^)(NSError  * _Nullable error))completion;
 /**
  *  停止音频播放
  */
@@ -74,18 +80,19 @@
 /**
  判断是否是正在播放的文件
 
- @param localPath 本地语音路径
+ @param messageModel 消息模型
  @return 是否正在播放
  */
-- (BOOL)isPlayingWithlocalPath:(nonnull NSString *)localPath;
+- (BOOL)isPlayingWithMessageModel:(nonnull KFMessageModel *)messageModel;
 
 #pragma mark - 下载相关
 
 /**
  下载音频
 
- @param url URL
+ @param messageModel 消息模型
+ @warning 通过KFChatVoiceDidDownloadNotification获取下载完成通知
  */
-- (void)downloadDataWithURL:(nonnull NSString *)url completion:(nullable void (^)(NSString * _Nullable local_path,NSError * _Nullable error))completion;
+- (void)downloadDataWithMessageModel:(nonnull KFMessageModel *)messageModel;
 
 @end

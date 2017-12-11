@@ -9,6 +9,7 @@
 #import "KFVoiceMessageCell.h"
 #import "KFHelper.h"
 #import "KFChatVoiceManager.h"
+#import "KFProgressHUD.h"
 
 @implementation KFVoiceMessageCell
 
@@ -20,28 +21,30 @@
         [voiceMessageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapVoice:)]];
         [self.contentView addSubview:voiceMessageView];
         _voiceMessageView  = voiceMessageView;
+        
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateMessageModel:) name:KFChatVoiceDidDownloadNotification object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateMessageModel:) name:KFChatVoiceStopPlayNotification object:nil];
     }
     return self;
 }
 
 - (void)tapVoice:(UITapGestureRecognizer *)tap{
-    if ([self.cellDelegate respondsToSelector:@selector(cell:clickVoiceWithMessageModel:)]) {
-        [self.cellDelegate cell:self clickVoiceWithMessageModel:self.messageModel];
+    if (![[KFChatVoiceManager sharedChatVoiceManager]isPlayingWithMessageModel:self.messageModel]) {
+        [self.voiceMessageView startAnimating];
+        [[KFChatVoiceManager sharedChatVoiceManager]playVoiceWithMessageModel:self.messageModel completion:^(NSError * _Nullable error) {
+            if (error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [KFProgressHUD showLoadingTo:[UIApplication sharedApplication].keyWindow title:KF5Localized(@"kf5_play_error") hideAfter:0.7f];
+                });
+            }
+        }];
+    }else{
+        [self.voiceMessageView stopAnimating];
+        [[KFChatVoiceManager sharedChatVoiceManager]stopVoicePlayingMessage];
     }
 }
 
 - (void)setMessageModel:(KFMessageModel *)messageModel{
-    
-    if (self.messageModel) {
-        if (self.messageModel.voiceLength == 0) {
-            @try {[self.messageModel removeObserver:self forKeyPath:@"voiceLength"];
-            } @catch (NSException *exception) {}
-        }else{
-            @try {[self.messageModel removeObserver:self forKeyPath:@"isPlaying"];
-            } @catch (NSException *exception) {}
-        }
-    }
-    
     [super setMessageModel:messageModel];
     
     _voiceMessageView.frame = messageModel.messageViewFrame;
@@ -53,34 +56,26 @@
     }else{
         [_voiceMessageView stopAnimating];
     }
-    
-    if (self.messageModel) {
-        if (self.messageModel.voiceLength == 0) {
-            [self.messageModel addObserver:self forKeyPath:@"voiceLength" options:NSKeyValueObservingOptionNew context:NULL];
-        }else{
-            [self.messageModel addObserver:self forKeyPath:@"isPlaying" options:NSKeyValueObservingOptionNew context:NULL];
-        }
+}
+
+- (void)updateMessageModel:(NSNotification *)note{
+    if (self.messageModel == note.object) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.messageModel = note.object;
+        });
     }
 }
 
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
-    if([keyPath isEqualToString:@"voiceLength"] || [keyPath isEqualToString:@"isPlaying"]){
-        [self setMessageModel:self.messageModel];
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event{
+    if ([self.messageBgView pointInside:[self convertPoint:point toView:self.messageBgView] withEvent:event]) {
+        return self.voiceMessageView;
     }else{
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+        return [super hitTest:point withEvent:event];
     }
 }
 
 - (void)dealloc{
-    if (self.messageModel) {
-        if (self.messageModel.voiceLength == 0) {
-            @try {[self.messageModel removeObserver:self forKeyPath:@"voiceLength"];
-            } @catch (NSException *exception) {}
-        }else{
-            @try {[self.messageModel removeObserver:self forKeyPath:@"isPlaying"];
-            } @catch (NSException *exception) {}
-        }
-    }
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 
 @end

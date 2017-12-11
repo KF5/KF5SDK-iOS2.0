@@ -24,9 +24,6 @@ BOOL isShowTime(double time){
 
 @interface KFMessageModel()
 
-@property (nullable, nonatomic, strong) NSAttributedString *text;
-@property (nullable, nonatomic, strong) NSAttributedString *systemText;
-
 @end
 
 @implementation KFMessageModel
@@ -63,21 +60,14 @@ BOOL isShowTime(double time){
             _messageViewBgImageH = KF5Helper.chat_ctnOtherBgH;
         }
         UIFont *font = KF5Helper.KF5TitleFont;
-        UIColor *textColor = nil;
-        UIColor *urlColor = nil;
-        if (_message.messageFrom == KFMessageFromMe) {
-            textColor = [UIColor whiteColor];
-            urlColor = KF5Helper.KF5MeURLColor;
-        }else{
-            textColor = KF5Helper.KF5TitleColor;
-            urlColor = KF5Helper.KF5OtherURLColor;
-        }
+        UIColor *color = _message.messageFrom == KFMessageFromMe ? [UIColor whiteColor] : KF5Helper.KF5TitleColor;
+
         if (_message.messageType == KFMessageTypeText) {
-            _text = [KFContentLabelHelp baseMessageWithString:_message.content font:font textColor:textColor urlColor:urlColor];
+            _text = [KFContentLabelHelp baseMessageWithString:_message.content font:font color:color];
         }if (_message.messageType == KFMessageTypeCustom){
-            _text = [KFContentLabelHelp customMessageWithJSONString:_message.content font:font textColor:textColor urlColor:urlColor];
+            _text = [KFContentLabelHelp customMessageWithJSONString:_message.content font:font color:color];
         }else if(_message.messageType == KFMessageTypeOther){
-            _text = [KFContentLabelHelp documentStringWithString:_message.content urlString:_message.url font:font urlColor:urlColor];
+            _text = [KFContentLabelHelp documentStringWithString:_message.content urlString:_message.url font:font color:color];
         }else if (_message.messageType == KFMessageTypeImage){
             if (_message.local_path.length > 0)
                 _image = [[UIImage imageWithContentsOfFile:_message.local_path] kf5_imageScalingForSize:CGSizeMake(KF5MaxImageWidth, KF5MaxImageHeight)];
@@ -86,33 +76,26 @@ BOOL isShowTime(double time){
                 _voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:_message.local_path];
             }else{
                 if (_message.url.length > 0) {
-                    __weak typeof(self)weakSelf = self;
-                    [[KFChatVoiceManager sharedChatVoiceManager]downloadDataWithURL:_message.url completion:^(NSString * _Nullable local_path, NSError * _Nullable error) {
-                        if (error) {
-                            weakSelf.message.messageStatus = KFMessageStatusFailure;
-                        }else{
-                            weakSelf.message.local_path = local_path;
-                            weakSelf.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:local_path];
-                            [weakSelf updateFrame];
-                        }
-                    }];
+                    [[KFChatVoiceManager sharedChatVoiceManager]downloadDataWithMessageModel:self];
                 }
             }
         }
     }else{
-        _systemText = [KFContentLabelHelp systemMessageWithString:_message.content font:KF5Helper.KF5TimeFont textColor:[UIColor whiteColor] urlColor:KF5Helper.KF5OtherURLColor];
+        _systemText = [KFContentLabelHelp systemMessageWithString:_message.content font:KF5Helper.KF5TimeFont color:[UIColor whiteColor]];
     }
 }
 
 - (void)updateFrame{
     
+    CGFloat screenWidth = KFHelper.safe_mainFrame.size.width;
+    
     if (self.isContentMessage) {
         if (_showTime) {
-            CGSize timeSize = [KFHelper sizeWithText:_timeText font:KF5Helper.KF5TimeFont maxSize:CGSizeMake(KF5SCREEN_WIDTH, MAXFLOAT)];
-            _timeFrame = CGRectMake(0, 0, KF5SCREEN_WIDTH, timeSize.height);
+            CGSize timeSize = [KFHelper sizeWithText:_timeText font:KF5Helper.KF5TimeFont maxSize:CGSizeMake(screenWidth, MAXFLOAT)];
+            _timeFrame = CGRectMake(0, 0, screenWidth, timeSize.height);
         }
         if (_message.messageType == KFMessageTypeCard) {
-            [self updateCardFrame];
+            [self updateCardFrame:screenWidth];
             return;
         }
         
@@ -131,9 +114,7 @@ BOOL isShowTime(double time){
             CGFloat width = (_voiceLength > 60 ? 60 : _voiceLength) / 60.0 * 170;
             messageSize = CGSizeMake(width < 50 ? 50 : width, 15);
         }else{
-            YYTextContainer *container = [YYTextContainer containerWithSize:CGSizeMake(KF5SCREEN_WIDTH-160, MAXFLOAT)];
-            _textLayout = [YYTextLayout layoutWithContainer:container text:_text];
-            messageSize = _textLayout.textBoundingSize;
+            messageSize = [self.text boundingRectWithSize:CGSizeMake(screenWidth-160, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
         }
         
         _messageBgViewFrame = CGRectMake(CGRectGetMaxX(_headerFrame) +KF5Helper.KF5DefaultSpacing, CGRectGetMinY(_headerFrame), messageSize.width + KF5Helper.KF5ChatCellMessageBtnInsterLeftRight * 2 + KF5Helper.KF5ChatCellMessageBtnArrowWidth,messageSize.height + KF5Helper.KF5ChatCellMessageBtnInsterTopBottom * 2);
@@ -145,35 +126,33 @@ BOOL isShowTime(double time){
         _cellHeight = ceilf(CGRectGetMaxY(_messageBgViewFrame) + KF5Helper.KF5DefaultSpacing);
         
         if (_message.messageFrom == KFMessageFromMe) {
-            _headerFrame.origin.x = KF5SCREEN_WIDTH - CGRectGetMaxX(_headerFrame);
-            _messageBgViewFrame.origin.x = KF5SCREEN_WIDTH - CGRectGetMaxX(_messageBgViewFrame);
-            _messageViewFrame.origin.x = KF5SCREEN_WIDTH - CGRectGetMaxX(_messageViewFrame);
-            _loadViewFrame.origin.x = KF5SCREEN_WIDTH - CGRectGetMaxX(_loadViewFrame);
+            _headerFrame.origin.x = screenWidth - CGRectGetMaxX(_headerFrame);
+            _messageBgViewFrame.origin.x = screenWidth - CGRectGetMaxX(_messageBgViewFrame);
+            _messageViewFrame.origin.x = screenWidth - CGRectGetMaxX(_messageViewFrame);
+            _loadViewFrame.origin.x = screenWidth - CGRectGetMaxX(_loadViewFrame);
         }
     }else{
-        YYTextContainer *container = [YYTextContainer containerWithSize:CGSizeMake(KF5SCREEN_WIDTH-100, MAXFLOAT)];
-        _systemTextLayout = [YYTextLayout layoutWithContainer:container text:_systemText];
-        CGSize systemSize = _systemTextLayout.textBoundingSize;
+        CGSize systemSize = [self.systemText boundingRectWithSize:CGSizeMake(screenWidth-100, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
         
-        _systemFrame = CGRectMake((KF5SCREEN_WIDTH - systemSize.width) / 2 , 5, systemSize.width, systemSize.height);
+        _systemFrame = CGRectMake((screenWidth - systemSize.width) / 2 , 5, systemSize.width, systemSize.height);
         _systemBackgroundFrame = CGRectMake(_systemFrame.origin.x - 5, _systemFrame.origin.y - 5, _systemFrame.size.width + 10, _systemFrame.size.height + 10);
         
         _cellHeight = ceilf(CGRectGetMaxY(_systemBackgroundFrame) + KF5Helper.KF5DefaultSpacing);
     }
 }
 #pragma mark 卡片消息的frame
-- (void)updateCardFrame{
+- (void)updateCardFrame:(CGFloat)screenWidth{
     _cardImageFrame = CGRectMake(KF5Helper.KF5MiddleSpacing, KF5Helper.KF5MiddleSpacing, 60, 60);
     CGFloat x = CGRectGetMaxX(_cardImageFrame) + KF5Helper.KF5DefaultSpacing;
-    CGFloat width = KF5SCREEN_WIDTH - x - KF5Helper.KF5MiddleSpacing;
+    CGFloat width = screenWidth - x - KF5Helper.KF5MiddleSpacing;
     _cardTitleFrame = CGRectMake(x, CGRectGetMinY(_cardImageFrame), width, 40);
     _cardPriceFrame = CGRectMake(x, CGRectGetMaxY(_cardTitleFrame), width, 20);
     
-    CGFloat maxWidth = KF5SCREEN_WIDTH - KF5Helper.KF5MiddleSpacing * 4;
+    CGFloat maxWidth = screenWidth - KF5Helper.KF5MiddleSpacing * 4;
     
     CGSize size = [KFHelper sizeWithText:_cardDict[@"link_title"] font:KF5Helper.KF5TitleFont];
     CGFloat linkWidth = MAX(80, MIN(maxWidth, size.width)) + KF5Helper.KF5MiddleSpacing * 2;
-    _cardLinkBtnFrame = CGRectMake((KF5SCREEN_WIDTH - linkWidth) / 2, CGRectGetMaxY(_cardImageFrame) + KF5Helper.KF5DefaultSpacing, linkWidth, 30);
+    _cardLinkBtnFrame = CGRectMake((screenWidth - linkWidth) / 2, CGRectGetMaxY(_cardImageFrame) + KF5Helper.KF5DefaultSpacing, linkWidth, 30);
     
     _cellHeight = CGRectGetMaxY(_cardLinkBtnFrame) + KF5Helper.KF5MiddleSpacing;
 }

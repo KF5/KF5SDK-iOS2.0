@@ -17,17 +17,15 @@
 #import "KFHelper.h"
 
 #import "KFUserManager.h"
-#import "KFTicketModel.h"
 #import "KFTicket.h"
 #import "KFTicketManager.h"
-
 
 @interface KFTicketListViewController ()
 
 /**下一页*/
 @property (nonatomic, assign) NSUInteger nextPage;
 
-@property (nullable, nonatomic, strong) NSMutableArray <KFTicketModel *>*ticketModelArray;
+@property (nullable, nonatomic, strong) NSMutableArray <KFTicket *>*ticketList;
 
 @end
 
@@ -46,6 +44,7 @@
     [self.tableView kf5_footerWithRefreshingBlock:^{
         [weakSelf refreshWithisHeader:NO];
     }];
+    self.tableView.estimatedRowHeight = 64;
     
     [KFProgressHUD showDefaultLoadingTo:self.view];
     [self refreshWithisHeader:YES];
@@ -62,14 +61,6 @@
     [self.navigationController pushViewController:createTicketView animated:YES];
 }
 
-- (void)updateFrame{
-    for (KFTicketModel *model in self.ticketModelArray) {
-        [model updateFrame];
-    }
-    [self.tableView reloadData];
-}
-
-
 - (void)setNextPage:(NSUInteger)nextPage{
     _nextPage = nextPage;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -82,7 +73,17 @@
 }
 
 - (void)refreshWithisHeader:(BOOL)isHeader{
-    
+    if (![KFHelper isNetworkEnable]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
+            if (isHeader) {
+                [self.tableView kf5_endHeaderRefreshing];
+            }else{
+                [self.tableView kf5_endFooterRefreshing];
+            }
+        });
+        return ;
+    }
     NSDictionary *params =@{
                             KF5PerPage:@(self.prePage?:30),
                             KF5Page: isHeader?@(1):@(self.nextPage),
@@ -99,12 +100,12 @@
         });
         if (!error) {
             weakSelf.nextPage = [result kf5_numberForKeyPath:@"data.next_page"].unsignedIntegerValue;
-            NSMutableArray *ticketArray = [weakSelf ticketModelsWithTickets:[KFTicket ticketsWithDictArray:[result kf5_arrayForKeyPath:@"data.requests"]]];
+            NSArray *ticketList = [KFTicket ticketsWithDictArray:[result kf5_arrayForKeyPath:@"data.requests"]];
             
             if (isHeader) {
-                weakSelf.ticketModelArray = ticketArray;
+                weakSelf.ticketList = [NSMutableArray arrayWithArray:ticketList];
             }else{
-                [weakSelf.ticketModelArray addObjectsFromArray:ticketArray];
+                [weakSelf.ticketList addObjectsFromArray:ticketList];
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.tableView reloadData];
@@ -119,11 +120,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.ticketModelArray.count;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return ceilf(self.ticketModelArray[indexPath.row].cellHeight);
+    return self.ticketList.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -133,50 +130,39 @@
     if (!cell) {
         cell = [[KFTicketListViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
     }
-    cell.ticketModel = self.ticketModelArray[indexPath.row];
+    cell.ticket = self.ticketList[indexPath.row];
     
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    KFTicketModel *ticketModel = self.ticketModelArray[indexPath.row];
+    KFTicket *ticket = self.ticketList[indexPath.row];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     // 记录最后一次更新的内容
-    [KFTicketManager saveTicketNewDateWithTicket:ticketModel.ticket.ticket_id lastComment:ticketModel.ticket.lastComment_id];
+    [KFTicketManager saveTicketNewDateWithTicket:ticket.ticket_id lastComment:ticket.lastComment_id];
     
-    [ticketModel updateFrame];
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
     
-    KFTicketViewController *ticketView = [[KFTicketViewController alloc]initWithTicket_id:ticketModel.ticket.ticket_id isClose:ticketModel.ticket.status == KFTicketStatusClosed];
+    KFTicketViewController *ticketView = [[KFTicketViewController alloc]initWithTicket_id:ticket.ticket_id isClose:ticket.status == KFTicketStatusClosed];
     [self.navigationController pushViewController:ticketView animated:YES];
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    if(self.ticketModelArray && self.ticketModelArray.count == 0){
+    if(self.ticketList && self.ticketList.count == 0){
         return 50;
     }else{
         return 0;
     }
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    UILabel *label = [[UILabel alloc]init];
+    UILabel *label = [KFHelper labelWithFont:[UIFont boldSystemFontOfSize:16] textColor:KF5Helper.KF5NameColor];
     label.text = KF5Localized(@"kf5_no_feedback");
-    label.textColor = KF5Helper.KF5NameColor;
-    label.font = [UIFont boldSystemFontOfSize:16];
     label.textAlignment = NSTextAlignmentCenter;
     label.frame = CGRectMake(0, 0, tableView.frame.size.width, 50);
     
     return label;
-}
-
-- (NSMutableArray <KFTicketModel *>*)ticketModelsWithTickets:(NSArray <KFTicket *>*)tickets{
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:tickets.count];
-    for (KFTicket *ticket in tickets) {
-        [array addObject:[[KFTicketModel alloc]initWithTicket:ticket]];
-    }
-    return array;
 }
 
 - (void)didReceiveMemoryWarning {

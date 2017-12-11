@@ -11,13 +11,12 @@
 #import "KFDetailMessageViewCell.h"
 
 #import "KFHelper.h"
-#import "JKAlert.h"
 #import "KFProgressHUD.h"
 #import "KFUserManager.h"
 
 @interface KFDetailMessageViewController ()
 
-@property (nonatomic, strong) NSMutableArray <KFTicketFieldModel *>*detailMessages;
+@property (nonatomic, strong) NSArray <NSDictionary *>*detailMessages;
 
 @property (nonatomic, assign) NSInteger ticket_id;
 
@@ -39,7 +38,7 @@
     if (!self.title.length) {
         self.title = KF5Localized(@"kf5_message_detail");
     }
-    
+    self.tableView.estimatedRowHeight = 44;
     self.tableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     
     [self loadData];
@@ -47,8 +46,7 @@
 
 - (void)loadData{
     if (![KFHelper isNetworkEnable]) {
-        [JKAlert showMessage:KF5Localized(@"kf5_no_internet")];
-        return ;
+        [KFHelper alertWithMessage:KF5Localized(@"kf5_no_internet")]; return;
     }
     
     NSDictionary *param = @{
@@ -60,11 +58,8 @@
     [KFHttpTool getTicketDetailMessageWithParams:param completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (!error) {
-                NSArray *array = [result kf5_arrayForKeyPath:@"data.ticket_field"];
-                weakSelf.detailMessages = [NSMutableArray arrayWithCapacity:array.count];
-                for (NSDictionary *dict in array) {
-                    [weakSelf.detailMessages addObject:[[KFTicketFieldModel alloc] initWithTicketFieldDict:dict]];
-                }
+                weakSelf.detailMessages = [result kf5_arrayForKeyPath:@"data.ticket_field"];
+
                 [weakSelf.tableView reloadData];
                 [KFProgressHUD hideHUDForView:weakSelf.view];
             }else{
@@ -72,17 +67,6 @@
             }
         });
     }];
-}
-
-- (void)updateFrame{
-    for (KFTicketFieldModel *model in self.detailMessages) {
-        [model updateFrame];
-    }
-    [self.tableView reloadData];
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return self.detailMessages[indexPath.row].cellHeight;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -96,7 +80,7 @@
         cell = [[KFDetailMessageViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellID];
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
-    cell.ticketFieldModel = self.detailMessages[indexPath.row];
+    cell.ticketFieldDict = self.detailMessages[indexPath.row];
     return cell;
 }
 @end

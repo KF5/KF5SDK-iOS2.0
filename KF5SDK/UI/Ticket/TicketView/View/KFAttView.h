@@ -7,28 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "KFImageView.h"
+#import "KFSudokuView.h"
 
-static CGFloat KFViewSideLength = 30;
+@interface KFAttView : UICollectionView
 
-@class KFAttView;
-@protocol KFAttViewDelegate <NSObject>
-
-- (void)attViewAddAction:(KFAttView *)attView;
-
-- (void)attViewcloseAction:(KFAttView *)attView;
-
-@end
-
-@interface KFAttView : UIView
-
-@property (nonatomic, strong) NSMutableArray <KFAssetImage *>*images;
-
-@property (nonatomic ,weak) id<KFAttViewDelegate> degelate;
-
-/**
- *  删除所有添加的图片
- */
-- (void)removeImages;
+// 图片数组
+@property (nullable, nonatomic, strong) NSArray <KFAssetImage *>*images;
+@property (nullable, nonatomic, copy) void(^closeViewBlock)(void);
+@property (nullable, nonatomic, copy) void(^addImageBlock)(void);
 
 @end

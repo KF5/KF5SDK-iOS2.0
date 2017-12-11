@@ -33,4 +33,28 @@
     return tickets;
 }
 
+- (nullable NSString *)statusString{
+    NSString *statusStr = nil;
+    switch (self.status) {
+        case KFTicketStatusNew:
+            statusStr = KF5Localized(@"kf5_ticket_status_New");
+            break;
+        case KFTicketStatusOpen:
+            statusStr = KF5Localized(@"kf5_ticket_status_Open");
+            break;
+        case KFTicketStatusPending:
+            statusStr = KF5Localized(@"kf5_ticket_status_Pending");
+            break;
+        case KFTicketStatusSolved:
+            statusStr = KF5Localized(@"kf5_ticket_status_Solved");
+            break;
+        case KFTicketStatusClosed:
+            statusStr = KF5Localized(@"kf5_ticket_status_Closed");
+            break;
+        default:
+            break;
+    }
+    return statusStr;
+}
+
 @end

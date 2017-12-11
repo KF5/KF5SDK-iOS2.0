@@ -40,8 +40,7 @@
     
 }
 
-- (void)login:(UIBarButtonItem *)item
-{
+- (void)login:(UIBarButtonItem *)item{
     if ([item.title isEqualToString:NSLocalizedString(@"kf5_login", nil)]) {
         UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
         KFPersonTableViewController *preson = (KFPersonTableViewController*)[storyboard instantiateViewControllerWithIdentifier:@"KFPersonTableViewController"];
@@ -53,8 +52,7 @@
 }
 
 #pragma mark - delegate
-- (void)loginSuccess
-{
+- (void)loginSuccess{
     self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"kf5_logout", nil);
 }
 #pragma mark - 注销用户
@@ -66,16 +64,14 @@
                                  KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
                                  KF5DeviceToken:deviceToken
                                  };
-        [KFHttpTool deleteTokenWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
-        }];
+        [KFHttpTool deleteTokenWithParams:params completion:nil];
     }
     
     [KFUserManager deleteUser];
 }
 
 #pragma mark - push
-- (void)pushTicketList
-{
+- (void)pushTicketList{
     [self.navigationController pushViewController:[[KFTicketListViewController alloc]init] animated:YES];
 }
 

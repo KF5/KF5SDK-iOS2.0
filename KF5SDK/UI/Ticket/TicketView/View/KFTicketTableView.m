@@ -7,7 +7,10 @@
 //
 
 #import "KFTicketTableView.h"
-#import "KFTicketHeaderView.h"
+
+@interface KFTicketHeaderView : UIView
+- (instancetype)initWithTitle:(NSString *)title ratingText:(NSString *)ratingText;
+@end
 
 @interface KFTicketTableView()<UITableViewDelegate,UITableViewDataSource>
 
@@ -36,6 +39,8 @@
         }
         self.delegate = self;
         self.dataSource = self;
+        self.estimatedRowHeight = 61;
+
         self.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     }
     return self;
@@ -46,8 +51,8 @@
     
     if (!ratingModel) {self.tableHeaderView = nil;return;}
     
-    KFTicketHeaderView *headerView = [[KFTicketHeaderView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 44)];
-    headerView.ratingLabel.text = [KFRatingModel stringForRatingScore:ratingModel.ratingScore];
+    KFTicketHeaderView *headerView = [[KFTicketHeaderView alloc] initWithTitle:KF5Localized(@"kf5_rate")
+ ratingText:[KFRatingModel stringForRatingScore:ratingModel.ratingScore]];
     [headerView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickHeaderView)]];
     self.tableHeaderView = headerView;
 }
@@ -59,13 +64,8 @@
 }
 
 #pragma mark - tableView代理
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    KFCommentModel *commentModel = self.commentModelArray[indexPath.row];
-    return commentModel.cellHeight;
-}
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.commentModelArray.count;
+    return self.commentList.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -77,8 +77,8 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         cell.cellDelegate = self.cellDelegate;
     }
-    KFCommentModel *commentModel = self.commentModelArray[indexPath.row];
-    cell.commentModel = commentModel;
+    KFComment *comment = self.commentList[indexPath.row];
+    cell.comment = comment;
     return cell;
 }
 
@@ -87,26 +87,75 @@
 }
 
 #pragma mark 向下滚动
-- (void)scrollViewBottomHasMainQueue:(BOOL)hasMainQueue{
-    if (self.contentSize.height > self.frame.size.height)
-    {
-        CGPoint offset = CGPointMake(0, self.contentSize.height - self.frame.size.height);
-        
-        if (hasMainQueue) {
-            dispatch_async(dispatch_get_main_queue(), ^{// 调用线程会影响外部包裹的动画
-                [self setContentOffset:offset animated:YES];
-            });
-        }else{
-            [UIView animateWithDuration:0.25f animations:^{
-                [self setContentOffset:offset];
-            }];
+- (void)scrollViewBottomWithAnimated:(BOOL)animated{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger rowCount = [self numberOfRowsInSection:0];
+        if (rowCount > 1) {
+            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:rowCount-1 inSection:0];
+            [self scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:animated];
         }
-    }
+    });
 }
 - (void)scrollViewBottomWithAfterTime:(int16_t)afterTime{
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(afterTime * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        [self scrollViewBottomHasMainQueue:NO];
+        [self scrollViewBottomWithAnimated:YES];
     });
+}
+
+- (void)drawRect:(CGRect)rect{
+    [super drawRect:rect];
+    [self scrollViewBottomWithAnimated:YES];
+}
+
+@end
+
+
+@implementation KFTicketHeaderView
+
+- (instancetype)initWithTitle:(NSString *)title ratingText:(NSString *)ratingText{
+    self = [super initWithFrame:CGRectMake(0, 0, 0, 44)];
+    if (self) {
+        self.userInteractionEnabled = YES;
+        self.backgroundColor = KF5Helper.KF5BgColor;
+        
+        UILabel *titleLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5BlueColor];
+        titleLabel.text = title;
+        [self addSubview:titleLabel];
+        
+        UILabel *ratingLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:[UIColor whiteColor]];
+        ratingLabel.text = ratingText;
+        ratingLabel.textAlignment = NSTextAlignmentCenter;
+        ratingLabel.backgroundColor = KF5Helper.KF5SatifiedColor;
+        ratingLabel.layer.cornerRadius = 3;
+        ratingLabel.layer.masksToBounds = YES;
+        ratingLabel.hidden = !ratingText.length;
+        [self addSubview:ratingLabel];
+        
+        UIImageView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage kf5_drawArrowImageWithColor:KF5Helper.KF5BlueColor size:CGSizeMake(13, 21)]];
+        accessoryView.contentMode = UIViewContentModeCenter;
+        [self addSubview:accessoryView];
+        
+        [titleLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.left.equalTo(self.kf5_safeAreaLayoutGuideLeft).offset(KF5Helper.KF5HorizSpacing);
+            make.width.kf_equal(200);
+            make.top.equalTo(self);
+            make.bottom.equalTo(self);
+        }];
+        
+        [accessoryView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.right.equalTo(self.kf5_safeAreaLayoutGuideRight).offset(-KF5Helper.KF5HorizSpacing);
+            make.centerY.equalTo(titleLabel);
+        }];
+        
+        [ratingLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            CGSize ratingSize = [KFHelper sizeWithText:ratingLabel.text font:ratingLabel.font];
+            make.right.equalTo(accessoryView.kf5_left).offset(-KF5Helper.KF5MiddleSpacing);
+            make.centerY.equalTo(titleLabel);
+            make.width.kf_equal(ratingSize.width + KF5Helper.KF5MiddleSpacing);
+            make.height.kf_equal(ratingSize.height + KF5Helper.KF5DefaultSpacing);
+        }];
+    }
+    return self;
 }
 
 @end

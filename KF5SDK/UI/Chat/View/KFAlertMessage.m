@@ -7,6 +7,8 @@
 //
 
 #import "KFAlertMessage.h"
+#import "KFHelper.h"
+#import "KFAutoLayout.h"
 
 @interface KFAlertMessage ()
 
@@ -16,14 +18,16 @@
 
 @property (nonatomic, assign) KF5AlertType alertType;
 
+@property (nonatomic,strong) NSLayoutConstraint *topLayout;
+
 @end
 
 @implementation KFAlertMessage
 
 - (instancetype)initWithViewController:(UIViewController *)viewController title:(NSString *)title duration:(CGFloat)duration showType:(KF5AlertType)alertType{
-    
-    if ([super init]) {
-        _timeDuration = duration;
+    self = [super init];
+    if (self) {
+        self.timeDuration = duration;
         self.text = title;
         self.backgroundColor = [UIColor colorWithRed:0.91 green:0.302 blue:0.235 alpha:1];
         [self setTextAlignment:NSTextAlignmentCenter];
@@ -68,16 +72,18 @@
 
 - (void)showAlert{
     [self.viewController.view addSubview:self];
-    self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
     
-    self.frame = CGRectMake(0, -40, self.viewController.view.frame.size.width, 40);
-    
+    [self kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.viewController.view);
+        self.topLayout =make.top.equalTo(self.viewController.kf5_safeAreaTopLayoutGuide).offset(-40).active;
+        make.right.equalTo(self.viewController.view);
+        make.height.kf_equal(40);
+    }];
+    [self.superview layoutIfNeeded];
     [UIView animateWithDuration:0.5f animations:^{
-        CGRect frame = self.frame;
-        frame.origin.y = 64;
-        self.frame = frame;
-        
-    }completion:^(BOOL finished) {
+        self.topLayout.constant = 0;
+        [self.superview layoutIfNeeded];
+    } completion:^(BOOL finished) {
         [self setTimer];
     }];
 }
@@ -90,9 +96,8 @@
     if (!self.viewController) return;
     
     [UIView animateWithDuration:0.5f animations:^{
-        CGRect frame = self.frame;
-        frame.origin.y = -40;
-        self.frame = frame;
+        self.topLayout.constant = -40;
+        [self.superview layoutIfNeeded];
     }completion:^(BOOL finished) {
         [self removeFromSuperview];
     }];

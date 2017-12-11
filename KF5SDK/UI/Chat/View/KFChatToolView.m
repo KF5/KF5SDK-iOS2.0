@@ -19,11 +19,21 @@ static const CGFloat kKF5ChatToolBtnWidth  = 28;
 /**转接客服的按钮宽度*/
 static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
 
+typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
+    KFChatShowTypeDefault = 0,
+    KFChatShowTypeKeyBoard,
+    KFChatShowTypeVoice,
+    KFChatShowTypeFaceView
+};
 
 @interface KFChatToolView()<KFTextViewDelegate>
 
 /**表情视图*/
 @property (nonatomic, strong) KFFaceBoardView *faceBoardView;
+
+@property (nonatomic,strong) NSLayoutConstraint *heightLayout;
+
+@property (nonatomic, assign) KFChatShowType showType;
 
 @end
 
@@ -35,58 +45,51 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
         self.backgroundColor = KF5Helper.KF5ChatToolViewBackgroundColor;
         
         [self setupView];
+        [self layoutView];
+        
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(statusBarOrientationChange:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     }
     return self;
 }
 
-+ (CGFloat)defaultHeight{
-    return kKF5ChatToolDefaultTextViewHeight + KF5Helper.KF5ChatToolTextViewTopSpacing * 2;
+- (void)statusBarOrientationChange:(NSNotification *)notification{
+    if (self.showType == KFChatShowTypeFaceView) {
+        self.showType = KFChatShowTypeDefault;
+        [self.textView resignFirstResponder];
+    }
+    self.textView.inputView = nil;
+    self.faceBoardView = nil;
 }
 
 - (void)setupView{
-    UIView *lineView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 0.5)];
-    lineView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth;
-    lineView.backgroundColor = KF5Helper.KF5ChatToolViewLineColor;
-    [self addSubview:lineView];
-    
     // 语音按钮
-    UIButton * voiceBtn = [[UIButton alloc]initWithFrame:CGRectMake(KF5Helper.KF5DefaultSpacing, 0, kKF5ChatToolBtnWidth, kKF5ChatToolBtnWidth)];
-    voiceBtn.center = CGPointMake(voiceBtn.center.x, KFChatToolView.defaultHeight/2);
-    voiceBtn.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    UIButton * voiceBtn = [[UIButton alloc]init];
     [voiceBtn setImage:KF5Helper.chatTool_voice forState:UIControlStateNormal];
     [voiceBtn addTarget:self action:@selector(clickVoiceBtn:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:voiceBtn];
     self.voiceBtn = voiceBtn;
     
     // 图片按钮
-    CGFloat pictureBtnX = self.frame.size.width - kKF5ChatToolBtnWidth - KF5Helper.KF5DefaultSpacing;
-    UIButton * pictureBtn = [[UIButton alloc]initWithFrame:CGRectMake(pictureBtnX, 0, kKF5ChatToolBtnWidth, kKF5ChatToolBtnWidth)];
-    pictureBtn.center = CGPointMake(pictureBtn.center.x, KFChatToolView.defaultHeight/2);
-    pictureBtn.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
+    UIButton * pictureBtn = [[UIButton alloc]init];
     [pictureBtn setImage:KF5Helper.chatTool_picture forState:UIControlStateNormal];
     [pictureBtn addTarget:self action:@selector(clickPictureBtn:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:pictureBtn];
     self.pictureBtn = pictureBtn;
     
     // 表情按钮
-    CGFloat faceBtnX = pictureBtnX - kKF5ChatToolBtnWidth - KF5Helper.KF5DefaultSpacing;
-    UIButton * faceBtn = [[UIButton alloc]initWithFrame:CGRectMake(faceBtnX, 0, kKF5ChatToolBtnWidth, kKF5ChatToolBtnWidth)];
-    faceBtn.center = CGPointMake(faceBtn.center.x, KFChatToolView.defaultHeight/2);
-    faceBtn.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
+    UIButton * faceBtn = [[UIButton alloc]init];
     [faceBtn setImage:KF5Helper.chatTool_face forState:UIControlStateNormal];
     [faceBtn addTarget:self action:@selector(clickFaceBtn:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:faceBtn];
     self.faceBtn = faceBtn;
     
     // 转接人工客服按钮
-    UIButton * transferBtn = [[UIButton alloc]initWithFrame:CGRectMake(KF5Helper.KF5DefaultSpacing, 0, 63, kKF5ChatToolDefaultTextViewHeight)];
-    transferBtn.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+    UIButton * transferBtn = [[UIButton alloc]init];
     transferBtn.titleLabel.font = KF5Helper.KF5TitleFont;
     transferBtn.backgroundColor = self.backgroundColor;
     transferBtn.layer.borderColor = [KF5Helper.KF5ChatToolTextViewBorderColor CGColor];
     transferBtn.layer.borderWidth = 0.5;
     transferBtn.layer.cornerRadius = 5.0;
-    transferBtn.center = CGPointMake(transferBtn.center.x, KFChatToolView.defaultHeight/2);
     [transferBtn setTitle:KF5Localized(@"kf5_ai_to_agent") forState:UIControlStateNormal];
     [transferBtn setTitleColor:KF5Helper.KF5ChatToolViewSpeakBtnTitleColor forState:UIControlStateNormal];
     [transferBtn setTitleColor:KF5Helper.KF5ChatToolViewSpeakBtnTitleColorH forState:UIControlStateHighlighted];
@@ -96,9 +99,8 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     self.transferBtn = transferBtn;
     
     // 文本输入框
-    CGFloat textViewX = CGRectGetMaxX(voiceBtn.frame) + KF5Helper.KF5DefaultSpacing;
-    CGFloat textViewWidth = CGRectGetMinX(faceBtn.frame) - textViewX - KF5Helper.KF5DefaultSpacing;
-    KFTextView *textView = [[KFTextView alloc]initWithFrame:CGRectMake(textViewX, KF5Helper.KF5ChatToolTextViewTopSpacing, textViewWidth, kKF5ChatToolDefaultTextViewHeight)];
+    KFTextView *textView = [[KFTextView alloc]init];
+    textView.canEmoji = YES;
     textView.maxTextHeight = kKF5MaxHeight;
     textView.placeholderTextColor = KF5Helper.KF5ChatToolPlaceholderTextColor;
     textView.layer.borderColor = [KF5Helper.KF5ChatToolTextViewBorderColor CGColor];
@@ -114,12 +116,13 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     self.textView = textView;
     
     // 说话按钮
-    UIButton *speakBtn = [[UIButton alloc]initWithFrame:textView.frame];
-    [speakBtn addTarget:self action:@selector(recordButtonTouchDown) forControlEvents:UIControlEventTouchDown];
-    [speakBtn addTarget:self action:@selector(recordButtonTouchUpOutside) forControlEvents:UIControlEventTouchUpOutside];
-    [speakBtn addTarget:self action:@selector(recordButtonTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
+    UIButton *speakBtn = [[UIButton alloc]init];
+    [speakBtn addTarget:self action:@selector(recordStart) forControlEvents:UIControlEventTouchDown];
+    [speakBtn addTarget:self action:@selector(recordCancel) forControlEvents:UIControlEventTouchUpOutside];
+    [speakBtn addTarget:self action:@selector(recordComplete) forControlEvents:UIControlEventTouchUpInside];
     [speakBtn addTarget:self action:@selector(recordDragOutside) forControlEvents:UIControlEventTouchDragOutside];
     [speakBtn addTarget:self action:@selector(recordDragInside) forControlEvents:UIControlEventTouchDragInside];
+    [speakBtn addTarget:self action:@selector(recordCancel) forControlEvents:UIControlEventTouchCancel];
     [speakBtn setTitle:KF5Localized(@"kf5_hold_to_speak") forState:UIControlStateNormal];
     [speakBtn setTitleColor:KF5Helper.KF5ChatToolViewSpeakBtnTitleColor forState:UIControlStateNormal];
     [speakBtn setTitleColor:KF5Helper.KF5ChatToolViewSpeakBtnTitleColorH forState:UIControlStateHighlighted];
@@ -130,94 +133,109 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     speakBtn.hidden = YES;
     [self addSubview:speakBtn];
     self.speakBtn = speakBtn;
-    
-    // 表情视图
-    self.faceBoardView = [[KFFaceBoardView alloc]init];
-    __weak KFChatToolView *weakSelf = self;
-    [self.faceBoardView setSendBlock:^() {
-        if ([weakSelf.delegate respondsToSelector:@selector(chatToolView:shouldSendContent:)]) {
-            [weakSelf.delegate chatToolView:weakSelf shouldSendContent:weakSelf.textView.text];
-        }
-        // 清空textView
-        [weakSelf.textView cleanText];
-    }];
-    [self.faceBoardView setDeleteBlock:^() {
-        [weakSelf.textView deleteBackward];
-    }];
-    // 点击表情
-    [self.faceBoardView setClickBlock:^(NSString * _Nonnull text) {
-        [weakSelf.textView insertText:text];
-    }];
-    
-    [self addObserver:self forKeyPath:@"textView.frame" options:NSKeyValueObservingOptionNew context:nil];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
-    if ([keyPath isEqualToString:@"textView.frame"]) {
-        self.speakBtn.kf5_x = self.textView.kf5_x;
-        self.speakBtn.kf5_w = self.textView.kf5_w;
+- (KFFaceBoardView *)faceBoardView{
+    if (!_faceBoardView) {
+        // 表情视图
+        _faceBoardView = [[KFFaceBoardView alloc]init];
+        __weak KFChatToolView *weakSelf = self;
+        [_faceBoardView setSendBlock:^() {
+            if ([weakSelf.delegate respondsToSelector:@selector(chatToolView:shouldSendContent:)]) {
+                [weakSelf.delegate chatToolView:weakSelf shouldSendContent:weakSelf.textView.text];
+            }
+            // 清空textView
+            [weakSelf.textView cleanText];
+        }];
+        [_faceBoardView setDeleteBlock:^() {
+            [weakSelf.textView deleteBackward];
+        }];
+        // 点击表情
+        [_faceBoardView setClickBlock:^(NSString * _Nonnull text) {
+            [weakSelf.textView insertText:text];
+        }];
+    }
+    return _faceBoardView;
+}
+
+- (void)layoutView{
+    [self.voiceBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.width.kf_equal(kKF5ChatToolBtnWidth);
+        make.height.kf_equal(kKF5ChatToolBtnWidth);
+        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+        make.centerY.equalTo(self.speakBtn);
+    }];
+    
+    [self.textView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.equalTo(self.voiceBtn.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(self.faceBtn.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
+    }];
+    
+    [self.faceBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.width.equalTo(self.voiceBtn);
+        make.height.equalTo(self.voiceBtn);
+        make.centerY.equalTo(self.voiceBtn);
+        make.right.equalTo(self.pictureBtn.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+    }];
+
+    [self.pictureBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.width.equalTo(self.voiceBtn);
+        make.height.equalTo(self.voiceBtn);
+        make.centerY.equalTo(self.voiceBtn);
+        make.right.equalTo(self.kf5_right).offset(-KF5Helper.KF5DefaultSpacing);
+    }];
+    [self.transferBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+        make.height.kf_equal(kKF5ChatToolDefaultTextViewHeight);
+        make.width.kf_equal(63);
+        make.centerY.equalTo(self.voiceBtn);
+    }];
+    [self.speakBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.textView);
+        make.bottom.equalTo(self.textView);
+        make.right.equalTo(self.textView);
+        make.height.kf_equal(self.textView.textHeight);
+    }];
+}
+
+- (void)layoutSubviews{
+    [super layoutSubviews];
+    if (!self.heightLayout) {
+        self.heightLayout = [[KFAutoLayoutMaker alloc] initWithFirstItem:self firstAttribute:NSLayoutAttributeHeight].kf_equal(self.frame.size.height).active;
+        self.heightLayout.active = NO;
     }
 }
 
-- (void)updateFrame{
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        switch (self.chatToolViewType) {
-            case KFChatStatusNone:{
-                if (self.assignAgentWhenSendedMessage) {
-                    [self layoutForQueueView];
-                }else{
-                    [self layoutForChattingView];
-                }
-            }
-                break;
-                
-            case KFChatStatusChatting:// 是人工客服,则隐藏"转人工客服"按钮
-                [self layoutForChattingView];
-                break;
-                
-            case KFChatStatusAIAgent:// 是机器人客服,隐藏语音按钮,图片按钮,表情按钮
-                [self layoutForAIView];
-                break;
-                
-            case KFChatStatusQueue:// 当前为排队状态
-                [self layoutForChattingView];
-                break;
-                
-            default:
-                break;
-        }
-    });
-    
-    self.textView.kf5_h = self.textView.textHeight;
-    
-    CGFloat maxY = CGRectGetMaxY(self.frame);
-    self.kf5_h = self.textView ? self.textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2 : KFChatToolView.defaultHeight;
-    self.kf5_y = maxY - self.kf5_h;
-    
-}
-
+#pragma mark 聊天状态
 - (void)layoutForChattingView{
-    self.textView.kf5_x = CGRectGetMaxX(self.voiceBtn.frame) + KF5Helper.KF5DefaultSpacing;
-    self.textView.kf5_w = CGRectGetMinX(self.faceBtn.frame) - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
+    [self.textView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.equalTo(self.voiceBtn.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(self.faceBtn.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
+    }];
     
-    self.voiceBtn.hidden = NO;
-    self.faceBtn.hidden = NO;
-    self.pictureBtn.hidden = NO;
-    self.transferBtn.hidden = YES;
-    self.speakBtn.hidden = YES;
-    self.textView.hidden = NO;
+    self.voiceBtn.hidden = self.faceBtn.hidden = self.pictureBtn.hidden = self.textView.hidden = NO;
+    self.transferBtn.hidden = self.speakBtn.hidden = YES;
     self.textView.placeholderText = nil;
     [self.textView setEditable:YES];
 }
-
+#pragma mark 机器人客服状态
 - (void)layoutForAIView{
-    self.textView.kf5_x = CGRectGetMaxX(self.transferBtn.frame) + KF5Helper.KF5DefaultSpacing;
-    self.textView.kf5_w = self.frame.size.width - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
     
-    self.voiceBtn.hidden = YES;
-    self.faceBtn.hidden = YES;
-    self.pictureBtn.hidden = YES;
+    [self.textView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.equalTo(self.transferBtn.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
+    }];
+    
+    self.voiceBtn.hidden = self.faceBtn.hidden = self.pictureBtn.hidden = YES;
     self.transferBtn.hidden = NO;
     // 隐藏语音按钮
     if (self.voiceBtn.tag == 1) [self clickVoiceBtn:self.voiceBtn];
@@ -225,36 +243,44 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     self.textView.placeholderText = nil;
     [self.textView setEditable:YES];
 }
-
-- (void)layoutForQueueView{
-    self.textView.kf5_x = KF5Helper.KF5DefaultSpacing;
-    self.textView.kf5_w = self.frame.size.width - self.textView.kf5_x - KF5Helper.KF5DefaultSpacing;
-    
-    self.voiceBtn.hidden = YES;
-    self.faceBtn.hidden = YES;
-    self.pictureBtn.hidden = YES;
-    self.transferBtn.hidden = YES;
+#pragma mark 分配前先输入内容状态
+- (void)layoutForAfterQueueView{
+    // 只有输入框
+    [self.textView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
+    }];
+    self.voiceBtn.hidden = self.faceBtn.hidden = self.pictureBtn.hidden = self.transferBtn.hidden = YES;
     // 隐藏语音按钮
     if (self.voiceBtn.tag == 1) [self clickVoiceBtn:self.voiceBtn];
-    // 如果有这条消息,则不能再编辑内容
-    if ([KFHelper hasChatQueueMessage]) {
-        [self.textView resignFirstResponder];
-        self.textView.placeholderText = KF5Localized(@"kf5_describe_the_problem");
-        [self.textView setEditable:NO];
-    }else{
-        self.textView.placeholderText = KF5Localized(@"kf5_input_some_text");
-        [self.textView setEditable:YES];
-    }
+    self.textView.placeholderText = KF5Localized(@"kf5_input_some_text");
+    [self.textView setEditable:YES];
 }
 
 - (void)setChatToolViewType:(KFChatStatus)chatToolViewType{
     _chatToolViewType = chatToolViewType;
-    [self updateFrame];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (_chatToolViewType == KFChatStatusNone) {
+            if (self.assignAgentWhenSendedMessage) {
+                [self layoutForAfterQueueView];
+            }else{
+                [self layoutForChattingView];
+            }
+        }else if (_chatToolViewType == KFChatStatusChatting || _chatToolViewType == KFChatStatusQueue){
+            [self layoutForChattingView];
+        }else if (_chatToolViewType == KFChatStatusAIAgent){
+            [self layoutForAIView];
+        }
+    });
 }
 
 #pragma mark - 录音操作
 //按下操作---开始录音
--(void)recordButtonTouchDown {
+-(void)recordStart {
     BOOL isShowRecordView = YES;
     if ([self.delegate respondsToSelector:@selector(chatToolViewStartVoice:)]) {
         isShowRecordView  = [self.delegate chatToolViewStartVoice:self];
@@ -262,15 +288,14 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     if(isShowRecordView) [self showRecordView];
 }
 //按钮外抬起操作---录音停止
--(void)recordButtonTouchUpOutside {
+-(void)recordCancel {
     [self removeRecordView];
     if ([self.delegate respondsToSelector:@selector(chatToolViewCancelVoice:)])
         [self.delegate chatToolViewCancelVoice:self];
 }
 //按钮内抬起操作---录音停止
--(void)recordButtonTouchUpInside {
+-(void)recordComplete {
     [self removeRecordView];
-    
     if ([self.delegate respondsToSelector:@selector(chatToolViewCompleteVoice:)])
         [self.delegate chatToolViewCompleteVoice:self];
 }
@@ -286,9 +311,7 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
 - (KFRecordView *)recordView{
     UIView *superView =  self.superview;
     KFRecordView *recordView = [superView viewWithTag:kKF5RecordViewTag];
-    if ([recordView isKindOfClass:[KFRecordView class]]) {
-        return recordView;
-    }
+    if ([recordView isKindOfClass:[KFRecordView class]]) return recordView;
     return nil;
 }
 /**移除RecordView*/
@@ -308,66 +331,40 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
     });
 }
 
+- (void)setShowType:(KFChatShowType)showType{
+    if (_showType == showType)return;
+    _showType = showType;
+    
+    [self.voiceBtn setImage:showType == KFChatShowTypeVoice ? KF5Helper.chatTool_keyBoard : KF5Helper.chatTool_voice forState:UIControlStateNormal];
+    [self.faceBtn setImage:showType == KFChatShowTypeFaceView ? KF5Helper.chatTool_keyBoard : KF5Helper.chatTool_face forState:UIControlStateNormal];
+    self.speakBtn.hidden = showType != KFChatShowTypeVoice;
+    self.textView.hidden = showType == KFChatShowTypeVoice;
+    self.voiceBtn.tag = showType == KFChatShowTypeVoice;
+    self.faceBtn.tag = showType == KFChatShowTypeFaceView;
+    [self.heightLayout setActive:showType == KFChatShowTypeVoice];
+    if (showType == KFChatShowTypeDefault || showType == KFChatShowTypeVoice) {
+        [self.textView resignFirstResponder];
+    }else{
+        self.textView.inputView = showType == KFChatShowTypeFaceView ? self.faceBoardView : nil;
+        [self.textView reloadInputViews];
+        [self.textView becomeFirstResponder];
+    }
+}
+
 #pragma mark - 按钮点击事件
 // 点击语音按钮
 - (void)clickVoiceBtn:(UIButton *)btn{
-    if (self.faceBtn.tag == 1) {
-        [self clickFaceBtn:self.faceBtn];
-    }
-    
-    self.speakBtn.hidden = btn.tag;
-    self.textView.hidden = !btn.tag;
-    
-    if (!btn.tag) { // 初始状态
-        
+    if (btn.tag == 0) {
         if ([self.delegate respondsToSelector:@selector(chatToolViewWithClickVoiceAction:)]) {
             BOOL canSend = [self.delegate chatToolViewWithClickVoiceAction:self];
             if (!canSend) return;
         }
-        
-        // 1. 改变图片
-        [btn setImage:KF5Helper.chatTool_keyBoard forState:UIControlStateNormal];
-        // 3. 改变toolView高度
-        [self kf5_textViewDidChange:self.textView];
-        // 4. 关闭键盘
-        if ([self.textView isFirstResponder]) {
-            [self.textView resignFirstResponder];
-            self.textView.tag = 1;
-        }else{
-            self.textView.tag = 0;
-        }
-        
-        
-    }else{
-        [btn setImage:KF5Helper.chatTool_voice forState:UIControlStateNormal];
-        
-        [self kf5_textViewDidChange:self.textView];
-        
-        if (self.textView.tag) {
-            [self.textView becomeFirstResponder];
-        }
     }
-    
-    btn.tag = !btn.tag;
+    self.showType = btn.tag == 0 ? KFChatShowTypeVoice : KFChatShowTypeKeyBoard;
 }
 // 点击表情按钮
 - (void)clickFaceBtn:(UIButton *)btn{
-    if (self.voiceBtn.tag == 1) {
-        [self clickVoiceBtn:self.voiceBtn];
-    }
-    
-    if (btn.tag == 0) { // 为0,显示表情
-        [btn setImage:KF5Helper.chatTool_keyBoard forState:UIControlStateNormal];
-        self.textView.inputView = self.faceBoardView;
-    }else{ // 为1,显示键盘
-        [btn setImage:KF5Helper.chatTool_face forState:UIControlStateNormal];
-        self.textView.inputView = nil;
-    }
-    [self.textView reloadInputViews];
-    if (![self.textView isFirstResponder])
-        [self.textView becomeFirstResponder];
-    
-    btn.tag = !btn.tag;
+    self.showType = btn.tag == 0 ? KFChatShowTypeFaceView : KFChatShowTypeKeyBoard;
 }
 // 点击图片按钮
 - (void)clickPictureBtn:(UIButton *)btn{
@@ -383,23 +380,12 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
 }
 
 #pragma mark - textViewDelegate
-- (void)kf5_textViewDidChange:(KFTextView *)textView{
-    // 计算 text view 的高度
-    [UIView animateWithDuration:0.1f animations:^{
-        textView.kf5_h = textView.textHeight;
-        CGFloat maxY = CGRectGetMaxY(self.frame);
-        self.kf5_h = !textView.hidden ? textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2 : KFChatToolView.defaultHeight;
-        self.kf5_y = maxY - self.kf5_h;
-    }];
-}
-
 - (BOOL)kf5_textView:(KFTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     if ([self.delegate respondsToSelector:@selector(chatToolView:didChangeReplacementText:)]){
         BOOL canSend = [self.delegate chatToolView:self didChangeReplacementText:text];
         if (!canSend) return NO;
     }
     if ([text isEqualToString:@"\n"]){ //判断输入的字是否是回车，即按下return
-        
         if ([self.delegate respondsToSelector:@selector(chatToolView:shouldSendContent:)])
             [self.delegate chatToolView:self shouldSendContent:textView.text];
         // 清空textView
@@ -410,7 +396,7 @@ static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
 }
 
 - (void)dealloc{
-    [self removeObserver:self forKeyPath:@"textView.frame"];
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 
 @end

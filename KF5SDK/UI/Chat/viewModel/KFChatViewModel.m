@@ -18,6 +18,13 @@
 @property (nonatomic, copy) void (^recordCompletion)(NSData *recordData ,NSError *error);
 @property (nonatomic, copy) void (^amplitudeChange)(double amplitude);
 
+/// 是否开启问题分配
+@property (nonatomic, assign, ) BOOL selectQuestionEnabled;
+/// 是否强制分配
+@property (nonatomic, assign) BOOL selectQuestionisForce;
+/// 问题分配选项
+@property (nonatomic, strong) NSArray <NSDictionary *>* selectQuestionOption;
+
 @end
 
 @implementation KFChatViewModel
@@ -55,7 +62,7 @@
     
     // 没有网络,直接结束
     if (![KFHelper isNetworkEnable]){
-        if (completion)completion(nil);
+        if (completion) completion(nil);
         NSError *error = [NSError errorWithDomain:KF5Localized(@"kf5_no_internet") code:KFErrorCodeNetWorkOff userInfo:nil];
         [self delegateWithConnectError:error];
         
@@ -63,9 +70,13 @@
     }
     // 服务器已经连接
     if ([KFChatManager sharedChatManager].isConnectSuccess) {
-        [self getAgentWithCompletion:completion];
-        [self delegateWithStatusChanage];
+        if (self.shouldQueueUp){
+            [self queueUpWithCompletion:completion];
+        }else{
+            if (completion) completion(nil);
+        }
         [self updateMetadata];
+        [self delegateWithStatusChanage];
         return;
     }
     
@@ -73,50 +84,56 @@
     __weak typeof(self)weakSelf = self;
     [[KFChatManager sharedChatManager]connectWithCompletion:^(NSError *error) {
         if (error) {
-            if(completion)completion(error);
+            if(completion) completion(error);
             [weakSelf delegateWithConnectError:error];
         }else{
-            [weakSelf getAgentWithCompletion:completion];
+            NSDictionary *dict = [KFChatManager sharedChatManager].selectQuestionDictionary;
+            if (dict) {
+                weakSelf.selectQuestionEnabled = [dict kf5_numberForKeyPath:@"enabled"].boolValue;
+                weakSelf.selectQuestionisForce = [dict kf5_numberForKeyPath:@"force"].boolValue;
+                weakSelf.selectQuestionOption = [dict kf5_arrayForKeyPath:@"options"];
+            }
+            if (weakSelf.shouldQueueUp) {
+                [weakSelf queueUpWithCompletion:completion];
+            }else{
+                if(completion) completion(nil);
+            }
             [weakSelf updateMetadata];
         }
     }];
 }
-
-#pragma mark 判断是否有正在进行的对话
-- (void)getAgentWithCompletion:(void (^)(NSError *))completion{
-    switch ([KFChatManager sharedChatManager].chatStatus) {
-        case KFChatStatusChatting:
-        case KFChatStatusQueue:
-        case KFChatStatusAIAgent:{ // 正在进行聊天,排队,机器人
-            if(completion)completion(nil);
-        }
-            break;
-        default:{// KFChatStatusNone或其他值
-            if (self.assignAgentWhenSendedMessage) {
-                if (completion) completion(nil);
-            }else{
-                [self queueUpWithCompletion:completion];
-            }
-        }
-            break;
-    }
+// 连接socket时使用
+- (BOOL)shouldQueueUp{
+    KFChatStatus status = [KFChatManager sharedChatManager].chatStatus;
+    return !(status == KFChatStatusChatting || status == KFChatStatusQueue || status == KFChatStatusAIAgent || self.assignAgentWhenSendedMessage);
 }
 
 #pragma mark 用户排队
 - (void)queueUpWithCompletion:(void (^)(NSError *))completion{
-        
+    
     __weak typeof(self)weakSelf = self;
-    [[KFChatManager sharedChatManager]queueUpWithCompletion:^(NSError *error) {
+    void(^queueUpCompletion)(NSError *error) = ^(NSError *error){
         if (completion)completion(error);
         if (error) {
             [weakSelf delegateWithQueueError:error];
         }else{
             [weakSelf delegateWithQueueIndexChange:-1];
         }
-    }];
-    
+    };
+    // 如果该访客有受理客服则使用默认的受理客服,不弹出问题分配
+    if ([KFChatManager sharedChatManager].assignAgentIds.count == 0 && self.selectQuestionEnabled && self.selectQuestionOption.count > 0 && [self.delegate respondsToSelector:@selector(chat:selectQuestionWithOptions:selectBlock:)]) {
+        [self.delegate chat:self selectQuestionWithOptions:self.selectQuestionOption selectBlock:^(NSArray<NSNumber *> * _Nullable agentIds, BOOL cancel) {
+            if (cancel) {
+                if (completion) completion(nil);
+            }else{
+                [[KFChatManager sharedChatManager]queueUpWithAgentIds:agentIds isForce:weakSelf.selectQuestionisForce completion:queueUpCompletion];
+            }
+        }];
+    }else{
+        [[KFChatManager sharedChatManager]queueUpWithAgentIds:[KFChatManager sharedChatManager].assignAgentIds isForce:[KFChatManager sharedChatManager].isForceAssignAgent completion:queueUpCompletion];
+    }
 }
-
+#pragma mark 取消排队
 - (void)cancleWithCompletion:(void (^)(NSError *))completion{
     [[KFChatManager sharedChatManager]queueCancelWithCompletion:^(NSError * _Nullable error) {
         if (completion) {
@@ -144,13 +161,9 @@
                     
                     if (weakSelf.assignAgentWhenSendedMessage && [KFChatManager sharedChatManager].chatStatus == KFChatStatusNone) {
                         [weakSelf queueUpWithCompletion:^(NSError *error) {
-                            // 排队期间发送一条消息用于提问,之后就不能发送消息了
-                            [KFHelper setHasChatQueueMessage:YES];
                             [weakSelf delegateWithStatusChanage];
                         }];
                     }else{
-                        // 排队期间发送一条消息用于提问,之后就不能发送消息了
-                        [KFHelper setHasChatQueueMessage:YES];
                         [weakSelf delegateWithStatusChanage];
                     }
                 }];
@@ -169,7 +182,7 @@
         }
     }
     if (message) {
-       [self delegateWithaddMessages:@[message]];
+        [self delegateWithaddMessages:@[message]];
     }
 }
 #pragma mark 获取问题的答案
@@ -212,7 +225,7 @@ static BOOL isCanSendChecking = NO;
     isCanSendChecking = NO;
 }
 
-- (BOOL)canSendMessageWithCompletion:(void (^)())completion{
+- (BOOL)canSendMessageWithCompletion:(void (^)(void))completion{
     if (isCanSendChecking) return NO;
     // 如果socket未连接,则直接上ChatManager管理消息的处理,无需判断客服有无
     if (![KFChatManager sharedChatManager].isConnectSuccess) return YES;
@@ -261,6 +274,11 @@ static BOOL isCanSendChecking = NO;
             return nil;
             break;
     }
+}
+#pragma mark 获取聊天消息未读数
++ (void)getUnReadMessageCountWithCompletion:(void (^)(NSInteger, NSError * _Nullable))completion{
+    [[KFChatManager sharedChatManager]initializeWithUserToken:[KFUserManager shareUserManager].user.userToken];
+    [[KFChatManager sharedChatManager]getUnReadMessageCountWithCompletion:completion];
 }
 
 #pragma mark - KFChatManagerDelegate
@@ -335,9 +353,6 @@ static BOOL isCanSendChecking = NO;
 ///状态改变
 - (void)delegateWithStatusChanage{
     if ([self.delegate respondsToSelector:@selector(chat:statusChange:)]) {
-        if (self.chatStatus != KFChatStatusQueue && [KFHelper hasChatQueueMessage]) {
-            [KFHelper setHasChatQueueMessage:NO];
-        }
         [self.delegate chat:self statusChange:self.chatStatus];
     }
 }

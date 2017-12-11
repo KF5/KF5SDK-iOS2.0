@@ -22,12 +22,13 @@
 @property (nullable, nonatomic, weak) KFTextView *textView;
 @property (nullable, nonatomic, weak) UIButton *submitBtn;
 
+@property (nonatomic,weak) NSLayoutConstraint *tableViewBottomLayout;
+
 @end
 
 @implementation KFRatingViewController
 
-- (instancetype)initWithTicket_id:(NSInteger)ticket_id ratingModel:(KFRatingModel *)ratingModel
-{
+- (instancetype)initWithTicket_id:(NSInteger)ticket_id ratingModel:(KFRatingModel *)ratingModel{
     self = [super init];
     if (self) {
         _ratingModel = ratingModel;
@@ -36,38 +37,30 @@
     return self;
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:KF5Localized(@"kf5_submit") style:UIBarButtonItemStyleDone target:self action:@selector(submitRating)];
-    self.navigationItem.rightBarButtonItem.enabled = self.ratingModel.ratingScore != KFTicketRatingScoreNone;
-    
-    self.title = KF5Localized(@"kf5_rate");
-    
-    // tableView
-    UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) style:UITableViewStyleGrouped];
-    tableView.rowHeight = 44;
-    tableView.delegate = self;
-    tableView.dataSource = self;
-    [self.view addSubview:tableView];
-    self.tableView = tableView;
-    
+- (UIView *)headerView{
     // headerView
-    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 44)];
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(KF5Helper.KF5MiddleSpacing, 0, headerView.frame.size.width - KF5Helper.KF5MiddleSpacing, 44)];
-    label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    label.font = KF5Helper.KF5TitleFont;
-    label.textColor = KF5Helper.KF5TitleColor;
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 44)];
+    UILabel *label = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor];
     label.text = KF5Localized(@"kf5_ratingText");
     [headerView addSubview:label];
-    tableView.tableHeaderView = headerView;
     
+    [label kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(headerView);
+        make.left.equalTo(headerView.kf5_safeAreaLayoutGuideLeft).offset(KF5Helper.KF5MiddleSpacing);
+        make.right.equalTo(headerView.kf5_safeAreaLayoutGuideRight).offset(-KF5Helper.KF5MiddleSpacing);
+        make.bottom.equalTo(headerView);
+    }];
+    
+    return headerView;
+}
+
+- (UIView *)footerView{
     // footerView
     
     CGFloat textViewHeight = 200;
-    UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, textViewHeight + KF5Helper.KF5MiddleSpacing)];
+    UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, textViewHeight + KF5Helper.KF5MiddleSpacing)];
     
-    KFTextView *textView= [[KFTextView alloc] initWithFrame:CGRectMake(KF5Helper.KF5DefaultSpacing, 0, footerView.frame.size.width - KF5Helper.KF5DefaultSpacing * 2, textViewHeight)];
+    KFTextView *textView= [[KFTextView alloc] init];
     textView.text = _ratingModel.ratingContent;
     textView.textColor = KF5Helper.KF5TitleColor;
     textView.font = KF5Helper.KF5TitleFont;
@@ -79,7 +72,40 @@
     [footerView addSubview:textView];
     self.textView = textView;
     
-    tableView.tableFooterView = footerView;
+    [textView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(footerView);
+        make.left.equalTo(footerView.kf5_safeAreaLayoutGuideLeft).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(footerView.kf5_safeAreaLayoutGuideRight).offset(-KF5Helper.KF5DefaultSpacing);
+        make.height.kf_equal(textViewHeight);
+    }];
+    
+    return footerView;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:KF5Localized(@"kf5_submit") style:UIBarButtonItemStyleDone target:self action:@selector(submitRating)];
+    self.navigationItem.rightBarButtonItem.enabled = self.ratingModel.ratingScore != KFTicketRatingScoreNone;
+    
+    self.title = KF5Localized(@"kf5_rate");
+    
+    // tableView
+    UITableView *tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
+    tableView.rowHeight = 44;
+    tableView.delegate = self;
+    tableView.dataSource = self;
+    tableView.tableHeaderView = self.headerView;
+    tableView.tableFooterView = self.footerView;
+    [self.view addSubview:tableView];
+    self.tableView = tableView;
+    
+    [self.tableView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self.view);
+        make.left.equalTo(self.view);
+        make.right.equalTo(self.view);
+        self.tableViewBottomLayout = make.bottom.equalTo(self.view).active;
+    }];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
@@ -111,10 +137,6 @@
             }
         });
     }];
-}
-
-- (void)updateFrame{
-    self.tableView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -150,34 +172,22 @@
 
 #pragma mark 收到键盘弹出通知后的响应
 - (void)keyboardWillShow:(NSNotification *)info {
-    //保存info
     NSDictionary *dict = info.userInfo;
-    //得到键盘的显示完成后的frame
-    CGRect keyboardBounds = [dict[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    //得到键盘弹出动画的时间
-    CGFloat duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    //坐标系转换
-    CGRect keyboardBoundsRect = [self.view convertRect:keyboardBounds toView:nil];
+    //得到键盘的高度，即输入框需要移动的距离
+    self.tableViewBottomLayout.constant = -([dict[UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height);
     
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-    //添加动画
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        
-        self.tableView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - keyboardBoundsRect.size.height);
-        CGFloat offsetY = self.tableView.contentSize.height - MAX(self.tableView.tableFooterView.frame.size.height + CGRectGetMaxY(self.navigationController.navigationBar.frame) + KF5Helper.KF5MiddleSpacing, self.tableView.frame.size.height);
-        [self.tableView setContentOffset:CGPointMake(0, offsetY) animated:YES];
-        
+    [UIView animateWithDuration:[dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
+        [self.tableView setContentOffset:CGPointMake(0, self.tableView.contentSize.height - MAX(self.tableView.tableFooterView.frame.size.height + CGRectGetMaxY(self.navigationController.navigationBar.frame) + KF5Helper.KF5MiddleSpacing, self.tableView.frame.size.height))];
     } completion:nil];
 }
 
 #pragma mark 隐藏键盘通知的响应
 - (void)keyboardWillHide:(NSNotification *)info {
-    //输入框回去的时候就不需要高度了，直接取动画时间和曲线还原回去
     NSDictionary *dict = info.userInfo;
-    double duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        [self updateFrame];
+    self.tableViewBottomLayout.constant = 0;
+    [UIView animateWithDuration:[dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
     } completion:nil];
 }
 

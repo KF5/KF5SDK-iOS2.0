@@ -18,11 +18,10 @@
 #import "KFHelper.h"
 #import "KFUserManager.h"
 #import "KFProgressHUD.h"
-#import "JKAlert.h"
 #import "KFTicketManager.h"
 
 #import "SDImageCache.h"
-#import "KFPhotoGroupView.h"
+#import "KFPreviewController.h"
 #import "KFContentLabelHelp.h"
 
 #import "KFRatingViewController.h"
@@ -31,10 +30,10 @@
 
 @property (nullable, nonatomic, weak) KFTicketTableView *tableView;
 @property (nullable, nonatomic, weak) KFTicketToolView *toolView;
-
-@property (nullable, nonatomic, weak) KFPhotoGroupView *photoGroupView;
 // 用于拨打电话
 @property (nullable, nonatomic, weak) UIWebView *webView;
+
+@property (nonatomic,strong) NSLayoutConstraint *toolBottomLayout;
 
 @end
 
@@ -55,6 +54,7 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:KF5Localized(@"kf5_message_detail") style:UIBarButtonItemStyleDone target:self action:@selector(pushDetailMessageViewController)];
     
     [self setupView];
+    [self layoutView];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
@@ -68,6 +68,13 @@
 }
 
 - (void)refreshData{
+    if (![KFHelper isNetworkEnable]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
+            [self.tableView kf5_endHeaderRefreshing];
+        });
+        return ;
+    }
     NSDictionary *params = @{
                              KF5UserToken:[KFUserManager shareUserManager].user.userToken,
                              KF5TicketId:@(self.ticket_id),
@@ -79,8 +86,7 @@
                 [weakSelf.tableView kf5_endHeaderRefreshing];
         });
         if (!error) {
-            NSArray *comments = [KFComment commentWithDict:result];
-            self.tableView.commentModelArray = [NSMutableArray arrayWithArray:[weakSelf commentModelsWithComments:comments]];
+            self.tableView.commentList = [NSMutableArray arrayWithArray:[KFComment commentWithDict:result]];
             
             KFRatingModel *ratingModel = nil;
             if ([result kf5_numberForKeyPath:@"data.request.rating_flag"].boolValue) {
@@ -93,7 +99,10 @@
                 [KFProgressHUD hideHUDForView:weakSelf.view];
                 weakSelf.tableView.ratingModel = ratingModel;
                 [weakSelf.tableView reloadData];
-                [weakSelf.tableView scrollViewBottomHasMainQueue:NO];
+                if (weakSelf.view.tag == 0) {
+                    [weakSelf.tableView scrollViewBottomWithAnimated:YES];
+                    weakSelf.view.tag = 1;
+                }
             });
         }else{
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -104,16 +113,13 @@
 }
 
 - (void)setupView{
-    KFTicketTableView *tableView = [[KFTicketTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - KFTicketToolView.defaultHeight) style:UITableViewStylePlain];
-    self.tempTableView = tableView;
+    KFTicketTableView *tableView = [[KFTicketTableView alloc]init];
     tableView.cellDelegate = self;
-    tableView.autoresizingMask =  UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
     [self.view addSubview:tableView];
     self.tableView = tableView;
     
     // 添加输入框视图
-    KFTicketToolView *toolView = [[KFTicketToolView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(tableView.frame), self.view.frame.size.width, KFTicketToolView.defaultHeight)];
-    toolView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    KFTicketToolView *toolView = [[KFTicketToolView alloc]init];
     toolView.tag = kKF5TicketToolViewTag;
     toolView.delegate = self;
     toolView.type = _isClose?KFTicketToolTypeClose:KFTicketToolTypeInputText;
@@ -126,31 +132,35 @@
     webView.frame = CGRectZero;
     [self.view addSubview:webView];
     self.webView = webView;
-    
-    [self addObserver:self forKeyPath:@"toolView.frame" options:NSKeyValueObservingOptionNew context:nil];
 }
 
-- (void)updateFrame{
-    [self.photoGroupView dismissAnimated:NO completion:nil];
-    self.toolView.kf5_y = self.view.kf5_h - self.toolView.kf5_h;
-    [self.toolView updateFrame];
+- (void)layoutView{
+    [self.tableView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self.view.kf5_safeAreaLayoutGuideTop);
+        make.left.equalTo(self.view);
+        make.right.equalTo(self.view);
+        make.bottom.equalTo(self.toolView.kf5_top);
+    }];
     
-    for (KFCommentModel *model in self.tableView.commentModelArray) {
-        [model updateFrame];
-    }
-    [self.tableView reloadData];
-    [self.tableView scrollViewBottomHasMainQueue:YES];
+    [self.toolView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        self.toolBottomLayout = make.bottom.equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
+    }];
+    UIView *bottomView = [[UIView alloc] init];
+    bottomView.backgroundColor = self.toolView.backgroundColor;
+    [self.view insertSubview:bottomView belowSubview:self.toolView];
+    [bottomView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self.toolView);
+        make.left.equalTo(self.view);
+        make.right.equalTo(self.view);
+        make.bottom.equalTo(self.view);
+    }];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
-    if ([keyPath isEqualToString:@"toolView.frame"]) {
-        self.tableView.kf5_h = CGRectGetMinY(self.toolView.frame);
-        [self.tableView scrollViewBottomHasMainQueue:NO];
-    }
-}
 #pragma mark - webView的代理方法,用于拨打电话
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
-    [JKAlert showMessage:KF5Localized(@"kf5_phone_error")];
+    [[KFHelper alertWithMessage:KF5Localized(@"kf5_phone_error")] showToVC:self];
 }
 #pragma mark - TicketTableViewDelegate
 - (void)ticketTableView:(KFTicketTableView *)tableView clickHeaderViewWithRatingModel:(KFRatingModel *)ratingModel{
@@ -165,33 +175,35 @@
 #pragma mark - cellDelegate
 - (void)ticketCell:(KFTicketViewCell *)cell clickImageWithIndex:(NSInteger)index{
     [self.view endEditing:YES];
-    UIView *fromView = nil;
     
     NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-    if (!indexPath || self.tableView.commentModelArray.count <= indexPath.row) { return; }
+    if (!indexPath || self.tableView.commentList.count <= indexPath.row) return;
+    KFComment *comment = self.tableView.commentList[indexPath.row];
+    if (index >= comment.attachments.count) return;
+
+    KFAttachment *selectAttachment = comment.attachments[index];
     
-    NSMutableArray *items = [NSMutableArray new];
-    NSArray <KFAttachment *>*pics = ((KFCommentModel *)self.tableView.commentModelArray[indexPath.row]).comment.attachments;
-    for (NSUInteger i = 0; i < pics.count; i++) {
-        KFAttachment *pic = pics[i];
-        if (![pic.url isKindOfClass:[NSString class]]) {
-            continue;
+    if (selectAttachment.isImage) {
+        NSInteger selectIndex = 0;
+        NSMutableArray *models = [NSMutableArray new];
+        for (NSUInteger i = 0; i < comment.attachments.count; i++) {
+            KFAttachment *attachment = comment.attachments[i];
+            if (!attachment.isImage)continue;
+            KFSudokuViewCell *imgView = cell.photoImageView.subviews[i];
+            if ([attachment.url isKindOfClass:[UIImage class]]) {
+                [models addObject:[[KFPreviewModel alloc] initWithValue:attachment.url placeholder:imgView.imageView.image]];
+            }else if ([attachment.url isKindOfClass:[NSString class]]){
+                [models addObject:[[KFPreviewModel alloc] initWithValue:[NSURL URLWithString:attachment.url] placeholder:imgView.imageView.image]];
+            }
+            if (i == index)selectIndex = models.count-1;
         }
-        UIView *imgView = cell.photoImageView.subviews[i];
-        KFPhotoGroupItem *item = [KFPhotoGroupItem new];
-        item.thumbView = imgView;
-        item.largeImageURL = [NSURL URLWithString:pic.url];
-        [items addObject:item];
-        if (i == index) {
-            fromView = imgView;
-        }
+        if (models.count == 0) return;
+        [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
+        [KFPreviewController presentForViewController:self models:models selectIndex:selectIndex];
+    }else{
+        [[UIApplication sharedApplication]openURL:[NSURL URLWithString:selectAttachment.url]];
     }
-    if (items.count == 0) {
-        return;
-    }
-    KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:items];
-    [v presentFromImageView:fromView toContainer:self.navigationController.view animated:YES completion:nil];
-    self.photoGroupView = v;
+    
 }
 
 - (void)ticketCell:(KFTicketViewCell *)cell clickLabelWithInfo:(NSDictionary *)info{
@@ -210,12 +222,8 @@
             
             if ([formatName isEqualToString:@"[图片]"]) {
                 [self.view endEditing:YES];
-                KFPhotoGroupItem *item = [KFPhotoGroupItem new];
-                item.largeImageURL = [NSURL URLWithString:info[KF5LinkKey]];
-                KFPhotoGroupView *v = [[KFPhotoGroupView alloc] initWithGroupItems:@[item]];
-                [v presentFromImageView:cell.commentLabel toContainer:self.navigationController.view animated:YES completion:nil];
-                self.photoGroupView = v;
-
+                [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
+                [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:[NSURL URLWithString:info[KF5LinkKey]] placeholder:KF5Helper.placeholderImage]] selectIndex:0];
             }else{
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
             }
@@ -227,6 +235,13 @@
 }
 
 #pragma mark - TicketToolViewDelegate
+- (void)toolViewWithTextDidChange:(KFTicketToolView *)toolView{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+        if (self.tableView.contentOffset.y + self.tableView.frame.size.height != self.tableView.contentSize.height) {
+            [self.tableView scrollViewBottomWithAnimated:NO];
+        }
+    });
+}
 /** 发送消息*/
 - (void)toolView:(KFTicketToolView *)toolView senderMessage:(NSString *)message{
     
@@ -237,8 +252,7 @@
     };
     
     if (![KFHelper isNetworkEnable]) {
-        [JKAlert showMessage:KF5Localized(@"kf5_no_internet")];
-        return ;
+        [KFHelper alertWithMessage:KF5Localized(@"kf5_no_internet")]; return;
     }
 
     __block KFComment *comment = [[KFComment alloc]init];
@@ -253,13 +267,14 @@
         for (KFAssetImage *assetImage in self.toolView.attView.images) {
             KFAttachment *attachment = [[KFAttachment alloc] init];
             attachment.url = (NSString *)assetImage.image;
+            attachment.isImage = YES;
             [attachments addObject:attachment];
         }
         comment.attachments = attachments;
     }
-    [self.tableView.commentModelArray addObjectsFromArray:[self commentModelsWithComments:@[comment]]];
-    [self.tableView reloadData];
-    [self.tableView scrollViewBottomHasMainQueue:YES];
+    [self.tableView.commentList addObject:comment];
+    [self.tableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:[self.tableView.commentList indexOfObject:comment] inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+    [self.tableView scrollViewBottomWithAfterTime:600];
     
     
     dispatch_group_t group = dispatch_group_create();
@@ -282,7 +297,7 @@
                 for (NSInteger i = 0; i < urls.count; i++) {
                     NSString *url = urls[i];
                     UIImage *image = (UIImage *)comment.attachments[i].url;
-                    [[SDImageCache sharedImageCache] storeImage:image forKey:url];
+                    [[SDImageCache sharedImageCache] storeImage:image forKey:url completion:nil];
                 }
                 
                 comment.attachments = [KFAttachment attachmentsWithDict:[result kf5_arrayForKeyPath:@"data.attachments"]];
@@ -326,9 +341,14 @@
                     [KFTicketManager saveTicketNewDateWithTicket:[result kf5_numberForKeyPath:@"data.request.id"].integerValue lastComment:[result kf5_numberForKeyPath:@"data.request.last_comment_id"].integerValue];
                 }else{
                     comment.messageStatus = KFMessageStatusFailure;
-                    [JKAlert showMessage:error.localizedDescription];
+                    [[KFHelper alertWithMessage:error.localizedDescription]showToVC:weakSelf];
                 }
-                [weakSelf.tableView reloadData];
+                NSInteger row = [weakSelf.tableView.commentList indexOfObject:comment];
+                if (row != NSNotFound) {
+                    [weakSelf.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:row inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+                 }else{
+                     [weakSelf.tableView reloadData];
+                 }
             });
         }];
     });
@@ -353,37 +373,24 @@
 
 #pragma mark 收到键盘弹出通知后的响应
 - (void)keyboardWillShow:(NSNotification *)info {
-    //保存info
+
     NSDictionary *dict = info.userInfo;
-    //得到键盘的显示完成后的frame
-    CGRect keyboardBounds = [dict[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    //得到键盘弹出动画的时间
-    double duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    //坐标系转换
-    CGRect keyboardBoundsRect = [self.view convertRect:keyboardBounds toView:nil];
     //得到键盘的高度，即输入框需要移动的距离
-    double offsetY = keyboardBoundsRect.size.height;
+    self.toolBottomLayout.constant = -([dict[UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height  - self.view.kf5_safeAreaInsets.bottom);
     
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-    //添加动画
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        self.toolView.kf5_y = self.view.kf5_h - offsetY - self.toolView.kf5_h;
+    [UIView animateWithDuration:[dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
+        [self.tableView scrollViewBottomWithAnimated:YES];
     } completion:nil];
-    
 }
 
 #pragma mark 隐藏键盘通知的响应
 - (void)keyboardWillHide:(NSNotification *)info {
-    
-    if (self.toolView.type == KFTicketToolTypeAddImage)return;
-    
-    //输入框回去的时候就不需要高度了，直接取动画时间和曲线还原回去
+        
     NSDictionary *dict = info.userInfo;
-    double duration = [dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationOptions options = [dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16;
-    
-    [UIView animateWithDuration:duration delay:0 options:options animations:^{
-        self.toolView.kf5_y = self.view.kf5_h - self.toolView.kf5_h;
+    self.toolBottomLayout.constant = 0;
+    [UIView animateWithDuration:[dict[UIKeyboardAnimationDurationUserInfoKey] doubleValue] delay:0 options:[dict[UIKeyboardAnimationCurveUserInfoKey] integerValue] << 16 animations:^{
+        [self.view layoutIfNeeded];
     } completion:nil];
 }
 
@@ -392,25 +399,8 @@
     [self.navigationController pushViewController:detailMessageController animated:YES];
 }
 
-/**
- KFComment转KFCommentModel
- */
-- (NSArray <KFCommentModel *>*)commentModelsWithComments:(NSArray <KFComment *>*)comments{
-    NSMutableArray *modelArray = [NSMutableArray arrayWithCapacity:comments.count];
-    for (KFComment *comment in comments) {
-        KFCommentModel *model = [[KFCommentModel alloc] initWithComment:comment];
-        [modelArray addObject:model];
-    }
-    return modelArray;
-}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
-- (void)dealloc{
-    [self removeObserver:self forKeyPath:@"toolView.frame"];
-}
-
 @end

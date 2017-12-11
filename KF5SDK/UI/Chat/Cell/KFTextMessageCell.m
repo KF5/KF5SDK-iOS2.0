@@ -11,7 +11,7 @@
 #import "KFChatToolView.h"
 #import "KFTextView.h"
 
-@interface KFTextMessageCell()<KFLabelDelegate>
+@interface KFTextMessageCell()
 
 @end
 
@@ -21,10 +21,15 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         KFLabel *messageLabel = [[KFLabel alloc] init];
-        messageLabel.labelDelegate = self;
-        messageLabel.numberOfLines = 0;
-        UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(chatMessageBtnLongTap:)];
-        [messageLabel addGestureRecognizer:longPress];
+        __weak typeof(self)weakSelf = self;
+        messageLabel.linkTapBlock = ^(KFLabel *label, NSDictionary *value) {
+            if ([weakSelf.cellDelegate respondsToSelector:@selector(cell:clickLabelWithInfo:)]) {
+                [weakSelf.cellDelegate cell:weakSelf clickLabelWithInfo:value];
+            }
+        };
+        messageLabel.commonLongPressBlock = ^(KFLabel *label) {
+            [weakSelf chatMessageBtnLongPress];
+        };
         
         [self.contentView addSubview:messageLabel];
         _messageLabel = messageLabel;
@@ -34,23 +39,15 @@
 
 - (void)setMessageModel:(KFMessageModel *)messageModel{
     [super setMessageModel:messageModel];
+
+    self.messageLabel.linkTextAttributes = @{NSForegroundColorAttributeName:(messageModel.message.messageFrom == KFMessageFromMe ? KF5Helper.KF5MeURLColor : KF5Helper.KF5OtherURLColor)};
+    self.messageLabel.attributedText = messageModel.text;
     
-    self.messageLabel.textLayout = messageModel.textLayout;
     self.messageLabel.frame = messageModel.messageViewFrame;
 }
 
-#pragma mark - messageLabelDelegate
-- (void)clickLabelWithInfo:(NSDictionary *)info{
-    if ([self.cellDelegate respondsToSelector:@selector(cell:clickLabelWithInfo:)]) {
-        [self.cellDelegate cell:self clickLabelWithInfo:info];
-    }
-}
-
 #pragma mark - 长按赋值
-- (void)chatMessageBtnLongTap:(UILongPressGestureRecognizer *)longTap{
-    // 避免多次调用,和messageType必须是text
-    if (longTap.state != UIGestureRecognizerStateBegan)
-        return;
+- (void)chatMessageBtnLongPress{
     
     // 菜单已经打开不需重复操作
     UIMenuController *menu=[UIMenuController sharedMenuController];
@@ -91,7 +88,7 @@
     if (self.messageModel.message.messageType == KFMessageTypeOther) {
         [[UIPasteboard generalPasteboard]setString:self.messageModel.message.url?:@""];
     }else if(self.messageModel.message.messageType == KFMessageTypeCustom){
-        [[UIPasteboard generalPasteboard]setString:self.messageModel.textLayout.text.string?:@""];
+        [[UIPasteboard generalPasteboard]setString:self.messageModel.text.string?:@""];
     }else{
         [[UIPasteboard generalPasteboard]setString:self.messageModel.message.content?:@""];
     }

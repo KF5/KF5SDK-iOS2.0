@@ -48,7 +48,6 @@
  textView输入监听
  */
 - (BOOL)chatToolView:(nonnull KFChatToolView *)chatToolView didChangeReplacementText:(nullable NSString *)text;
-
 @end
 
 
@@ -92,14 +91,8 @@
  */
 @property (nullable, nonatomic, weak) id<KFChatTooViewDelegate> delegate;
 /**
- 标准高度
- */
-+ (CGFloat)defaultHeight;
-/**
  *  移除recordView
  */
 - (void)removeRecordView;
-
-- (void)updateFrame;
 
 @end

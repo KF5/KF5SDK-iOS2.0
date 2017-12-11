@@ -11,12 +11,17 @@
 
 @implementation UITableView (KFRefresh)
 
-- (void)kf5_headerWithRefreshingBlock:(void (^)())refreshingBlock{
+- (void)kf5_headerWithRefreshingBlock:(void (^)(void))refreshingBlock{
     self.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:refreshingBlock];
 }
 
-- (void)kf5_footerWithRefreshingBlock:(void (^)())refreshingBlock{
+- (void)kf5_footerWithRefreshingBlock:(void (^)(void))refreshingBlock{
     self.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:refreshingBlock];
+#ifdef __IPHONE_11_0
+    if (@available(iOS 11.0, *)) {
+        self.mj_footer.ignoredScrollViewContentInsetBottom = [UIApplication sharedApplication].keyWindow.rootViewController.view.safeAreaInsets.bottom;
+    }
+#endif
 }
 
 - (void)kf5_endRefreshingWithNoMoreData{

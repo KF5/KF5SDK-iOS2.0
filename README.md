@@ -10,21 +10,21 @@ KF5SDK帮助开发者快速完成开发，提供给开发者创建工单、查�
 ##### 3、即时交谈    
 用户可以通过APP与客服人员实时交流，实时发送和接收文字消息、语音消息、图片、附件，并为此提供了灵活的接口。    
 ## 二、集成方法   
-1、先下载[KF5SDK](https://codeload.github.com/KF5/KF5SDK-iOS2.0/zip/master)的官方demo。     
-2、将KF5SDK下的文件拖拽到自己的工程中。       
-3、添加系统库支持，添加` JavaScriptCore.framework`，` libsqlite3.tbd`到自己的工程。        
-![addSystemLibraries.png](http://upload-images.jianshu.io/upload_images/1429831-eb14e00613aa17fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)    
-4、引入 `#import <KF5SDK/KF5SDK.h>`。     
-初始化配置信息：       
-`[[KFConfig shareConfig]initializeWithHostName:kHostName appId:kAppId];`    
->注：khostName为您平台的http地址，如：https://tianxiang.kf5.com, kAppId为您为用户创建的唯一标示（在您的KF5后台[创建移动SDK APP应用](https://support.kf5.com/hc/kb/article/24825/)，APP应用里的传输密钥即为appId）。此方法可放在AppDelegate里初始化。     
-
-**进入工程中的info.plist，添加一下权限**      
+1、先下载[KF5SDK](https://codeload.github.com/KF5/KF5SDK-iOS2.0/zip/master)的官方demo。将KF5SDK下的文件拖拽到自己的工程中。      
+2、将KF5SDK.framework添加到General下的Embedded Binaries中,并添加系统库`libsqlite3.tbd`到自己的工程。   
+![Add Framework and Libraries](http://upload-images.jianshu.io/upload_images/1429831-0e95dc6a36f7aeab.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+3、将Build Settings下的Always Embed Swift Standard Libraries设置为Yes。     
+![Always Embed Swift Standard Libraries](http://upload-images.jianshu.io/upload_images/1429831-6ceaaf9ea454a7b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+4、**进入工程中的info.plist，添加一下权限**      
 Privacy - Camera Usage Description：是否允许该应用使用你的相机？      
 Privacy - Microphone Usage Description：是否允许该应用使用你的麦克风?     
 Privacy - Photo Library Usage Description：是否允许该应用访问你的媒体资料库？   
 ![privacy.png](http://upload-images.jianshu.io/upload_images/1429831-f6849f289bb5edad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)    
-5、 配置完基本信息，即可使用逸创云客服SDK，详细的SDK参数和用法请见下面的内容。   
+5、引入 `#import <KF5SDK/KF5SDK.h>`。     
+初始化配置信息：       
+`[[KFConfig shareConfig]initializeWithHostName:kHostName appId:kAppId];`    
+>注：khostName为您平台的http地址，如：https://tianxiang.kf5.com, kAppId为您为用户创建的唯一标示（在您的KF5后台[创建移动SDK APP应用](https://support.kf5.com/hc/kb/article/24825/)，APP应用里的传输密钥即为appId）。此方法可放在AppDelegate里初始化。     
+>6、 配置完基本信息，即可使用逸创云客服SDK，详细的SDK参数和用法请见下面的内容。   
 ## 三、SDK使用方法   
 ###### 在使用SDK相关功能模块前，引入`#import "KFUserManager.h"`并调用KFUserManager的初始化用户的方法获取到userToken(用户唯一标示)，下面为使用邮箱初始化用户的方法：   
 ```ObjC
@@ -48,8 +48,8 @@ if ([KFUserManager shareUserManager].user.userToken.length == 0) {
 ```
 [self.navigationController pushViewController:[[KFTicketListViewController alloc]init] animated:YES];
 ```
-   
-**工单自定义字段**需要在创建工单前设置,对应方法为`KFCreateTicketViewController`中的`setCustomFields`方法,格式为@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}]。   
+
+[工单自定义字段](https://support.kf5.com/hc/kb/article/51624/)需要在创建工单前设置,对应方法为`KFCreateTicketViewController`中的`setCustomFields`方法,格式为@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}]。   
 >注：工单部分有工单列表、工单内容、创建工单、工单详细信息，分别对应控制器为`KFTicketListViewController`、`KFTicketViewController`、`KFCreateTicketViewController`、`KFDetailMessageViewController`。更详细的信息请见相关类的头文件。
 #### 3、添加支持即时通讯功能
 引入`#import "KF5SDKChat.h"`    
@@ -79,10 +79,15 @@ KFLogger为日志打印类，当有错误信息时，会输入日志。开启方
 ## 六、其他
 1、KF5SDKUI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。     
 2、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
+3、出现dyld: Library not loaded: @rpath/libswiftCore.dylib错误。     
+　需要按照集成步骤3，将Build Settings下的Always Embed Swift Standard Libraries设置为Yes。
+![dyld: Library not loaded: @rpath/libswiftCore.dylib](http://upload-images.jianshu.io/upload_images/1429831-79b5cab33ee79c18.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 ## 七、最新版本            
+#### V2.6.0 最后更新于 2017-12-15            
+新增IM问题分配功能,适配iPhoneX(需要按照集成步骤重新添加SDK)                 
+### 历史版本                           
 #### V2.5.0 最后更新于 2017-09-08            
 新增IM卡片消息展示功能,适配工单和IM满意度三种级别可选,优化IM的体验            
-### 历史版本           
 #### V2.4.3 最后更新于 2017-08-18	  	
 修复IM可能丢消息的问题        
 #### V2.4.2 最后更新于 2017-08-11	  	

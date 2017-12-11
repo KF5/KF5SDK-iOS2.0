@@ -17,9 +17,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // 时间显示
-        UILabel *timeLabel = [[UILabel alloc]init];
-        timeLabel.font = KF5Helper.KF5TimeFont;
-        timeLabel.textColor = KF5Helper.KF5TimeColor;
+        UILabel *timeLabel = [KFHelper labelWithFont:KF5Helper.KF5TimeFont textColor:KF5Helper.KF5TimeColor];
         timeLabel.textAlignment = NSTextAlignmentCenter;
         [self.contentView addSubview:timeLabel];
         _timeLabel = timeLabel;

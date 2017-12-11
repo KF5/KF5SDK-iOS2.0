@@ -8,109 +8,83 @@
 
 #import "KFAttView.h"
 #import "KFHelper.h"
-#import "JKAlert.h"
 
-@interface KFAttView()
+static NSString *cellID = @"KFAttViewCell";
 
-@property (nonatomic, weak) UIButton *closeBtn;
-
-@property (nonatomic, weak) UIButton *addImageBtn;
-
+@interface KFAttView()<UICollectionViewDataSource>
+@property (nonatomic,strong) NSArray <KFAssetImage *>*items;
 @end
 
 
 @implementation KFAttView
 
-- (id)initWithFrame:(CGRect)frame{
-    self = [super initWithFrame:frame];
+- (instancetype)initWithFrame:(CGRect)frame collectionViewLayout:(nonnull UICollectionViewLayout *)layout{
+    self = [super initWithFrame:CGRectZero collectionViewLayout:[[UICollectionViewFlowLayout alloc] init]];
     if (self) {
-        self.userInteractionEnabled = YES;
-        
-        UIButton *closeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-
-        [closeBtn setImage:KF5Helper.ticketTool_closeAtt forState:UIControlStateNormal];
-        [closeBtn addTarget:self action:@selector(delAttBtn:) forControlEvents:UIControlEventTouchUpInside];
-        self.closeBtn = closeBtn;
-
-        closeBtn.frame = CGRectMake(KF5Helper.KF5DefaultSpacing, KF5Helper.KF5DefaultSpacing, KFViewSideLength, KFViewSideLength);
-        [self addSubview:closeBtn];
-        
-        UIButton *addImageBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [addImageBtn setImage:KF5Helper.ticketTool_addAtt forState:UIControlStateNormal];
-        [addImageBtn addTarget:self action:@selector(addAttBtn:) forControlEvents:UIControlEventTouchUpInside];
-        addImageBtn.frame = CGRectMake(CGRectGetMaxX(closeBtn.frame) + KF5Helper.KF5DefaultSpacing, KF5Helper.KF5DefaultSpacing, KFViewSideLength, KFViewSideLength);
-        self.addImageBtn = addImageBtn;
-        [self addSubview:addImageBtn];
-        
+        self.scrollsToTop = NO;
+        self.showsHorizontalScrollIndicator = NO;
+        self.alwaysBounceHorizontal = YES;
+        self.dataSource = self;
+        [self registerClass:[KFSudokuViewCell class] forCellWithReuseIdentifier:cellID];
+        self.images = nil;
     }
     return self;
 }
-#pragma mark 添加附件
-- (void)addAttBtn:(UIButton *)btn{
-    if ([self.degelate respondsToSelector:@selector(attViewAddAction:)])
-        [self.degelate attViewAddAction:self];
-}
-#pragma mark 关闭该视图
-- (void)delAttBtn:(UIButton *)btn{
-    if ([self.degelate respondsToSelector:@selector(attViewcloseAction:)])
-        [self.degelate attViewcloseAction:self];
-}
 
-/**
- *  添加图片
- */
-- (void)setImages:(NSMutableArray<KFAssetImage *> *)images{
-    
-    [self removeImages];
+- (void)setImages:(NSArray<KFAssetImage *> *)images{
     _images = images;
-    
-    for (NSInteger i = 0; i< images.count; i++) {
-        KFAssetImage *assetImage = images[i];
-        UIImageView *imageView = [[UIImageView alloc]initWithImage:[assetImage.image kf5_imageCompressForSize:CGSizeMake(KFViewSideLength, KFViewSideLength)]];
-        imageView.tag = i;
-        imageView.userInteractionEnabled = YES;
-        imageView.layer.masksToBounds = YES;
-        imageView.layer.cornerRadius = imageView.frame.size.width / 2 - 5;
-        [imageView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(deleteImage:)]];
-        [self addSubview:imageView];
-        
-    }
-    [self setNeedsLayout];
-    
+    NSArray *array = @[KF5Helper.ticketTool_closeAtt,KF5Helper.ticketTool_addAtt];
+    NSMutableArray *items = [NSMutableArray arrayWithArray:[KFAssetImage assetImagesWithImages:array assets:array]];
+    if (images.count > 0) [items addObjectsFromArray:images];
+    self.items = items;
+    [self reloadData];
 }
 
-/**
- *  删除图片事件
- */
-- (void)deleteImage:(UITapGestureRecognizer *)recognizer{
+#pragma mark UICollectionView delegate datasource
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.items.count;
+}
+-(UICollectionViewCell*)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    KFSudokuViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
+    cell.imageView.userInteractionEnabled = YES;
+    cell.imageView.layer.masksToBounds = YES;
+    cell.imageView.layer.cornerRadius = 5;
+    cell.indexPath = indexPath;
+    cell.item = self.items[indexPath.row];
     __weak typeof(self)weakSelf = self;
-    [JKAlert showMessage:KF5Localized(@"kf5_delete_this_image") OKHandler:^(JKAlertItem *item) {
-        if (recognizer.view.tag < weakSelf.images.count) {
-            [weakSelf.images removeObjectAtIndex:recognizer.view.tag];
+    cell.clickCellBlock = ^(KFSudokuViewCell *cell) {
+        switch (cell.indexPath.row) {
+            case 0:
+                if (weakSelf.closeViewBlock)
+                    weakSelf.closeViewBlock();
+                break;
+            case 1:
+                if (weakSelf.addImageBlock) {
+                    weakSelf.addImageBlock();
+                }
+                break;
+            default:
+                [[KFHelper alertWithMessage:KF5Localized(@"kf5_delete_this_image") confirmHandler:^(UIAlertAction * _Nonnull action) {
+                    NSMutableArray *array = [NSMutableArray arrayWithArray:weakSelf.images];
+                    [array removeObject:cell.item];
+                    weakSelf.images = array;
+                }]showToVC:nil];
+                break;
         }
-        [recognizer.view removeFromSuperview];
-    }];
+    };
+    return cell;
 }
-
 - (void)layoutSubviews{
     [super layoutSubviews];
-    
-    for (int i = 0; i < self.subviews.count; i++) {
-        UIView *view = self.subviews[i];
-        
-        view.frame = CGRectMake(KFViewSideLength * i  + KF5Helper.KF5DefaultSpacing * (i + 1), KF5Helper.KF5DefaultSpacing, KFViewSideLength, KFViewSideLength);
-        view.center = CGPointMake(view.center.x, self.frame.size.height / 2);
-        view.layer.cornerRadius = KFViewSideLength / 2 - 11;
+    if (((UICollectionViewFlowLayout *)self.collectionViewLayout).itemSize.height != self.frame.size.height) {
+        UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+        flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        flowLayout.minimumInteritemSpacing = 0;
+        flowLayout.minimumLineSpacing = 0;
+        flowLayout.itemSize = CGSizeMake(self.frame.size.height, self.frame.size.height);
+        flowLayout.sectionInset = UIEdgeInsetsZero;
+        self.collectionViewLayout = flowLayout;
     }
 }
-
-- (void)removeImages{
-    NSMutableArray *array = [NSMutableArray arrayWithArray:self.subviews];
-    [array removeObjectAtIndex:0];
-    [array removeObjectAtIndex:0];
-    [array makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    [self.images removeAllObjects];
-}
-
 
 @end

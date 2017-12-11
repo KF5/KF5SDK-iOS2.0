@@ -33,13 +33,11 @@
 
 @property (nullable, nonatomic, strong) NSMutableArray <KFMessageModel *>*messageModelArray;
 
-- (void)scrollViewBottomHasMainQueue:(BOOL)hasMainQueue;
+- (void)scrollViewBottomWithAnimated:(BOOL)animated;
 
 - (void)scrollViewBottomWithAfterTime:(int16_t)afterTime;
 
 - (void)endRefreshing;
 - (void)endRefreshingWithNoMoreData;
-
-- (void)updateFrame;
 
 @end

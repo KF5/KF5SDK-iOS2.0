@@ -26,20 +26,27 @@
         self.layer.cornerRadius = 10;
 
         UIImageView *amplitudeImageView = [[UIImageView alloc]initWithImage:KF5Helper.chat_records.firstObject];
-        amplitudeImageView.frame = CGRectMake(0, KF5Helper.KF5VerticalSpacing, amplitudeImageView.image.size.width, amplitudeImageView.image.size.height);
-        amplitudeImageView.kf5_centerX = self.kf5_centerX;
         [self addSubview:amplitudeImageView];
         self.amplitudeImageView = amplitudeImageView;
         
-        UILabel *recordInfoLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, frame.size.width, KF5Helper.KF5NameFont.lineHeight)];
-        recordInfoLabel.kf5_centerX = self.kf5_centerX;
-        recordInfoLabel.kf5_bottom = self.kf5_bottom - KF5Helper.KF5VerticalSpacing;
+        UILabel *recordInfoLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:[UIColor whiteColor]];
         recordInfoLabel.text = KF5Localized(@"kf5_slide_to_cancel");
         recordInfoLabel.textAlignment = NSTextAlignmentCenter;
-        recordInfoLabel.textColor = [UIColor whiteColor];
-        recordInfoLabel.font = KF5Helper.KF5NameFont;
         [self addSubview:recordInfoLabel];
         self.recordInfoLabel = recordInfoLabel;
+        
+        [amplitudeImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.top.equalTo(self).offset(KF5Helper.KF5VerticalSpacing);
+            make.width.kf_equal(amplitudeImageView.image.size.width);
+            make.height.kf_equal(amplitudeImageView.image.size.height);
+            make.centerX.equalTo(self.kf5_centerX);
+        }];
+        [recordInfoLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.bottom.equalTo(self).offset(-KF5Helper.KF5VerticalSpacing);
+            make.width.equalTo(self);
+            make.centerX.equalTo(self.kf5_centerX);
+        }];
+        
     }
     return self;
 }

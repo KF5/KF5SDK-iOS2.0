@@ -9,201 +9,234 @@
 #import "KFTicketToolView.h"
 #import "KFHelper.h"
 
-static CGFloat kKF5ChatToolDefaultTextViewHeight = 35.5;
 static const CGFloat kKF5MaxHeight = 130;
 
-@interface KFTicketToolView()<KFTextViewDelegate,KFAttViewDelegate>
+@interface KFCloseView: UIView
+@end
+
+@interface KFTicketToolView()<KFTextViewDelegate>
+
+@property (nonatomic,strong) NSLayoutConstraint *heightLayout;
 
 @end
 
 @implementation KFTicketToolView
 
-
-+ (CGFloat)defaultHeight{
-    return kKF5ChatToolDefaultTextViewHeight + KF5Helper.KF5ChatToolTextViewTopSpacing * 2;
-}
-
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
         [self setupView];
+        [self layoutView];
         self.userInteractionEnabled = YES;
-        [self addObserver:self forKeyPath:@"textView.frame" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
+        self.type = KFTicketToolTypeInputText;
     }
     return self;
 }
 
 - (void)setupView{
+    self.backgroundColor = KF5Helper.KF5BgColor;
     // 1.附件视图
-    KFAttView *attView = [[KFAttView alloc]initWithFrame:self.bounds];
+    KFAttView *attView = [[KFAttView alloc]init];
+    attView.hidden = YES;
     attView.backgroundColor = KF5Helper.KF5BgColor;
-    attView.degelate = self;
     [self addSubview:attView];
     self.attView = attView;
     
+    __weak typeof(self)weakSelf = self;
+    attView.closeViewBlock = ^{
+        weakSelf.type = KFTicketToolTypeInputText;
+    };
+    attView.addImageBlock = ^{
+        if ([weakSelf.delegate respondsToSelector:@selector(toolViewAddAttachment:)])
+            [weakSelf.delegate toolViewAddAttachment:weakSelf];
+    };
+    
     // 2.输入视图
-    UIView *inputView = [[UIView alloc]initWithFrame:self.bounds];
-    inputView.backgroundColor = KF5Helper.KF5BgColor;
+    KFTicketInputView *inputView = [[KFTicketInputView alloc]init];
+    [inputView.attBtn addTarget:self action:@selector(att:) forControlEvents:UIControlEventTouchUpInside];
+    inputView.textView.textDelegate = self;
     [self addSubview:inputView];
     self.inputView = inputView;
-    // 附件按钮
-    UIButton *attBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    attBtn.frame = CGRectMake(0, 0, 32, inputView.kf5_h);
-    [attBtn setImage:KF5Helper.ticketTool_openAtt forState:UIControlStateNormal];
-    [attBtn addTarget:self action:@selector(att:) forControlEvents:UIControlEventTouchUpInside];
-    [inputView addSubview:attBtn];
-    self.attBtn = attBtn;
-    // 输入框
-    CGFloat textViewX = CGRectGetMaxX(attBtn.frame);
-    CGFloat textViewWidth = self.kf5_w - textViewX - KF5Helper.KF5DefaultSpacing;
-    KFTextView *textView = [[KFTextView alloc]initWithFrame:CGRectMake(textViewX, KF5Helper.KF5ChatToolTextViewTopSpacing, textViewWidth, kKF5ChatToolDefaultTextViewHeight)];
-    textView.layer.borderColor = KF5Helper.KF5BgColor.CGColor;
-    textView.layer.borderWidth = 1.5;
-    textView.layer.cornerRadius = 5.0;
-    textView.maxTextHeight = kKF5MaxHeight;
-    textView.font = KF5Helper.KF5TitleFont;
-    textView.returnKeyType = UIReturnKeySend;
-    textView.enablesReturnKeyAutomatically = YES;
-    textView.textDelegate = self;
-    textView.showsVerticalScrollIndicator = NO;
-    textView.showsHorizontalScrollIndicator = NO;
-    [inputView addSubview:textView];
-    self.textView = textView;
     
     // 3.关闭视图
-    UIView *closeView = [[UIView alloc]initWithFrame:self.bounds];
-    closeView.backgroundColor = [UIColor whiteColor];
-    UILabel *closeLabel = [[UILabel alloc]init];
-    closeLabel.frame = CGRectMake(0, 0, closeView.kf5_w - KF5Helper.KF5VerticalSpacing * 2, closeView.kf5_h - KF5Helper.KF5ChatToolTextViewTopSpacing * 2);
-    closeLabel.center = closeView.center;
-    closeLabel.layer.cornerRadius = 3;
-    closeLabel.layer.masksToBounds = YES;
-    closeLabel.backgroundColor = KF5Helper.KF5BgColor;
-    closeLabel.text = KF5Localized(@"kf5_ticket_closed");
-    closeLabel.font = KF5Helper.KF5TitleFont;
-    closeLabel.textColor = KF5Helper.KF5NameColor;
-    closeLabel.textAlignment = NSTextAlignmentCenter;
+    KFCloseView *closeView = [[KFCloseView alloc]init];
     closeView.hidden = YES;
-    [closeView addSubview:closeLabel];
     [self addSubview:closeView];
     self.closeView = closeView;
 }
 
-- (void)updateFrame{
-    self.textView.kf5_w = self.kf5_w - CGRectGetMaxX(self.attBtn.frame) - KF5Helper.KF5DefaultSpacing;
-    self.textView.kf5_h = self.textView.textHeight;
+- (void)layoutView {
+    [self.attView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing/2);
+        make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing/2);
+        make.right.equalTo(self.kf5_left);
+        make.width.equalTo(self);
+    }];
+    
+    [self.inputView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self);
+        make.bottom.equalTo(self);
+        make.left.equalTo(self);
+        make.width.equalTo(self);
+    }];
+    
+    [self.closeView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self);
+        make.bottom.equalTo(self);
+        make.left.equalTo(self);
+        make.right.equalTo(self);
+    }];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
-    if ([keyPath isEqualToString:@"textView.frame"] && !CGRectEqualToRect(((NSValue *)change[NSKeyValueChangeNewKey]).CGRectValue, ((NSValue *)change[NSKeyValueChangeOldKey]).CGRectValue)) {
-        CGFloat h =  self.textView.kf5_h + KF5Helper.KF5ChatToolTextViewTopSpacing * 2;
-        CGFloat y = CGRectGetMaxY(self.frame) - h;
-        self.frame = CGRectMake(self.kf5_x, y, self.kf5_w, h);
-        self.attView.frame = self.bounds;
-        self.inputView.frame = self.bounds;
-        self.attBtn.kf5_h = self.kf5_h;
+- (void)layoutSubviews{
+    [super layoutSubviews];
+    if (!self.heightLayout) {
+        self.heightLayout = [[KFAutoLayoutMaker alloc] initWithFirstItem:self firstAttribute:NSLayoutAttributeHeight].kf_equal(self.frame.size.height).active;
+        self.heightLayout.active = NO;
     }
 }
 
 - (void)setType:(KFTicketToolType)type{
+    if (type == _type) return;
+    
     _type = type;
     
-    switch (type) {
-        case KFTicketToolTypeInputText:
-            self.closeView.hidden = YES;
-            self.textView.kf5_h = self.textView.textHeight;
-            
-            break;
-        case KFTicketToolTypeAddImage:
-            self.closeView.hidden = YES;
-            self.textView.kf5_h = kKF5ChatToolDefaultTextViewHeight;
-            
-            break;
-        case KFTicketToolTypeClose:
-            self.closeView.hidden = NO;
-            self.textView.kf5_h = kKF5ChatToolDefaultTextViewHeight;
-            break;
-            
-        default:
-            break;
+    self.closeView.hidden = type != KFTicketToolTypeClose;
+    self.heightLayout.active = type != KFTicketToolTypeInputText;
+    
+    if (type == KFTicketToolTypeClose) return;
+    if (type == KFTicketToolTypeAddImage) {
+        self.attView.hidden = NO;
+        // 如果点击添加附件按钮时,记录下键盘的状态,tag = 1 为键盘在弹出,等关闭附件添加控件时,再恢复状态
+        if ([self.inputView.textView isFirstResponder]) {
+            self.attView.tag = 1;
+            [self.inputView.textView resignFirstResponder];
+        }
+    }else {
+        self.inputView.hidden = NO;
+        // 点击关闭附件按钮时,恢复键盘状态,tag = 1 为键盘在弹出,弹出键盘
+        if (self.attView.tag) {
+            [self.inputView.textView becomeFirstResponder];
+            self.attView.tag = 0;
+        }
     }
+    [self.attView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing/2);
+        make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing/2);
+        make.width.equalTo(self);
+        if (type == KFTicketToolTypeAddImage) {
+            make.left.equalTo(self.kf5_left);
+        }else{
+            make.right.equalTo(self.kf5_left);
+        }
+    }];
+    [self.inputView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.equalTo(self);
+        make.bottom.equalTo(self);
+        make.width.equalTo(self);
+        if (type == KFTicketToolTypeAddImage) {
+            make.left.equalTo(self.kf5_right);
+        }else{
+            make.left.equalTo(self.kf5_left);
+        }
+    }];
+
+    [UIView animateWithDuration:0.25f animations:^{
+        [self layoutIfNeeded];
+    }completion:^(BOOL finished) {
+        self.attView.hidden = type != KFTicketToolTypeAddImage;
+        self.inputView.hidden = type != KFTicketToolTypeInputText;
+    }];
 }
 
 #pragma mark - 按钮点击事件
 - (void)att:(UIButton *)btn{
     self.type = KFTicketToolTypeAddImage;
-    // 如果点击添加附件按钮时,记录下键盘的状态,tag = 1 为键盘在弹出,等关闭附件添加控件时,再恢复状态
-    if ([self.textView isFirstResponder]) {
-        self.attView.tag = 1;
-        [self.textView resignFirstResponder];
-    }else{
-        self.attView.tag = 0;
-    }
-    self.attView.frame = CGRectOffset(self.attView.frame, -self.frame.size.width, 0);
-    [UIView animateWithDuration:0.3f animations:^{
-        self.inputView.frame = CGRectOffset(self.inputView.frame, self.frame.size.width, 0);
-        self.attView.frame = CGRectOffset(self.attView.frame, self.frame.size.width, 0);
-    }completion:^(BOOL finished) {
-        self.inputView.hidden = YES;
-    }];
-}
-
-#pragma mark - attViewDelegate
-- (void)attViewcloseAction:(KFAttView *)attView{
-    self.type = KFTicketToolTypeInputText;
-    // 点击关闭附件按钮时,恢复键盘状态,tag = 1 为键盘在弹出,弹出键盘
-    if (![self.textView isFirstResponder] && attView.tag) {
-        [self.textView becomeFirstResponder];
-    }
-    attView.tag = 0;
-    
-    self.inputView.hidden = NO;
-    self.inputView.kf5_x = self.kf5_w;
-    
-    [UIView animateWithDuration:0.3f animations:^{
-        self.inputView.frame = CGRectOffset(self.inputView.frame, -self.frame.size.width, 0);
-        attView.frame = CGRectOffset(attView.frame, -self.frame.size.width, 0);
-    }completion:^(BOOL finished) {
-        attView.frame = CGRectOffset(attView.frame, self.frame.size.width, 0);
-    }];
-}
-- (void)attViewAddAction:(KFAttView *)attView{
-    if ([self.delegate respondsToSelector:@selector(toolViewAddAttachment:)])
-        [self.delegate toolViewAddAttachment:self];
 }
 
 #pragma mark - textViewDelegate
-- (void)kf5_textViewDidChange:(KFTextView *)textView{
-    if (textView.text.length > 0) {
-        // 禁止系统表情的输入
-        NSString *text = [KFHelper disable_emoji:[textView text]];
-        if (![text isEqualToString:textView.text]) {
-            NSRange textRange = [textView selectedRange];
-            textView.text = text;
-            [textView setSelectedRange:textRange];
-        }
-    }
-    // 计算 text view 的高度
-    [UIView animateWithDuration:0.1f animations:^{
-        textView.kf5_h = textView.textHeight;
-    }];
-}
 - (BOOL)kf5_textView:(KFTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     if ([text isEqualToString:@"\n"]){ //判断输入的字是否是回车，即按下return
         if ([self.delegate respondsToSelector:@selector(toolView:senderMessage:)])
-            [self.delegate toolView:self senderMessage:self.textView.text];
+            [self.delegate toolView:self senderMessage:textView.text];
         
-        [self.textView cleanText];
-        [self.attView removeImages];
-        self.textView.kf5_h = self.textView.textHeight;
-        
+        [textView cleanText];
+        self.attView.images = nil;
         return NO; //这里返回NO，就代表return键值失效，即页面上按下return，不会出现换行，如果为yes，则输入页面会换行
+    }else{
+        if ([self.delegate respondsToSelector:@selector(toolViewWithTextDidChange:)]) {
+            [self.delegate toolViewWithTextDidChange:self];
+        }
     }
     return YES;
 }
 
-- (void)dealloc{
-    [self removeObserver:self forKeyPath:@"textView.frame"];
+@end
+
+@implementation KFCloseView
+- (instancetype)initWithFrame:(CGRect)frame{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+        UILabel *closeLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5NameColor];
+        [self addSubview:closeLabel];
+        closeLabel.layer.cornerRadius = 3;
+        closeLabel.layer.masksToBounds = YES;
+        closeLabel.backgroundColor = KF5Helper.KF5BgColor;
+        closeLabel.text = KF5Localized(@"kf5_ticket_closed");
+        closeLabel.textAlignment = NSTextAlignmentCenter;
+        
+        [closeLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
+            make.left.equalTo(self).offset(KF5Helper.KF5VerticalSpacing);
+            make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+            make.right.equalTo(self).offset(-KF5Helper.KF5VerticalSpacing);
+        }];
+    }
+    return self;
+}
+@end
+
+@implementation KFTicketInputView
+
+- (instancetype)initWithFrame:(CGRect)frame{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = KF5Helper.KF5BgColor;
+        // 附件按钮
+        UIButton *attBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [attBtn setImage:KF5Helper.ticketTool_openAtt forState:UIControlStateNormal];
+        [self addSubview:attBtn];
+        self.attBtn = attBtn;
+        // 输入框
+        KFTextView *textView = [[KFTextView alloc]init];
+        textView.layer.borderColor = KF5Helper.KF5BgColor.CGColor;
+        textView.layer.borderWidth = 1.5;
+        textView.layer.cornerRadius = 5.0;
+        textView.maxTextHeight = kKF5MaxHeight;
+        textView.returnKeyType = UIReturnKeySend;
+        textView.enablesReturnKeyAutomatically = YES;
+        textView.showsVerticalScrollIndicator = NO;
+        textView.showsHorizontalScrollIndicator = NO;
+        [self addSubview:textView];
+        self.textView = textView;
+        
+        [attBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.left.equalTo(self);
+            make.width.kf_equal(30);
+            make.height.kf_equal(30);
+            make.centerY.equalTo(self);
+        }];
+        
+        [textView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.left.equalTo(attBtn.kf5_right);
+            make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
+            make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+            make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+            textView.heightLayout = make.height.kf_equal(textView.textHeight).active;
+        }];
+    }
+    return self;
 }
 
 @end

@@ -10,8 +10,8 @@
 
 @interface UITableView (KFRefresh)
 
-- (void)kf5_headerWithRefreshingBlock:(void (^)())refreshingBlock;
-- (void)kf5_footerWithRefreshingBlock:(void (^)())refreshingBlock;
+- (void)kf5_headerWithRefreshingBlock:(void (^)(void))refreshingBlock;
+- (void)kf5_footerWithRefreshingBlock:(void (^)(void))refreshingBlock;
 
 - (void)kf5_endRefreshingWithNoMoreData;
 - (void)kf5_resetNoMoreData;

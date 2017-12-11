@@ -39,8 +39,6 @@ return _##property;\
 #import "TZImagePickerController.h"
 #endif
 
-static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKFUserDefaultHasChatQueueMessage";//排队时用户发送的消息
-
 @implementation KFHelper
 
 + (AFNetworkReachabilityManager *)reachabilityManager{
@@ -66,6 +64,28 @@ static NSString * _Nonnull const kKF5UserDefaultHasChatQueueMessage  = @"kKFUser
         }
     });
     return share;
+}
+
++ (CGSize)mainSize{
+    return [UIScreen mainScreen].bounds.size;
+}
+
++ (CGRect)safe_mainFrame {
+    __block CGRect frame = [UIScreen mainScreen].bounds;
+#ifdef __IPHONE_11_0
+    if (@available(iOS 11.0, *)) {
+        if (![NSThread isMainThread]) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+                frame = UIEdgeInsetsInsetRect(vc.view.frame, vc.view.safeAreaInsets);
+            });
+        }else{
+            UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+            frame = UIEdgeInsetsInsetRect(vc.view.frame, vc.view.safeAreaInsets);
+        }
+    }
+#endif
+    return frame;
 }
 
 KF5LazyImageResize(chat_ctnMeBg, @"kf5_chat_contentMeBg");
@@ -121,7 +141,7 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
 }
 
 - (void)setup{
-    
+        
     self.KF5TitleColor = KF5ColorFromRGB(0x424345);
     self.KF5NameColor = KF5ColorFromRGB(0xa0a0a0);
     self.KF5TimeColor = KF5ColorFromRGB(0x888888);
@@ -264,8 +284,27 @@ static NSBundle *bundle = nil;
         }
         bundle = [NSBundle bundleWithPath:[[KFHelper shareBundle] pathForResource:language ofType:@"lproj"]];
     }
-    value = [bundle localizedStringForKey:key value:value table:nil];
-    return [[NSBundle mainBundle] localizedStringForKey:key value:value table:nil];
+    return [[NSBundle mainBundle] localizedStringForKey:key value:[bundle localizedStringForKey:key value:value table:nil] table:nil];
+}
+
+#pragma mark - Alert
++ (UIAlertController *)alertWithTitle:(NSString *)title message:(NSString *)message{
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
+                                                                             message:message
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:KF5Localized(@"kf5_confirm") style:UIAlertActionStyleCancel handler:nil]];
+    return alertController;
+}
++ (UIAlertController *)alertWithMessage:(NSString *)message{
+    return [self alertWithTitle:KF5Localized(@"kf5_reminder") message:message];
+}
++ (UIAlertController *)alertWithMessage:(NSString *)message confirmHandler:(void (^)(UIAlertAction * _Nonnull))handler{
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:KF5Localized(@"kf5_reminder")
+                                                                             message:message
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:KF5Localized(@"kf5_cancel") style:UIAlertActionStyleCancel handler:nil]];
+    [alertController addAction:[UIAlertAction actionWithTitle:KF5Localized(@"kf5_confirm") style:UIAlertActionStyleDefault handler:handler]];
+    return alertController;
 }
 
 #pragma mark - helper
@@ -298,46 +337,10 @@ static NSBundle *bundle = nil;
 }
 + (CGSize)sizeWithText:(NSString *)text font:(UIFont *)font maxSize:(CGSize)maxSize{
     CGRect rect = [text boundingRectWithSize:maxSize
-        options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin//采用换行模式
-        attributes:@{NSFontAttributeName: font}//传人的字体字典
-        context:nil];
+                                     options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin//采用换行模式
+                                  attributes:@{NSFontAttributeName: font}//传人的字体字典
+                                     context:nil];
     return rect.size;
-}
-
-+ (void)configTableView:(UITableView *)tableView top:(CGFloat)top{
-#ifdef __IPHONE_11_0
-    if (@available(iOS 11.0, *)) {
-        tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-        tableView.contentInset = UIEdgeInsetsMake(top, 0, 0, 0);
-        tableView.scrollIndicatorInsets = tableView.contentInset;
-        [tableView setContentSize:CGSizeZero];
-        tableView.estimatedRowHeight = 0;
-        tableView.estimatedSectionHeaderHeight = 0;
-        tableView.estimatedSectionFooterHeight = 0;
-    }
-#endif
-}
-
-+ (BOOL)hasChatQueueMessage{
-    NSString *userToken = [KFUserManager shareUserManager].user.userToken;
-    if (userToken.length == 0) return NO;
-    NSDictionary *dict = [[NSUserDefaults standardUserDefaults]valueForKey:kKF5UserDefaultHasChatQueueMessage];
-    NSNumber *hasChatQueueMessage = [dict valueForKey:userToken];
-    return hasChatQueueMessage.boolValue;
-    
-}
-+ (void)setHasChatQueueMessage:(BOOL)hasChatQueueMessage{
-    NSString *userToken = [KFUserManager shareUserManager].user.userToken;
-    if (userToken.length == 0) return;
-    
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults]valueForKey:kKF5UserDefaultHasChatQueueMessage]];
-    
-    if (hasChatQueueMessage) {
-        [dict setObject:@(hasChatQueueMessage) forKey:userToken];
-    }else{
-        [dict removeObjectForKey:userToken];
-    }
-    [[NSUserDefaults standardUserDefaults]setObject:dict forKey:kKF5UserDefaultHasChatQueueMessage];
 }
 
 - (void)dealloc{
@@ -346,6 +349,33 @@ static NSBundle *bundle = nil;
 
 @end
 
+@implementation UIAlertController (KF5)
+
+- (void)showToVC:(UIViewController *)vc{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *viewController = vc;
+        if (vc == nil)
+            viewController = [self topViewControllerWithRootViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+        [viewController presentViewController:self animated:YES completion:nil];
+    });
+}
+
+- (UIViewController*)topViewControllerWithRootViewController:(UIViewController*)rootViewController {
+    if ([rootViewController isKindOfClass:[UITabBarController class]]) {
+        UITabBarController* tabBarController = (UITabBarController*)rootViewController;
+        return [self topViewControllerWithRootViewController:tabBarController.selectedViewController];
+    } else if ([rootViewController isKindOfClass:[UINavigationController class]]) {
+        UINavigationController* navigationController = (UINavigationController*)rootViewController;
+        return [self topViewControllerWithRootViewController:navigationController.visibleViewController];
+    } else if (rootViewController.presentedViewController) {
+        UIViewController* presentedViewController = rootViewController.presentedViewController;
+        return [self topViewControllerWithRootViewController:presentedViewController];
+    } else {
+        return rootViewController;
+    }
+}
+
+@end
 
 #if __has_include("TZImagePickerController.h")
 

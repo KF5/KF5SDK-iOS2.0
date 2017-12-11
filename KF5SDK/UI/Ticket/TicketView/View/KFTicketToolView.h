@@ -17,13 +17,15 @@ typedef NS_ENUM(NSInteger,KFTicketToolType) {
 };
 
 @class KFTicketToolView;
+@class KFTicketInputView;
 
 @protocol KFTicketToolViewDelegate <NSObject>
 
 ///发送消息
 - (void)toolView:(nonnull KFTicketToolView *)toolView senderMessage:(nullable NSString *)message;
 ///添加图片
-- (void)toolViewAddAttachment:(nonnull KFTicketToolView *)toolView;
+- (void)toolViewAddAttachment:(nonnull KFTicketToolView *)toolView;///添加图片
+- (void)toolViewWithTextDidChange:(nonnull KFTicketToolView *)toolView;
 
 @end
 
@@ -32,20 +34,19 @@ typedef NS_ENUM(NSInteger,KFTicketToolType) {
 @property (nullable, nonatomic, weak) id<KFTicketToolViewDelegate> delegate;
 
 ///输入视图
-@property (nullable, nonatomic, weak) UIView *inputView;
+@property (nullable, nonatomic, weak) KFTicketInputView *inputView;
 ///关闭视图
 @property (nullable, nonatomic, weak) UIView *closeView;
-///输入框
-@property (nullable, nonatomic, weak) KFTextView *textView;
 ///添加图片视图
 @property (nullable, nonatomic, weak) KFAttView *attView;
-///附件按钮
-@property (nullable, nonatomic, weak) UIButton *attBtn;
 ///工具条状态
 @property (nonatomic, assign) KFTicketToolType type;
 
-+ (CGFloat)defaultHeight;
+@end
 
-- (void)updateFrame;
-
+@interface KFTicketInputView: UIView
+///输入框
+@property (nullable, nonatomic, weak) KFTextView *textView;
+///附件按钮
+@property (nullable, nonatomic, weak) UIButton *attBtn;
 @end
