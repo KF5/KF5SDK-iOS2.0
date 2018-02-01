@@ -35,28 +35,28 @@
     // 标题
     UILabel *titleLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor];
     titleLabel.numberOfLines = 0;
-    self.titleLabel = titleLabel;
+    _titleLabel = titleLabel;
     [self.contentView addSubview:titleLabel];
     
     // 内容
     UILabel *contentLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5NameColor];
     contentLabel.textAlignment = NSTextAlignmentRight;
     contentLabel.numberOfLines = 0;
-    self.contentLabel.lineBreakMode = NSLineBreakByTruncatingTail;
-    self.contentLabel = contentLabel;
+    contentLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    _contentLabel = contentLabel;
     [self.contentView addSubview:contentLabel];
 }
 
 - (void)layoutView{
     UIView *superView = self.contentView;
-    [self.titleLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+    [_titleLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.top.equalTo(superView).offset(KF5Helper.KF5MiddleSpacing);
         make.left.equalTo(superView).offset(KF5Helper.KF5HorizSpacing);
-        make.right.greaterThanOrEqualTo(self.contentLabel.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        make.right.greaterThanOrEqualTo(_contentLabel.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
         make.bottom.equalTo(superView).offset(-KF5Helper.KF5MiddleSpacing);
     }];
-    [self.contentLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.centerY.equalTo(self.titleLabel);
+    [_contentLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.centerY.equalTo(_titleLabel);
         make.right.equalTo(superView).offset(-KF5Helper.KF5HorizSpacing);
     }];
 }

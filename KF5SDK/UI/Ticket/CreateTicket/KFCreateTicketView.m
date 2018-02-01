@@ -27,19 +27,19 @@ static CGFloat kAttBtnLength = 30;
         textView.canEmoji = NO;
         textView.placeholderText = KF5Localized(@"kf5_edittext_hint");
         [self addSubview:textView];
-        self.textView = textView;
+        _textView = textView;
         
         // 图片
         KFSudokuView *photoImageView = [[KFSudokuView alloc]init];
         [self addSubview:photoImageView];
-        self.photoImageView = photoImageView;
+        _photoImageView = photoImageView;
         
         // 添加图片按钮
         UIButton *attBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [attBtn setImage:KF5Helper.ticket_createAtt forState:UIControlStateNormal];
         [attBtn addTarget:self action:@selector(addAtt:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:attBtn];
-        self.attBtn = attBtn;
+        _attBtn = attBtn;
         
         [self layoutView];
         [self configureView];
@@ -52,7 +52,7 @@ static CGFloat kAttBtnLength = 30;
     [self addObserver:self forKeyPath:@"photoImageView.items" options:NSKeyValueObservingOptionNew context:nil];
     
     __weak typeof(self)weakSelf = self;
-    self.photoImageView.clickCellBlock = ^(KFSudokuViewCell *cell) {
+    _photoImageView.clickCellBlock = ^(KFSudokuViewCell *cell) {
         [[KFHelper alertWithMessage:KF5Localized(@"kf5_delete_this_image") confirmHandler:^(UIAlertAction * _Nonnull action) {
             NSMutableArray *items = [NSMutableArray arrayWithArray:weakSelf.photoImageView.items];
             [items removeObject:cell.item];
@@ -64,20 +64,20 @@ static CGFloat kAttBtnLength = 30;
 
 - (void)layoutView{
     
-    [self.textView kf5_makeConstraints:^(KFAutoLayout *make) {
+    [_textView kf5_makeConstraints:^(KFAutoLayout *make) {
         make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
         make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
         make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
         self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
     }];
     
-    [self.photoImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+    [_photoImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.left.equalTo(self.textView);
         make.right.equalTo(self.textView);
         make.top.equalTo(self.textView.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
     }];
     
-    [self.attBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+    [_attBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
         make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
         // scrollView需要使用这个计算contentSize

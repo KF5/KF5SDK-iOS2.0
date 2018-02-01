@@ -9,16 +9,18 @@
 #import <UIKit/UIKit.h>
 
 typedef NS_OPTIONS(NSInteger, KFLabelHelpHandle) {
-    KFLabelHelpHandleATag = 1 << 0,     // 匹配a标签[KFLinkAtagFormatUrl][KFLinkAtagFormatName]
-    KFLabelHelpHandleHttp = 1 << 1,     // 匹配http[KFLinkURLName]
-    KFLabelHelpHandlePhone = 1 << 2,    // 匹配phone[KFLinkPhoneName]
-    KFLabelHelpHandleBracket = 1 << 3   // 匹配{{}}[KFLinkBracket]
+    KFLabelHelpHandleATag    = 1 << 0,      // 匹配a标签[KFLinkAtagFormatUrl][KFLinkAtagFormatName]
+    KFLabelHelpHandleImg     = 1 << 1,      // 匹配http[kKFLinkTypeImg]
+    KFLabelHelpHandleHttp    = 1 << 2,      // 匹配http[KFLinkURLName]
+    KFLabelHelpHandlePhone   = 1 << 3,      // 匹配phone[KFLinkPhoneName]
+    KFLabelHelpHandleBracket = 1 << 4,      // 匹配{{}}[KFLinkBracket]
 };
 
 typedef enum : NSUInteger {
     kKFLinkTypeNone,         // 无
     kKFLinkTypePhone,        // 电话
     kKFLinkTypeURL,          // 链接
+    kKFLinkTypeImg,          // 图片
     kKFLinkTypeDucument,     // IM知识库文档
     kKFLinkTypeBracket,      // IM转接客服
     kKFLinkTypeLeaveMessage, // IM留言
@@ -44,14 +46,6 @@ typedef enum : NSUInteger {
  *  @param color  文本颜色
  */
 + (NSMutableAttributedString *)customMessageWithJSONString:(NSString *)JSONString font:(UIFont *)font color:(UIColor *)color;
-/**
- 系统消息匹配{{去留言}}
-
- @param string     内容
- @param font       字体
- @param color  文字颜色
- */
-+ (NSMutableAttributedString *)systemMessageWithString:(NSString *)string font:(UIFont *)font color:(UIColor *)color;
 /**
  *  聊天消息匹配电话,url,http,a标签
  *

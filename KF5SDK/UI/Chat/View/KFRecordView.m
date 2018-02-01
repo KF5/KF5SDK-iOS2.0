@@ -27,13 +27,13 @@
 
         UIImageView *amplitudeImageView = [[UIImageView alloc]initWithImage:KF5Helper.chat_records.firstObject];
         [self addSubview:amplitudeImageView];
-        self.amplitudeImageView = amplitudeImageView;
+        _amplitudeImageView = amplitudeImageView;
         
         UILabel *recordInfoLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:[UIColor whiteColor]];
         recordInfoLabel.text = KF5Localized(@"kf5_slide_to_cancel");
         recordInfoLabel.textAlignment = NSTextAlignmentCenter;
         [self addSubview:recordInfoLabel];
-        self.recordInfoLabel = recordInfoLabel;
+        _recordInfoLabel = recordInfoLabel;
         
         [amplitudeImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             make.top.equalTo(self).offset(KF5Helper.KF5VerticalSpacing);

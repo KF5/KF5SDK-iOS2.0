@@ -15,16 +15,13 @@
 static NSString *cellID = @"KFSudokuViewCell";
 
 @interface KFSudokuView()<UICollectionViewDataSource>
-
-@property (nonatomic, assign) CGFloat oldWidth;
 @property (nullable, nonatomic, strong) KFAutoLayoutMaker *heightLayoutMaker;
-
 @end
 
 @implementation KFSudokuView
 
 - (instancetype)initWithFrame:(CGRect)frame collectionViewLayout:(nonnull UICollectionViewLayout *)layout{
-    self = [super initWithFrame:CGRectZero collectionViewLayout:[[UICollectionViewLayout alloc] init]];
+    self = [super initWithFrame:CGRectZero collectionViewLayout:[[UICollectionViewFlowLayout alloc] init]];
     if (self) {
         self.scrollsToTop = NO;
         self.scrollEnabled = NO;
@@ -42,7 +39,6 @@ static NSString *cellID = @"KFSudokuViewCell";
 
 - (void)didMoveToSuperview{
     [super didMoveToSuperview];
-    
     [self kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         self.heightLayoutMaker = make.height.equalTo(self.kf5_width).multiplier(0).priority(UILayoutPriorityDefaultHigh);
     }];
@@ -73,9 +69,9 @@ static NSString *cellID = @"KFSudokuViewCell";
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-    if (self.oldWidth != self.frame.size.width) {
-        self.oldWidth = self.frame.size.width;
-        CGFloat sideLength = self.frame.size.width / self.maxColumnNumber;
+
+    CGFloat sideLength = self.frame.size.width / self.maxColumnNumber;
+    if (![self.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] || !CGSizeEqualToSize(((UICollectionViewFlowLayout *)self.collectionViewLayout).itemSize, CGSizeMake(sideLength, sideLength))) {
         UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
         flowLayout.minimumInteritemSpacing = 0;
         flowLayout.minimumLineSpacing = 0;
@@ -95,7 +91,7 @@ static NSString *cellID = @"KFSudokuViewCell";
         UIImageView *imageView = [[UIImageView alloc] init];
         imageView.userInteractionEnabled = YES;
         [self.contentView addSubview:imageView];
-        self.imageView = imageView;
+        _imageView = imageView;
         [imageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             CGFloat spacing = KF5Helper.KF5DefaultSpacing/2;
             make.top.equalTo(self.contentView).offset(spacing);

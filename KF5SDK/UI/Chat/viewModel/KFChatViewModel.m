@@ -371,7 +371,9 @@ static BOOL isCanSendChecking = NO;
 /**刷新数据*/
 - (void)delegateWithaddMessages:(NSArray <KFMessage *>*)messages{
     if ([self.delegate respondsToSelector:@selector(chat:addMessageModels:)]) {
-        [self.delegate chat:self addMessageModels:[self messageModelsWithMessages:messages]];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate chat:self addMessageModels:[self messageModelsWithMessages:messages]];
+        });
     }
 }
 

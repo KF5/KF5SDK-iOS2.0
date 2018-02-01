@@ -37,13 +37,14 @@ NSString *const KFLinkAttributeName = @"KFLinkAttributeName";
 }
 
 - (void)setUp{
-    self.linkTextTouchAttributes = @{NSBackgroundColorAttributeName : UIColor.lightGrayColor};
     self.backgroundColor = [UIColor clearColor];
     self.textContainerInset = UIEdgeInsetsZero;
     self.textContainer.lineFragmentPadding = 0;
-    self.tapAreaInsets = UIEdgeInsetsMake(-5, -5, -5, -5);
     self.scrollEnabled = NO;
     self.editable = NO;
+    
+    self.linkTextTouchAttributes = @{NSBackgroundColorAttributeName : UIColor.lightGrayColor};
+    self.tapAreaInsets = UIEdgeInsetsMake(-5, -5, -5, -5);
 }
 
 - (void)drawRoundedCornerForRange:(NSRange)range{

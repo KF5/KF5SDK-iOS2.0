@@ -13,15 +13,23 @@
 static UIImage *placeHolderErrorImage = nil;
 static NSString *cellID = @"KFPreviewCell";
 
+@interface KFProgressView : UIView
+
+@property (nonatomic, assign) double progress;
+@property (nonatomic, strong) CAShapeLayer *progressLayer;
+
+@end
+
 @interface KFPreviewView : UIView<UIScrollViewDelegate>
+
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) KFProgressView *progressView;
-
 @property (nonatomic, strong) KFPreviewModel *model;
 @property (nonatomic, copy) void (^singleTapGestureBlock)(void);
 @property (nonatomic, copy) void (^longTapGestureBlock)(UIImage *image);
 - (void)recoverSubviews;
+
 @end
 
 @interface KFPreviewCell : UICollectionViewCell
@@ -29,26 +37,28 @@ static NSString *cellID = @"KFPreviewCell";
 @property (nonatomic, strong) KFPreviewModel *model;
 @property (nonatomic, copy) void (^singleTapGestureBlock)(void);
 @property (nonatomic, copy) void (^longTapGestureBlock)(UIImage *image);
-@property (nonatomic, strong) KFPreviewView *previewView;
+@property (nonatomic, weak) KFPreviewView *previewView;
 - (void)recoverSubviews;
 
 @end
 
+@interface KFSwipeUpInteractiveTransition : UIPercentDrivenInteractiveTransition<UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate>
 
-@interface KFProgressView : UIView
-@property (nonatomic, assign) double progress;
-@property (nonatomic, strong) CAShapeLayer *progressLayer;
+- (instancetype)initWithVC:(UIViewController *)vc;
+@property (nonatomic, assign) BOOL shouldComplete;
+@property (nonatomic, assign) BOOL interacting;
+@property (nonatomic, weak) UIViewController *presentingVC;
+
 @end
-
 
 @interface KFPreviewController()
 
 @property (nonatomic,strong) NSArray <KFPreviewModel *>*models;
 @property (nonatomic,weak) UICollectionView *collectionView;
-
 @property (nonatomic,weak) UILabel *numberLabel;
 @property (nonatomic, assign) NSInteger currentIndex;
 @property (nonatomic, assign) NSInteger selectIndex;
+@property (nonatomic, strong) KFSwipeUpInteractiveTransition *transitionController;
 
 @end
 
@@ -57,8 +67,9 @@ static NSString *cellID = @"KFPreviewCell";
 - (instancetype)initWithModels:(NSArray<KFPreviewModel *> *)models selectIndex:(NSInteger)selectIndex{
     self = [super init];
     if (self) {
-        self.models = models;
-        self.selectIndex = selectIndex;
+        _models = models;
+        _selectIndex = selectIndex;
+        _transitionController = [[KFSwipeUpInteractiveTransition alloc] initWithVC:self];
     }
     return self;
 }
@@ -66,6 +77,20 @@ static NSString *cellID = @"KFPreviewCell";
 + (void)presentForViewController:(UIViewController *)vc models:(NSArray<KFPreviewModel *> *)models selectIndex:(NSInteger)selectIndex{
     KFPreviewController *previewController = [[KFPreviewController alloc] initWithModels:models selectIndex:selectIndex];
     [vc presentViewController:previewController animated:YES completion:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarHidden = YES;
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [UIApplication sharedApplication].statusBarHidden = NO;
+}
+
+- (BOOL)prefersStatusBarHidden{
+    return YES;
 }
 
 - (void)viewDidLoad{
@@ -106,10 +131,6 @@ static NSString *cellID = @"KFPreviewCell";
     [_collectionView registerClass:[KFPreviewCell class] forCellWithReuseIdentifier:cellID];
     
     if (self.selectIndex < self.models.count) self.currentIndex = self.selectIndex;
-}
-
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
-    [self dismissView];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -198,19 +219,20 @@ static NSString *cellID = @"KFPreviewCell";
     self = [super initWithFrame:frame];
     if (self) {
         self.backgroundColor = [UIColor blackColor];
-        self.previewView = [[KFPreviewView alloc] initWithFrame:CGRectZero];
+        KFPreviewView *previewView = [[KFPreviewView alloc] initWithFrame:CGRectZero];
+        [self addSubview:previewView];
+        _previewView = previewView;
         __weak typeof(self) weakSelf = self;
-        [self.previewView setSingleTapGestureBlock:^{
+        [previewView setSingleTapGestureBlock:^{
             if (weakSelf.singleTapGestureBlock) {
                 weakSelf.singleTapGestureBlock();
             }
         }];
-        [self.previewView setLongTapGestureBlock:^(UIImage *image) {
+        [previewView setLongTapGestureBlock:^(UIImage *image) {
             if (weakSelf.longTapGestureBlock) {
                 weakSelf.longTapGestureBlock(image);
             }
         }];
-        [self addSubview:self.previewView];
     }
     return self;
 }
@@ -450,6 +472,88 @@ static NSString *cellID = @"KFPreviewCell";
         self.placeholder = placeholder;
     }
     return self;
+}
+
+@end
+
+@implementation KFSwipeUpInteractiveTransition
+- (instancetype)initWithVC:(UIViewController *)vc{
+    self = [super init];
+    if (self) {
+        _presentingVC = vc;
+        vc.transitioningDelegate = self;
+        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
+        [vc.view addGestureRecognizer:pan];
+    }
+    return self;
+}
+
+-(CGFloat)completionSpeed{
+    return 1 - self.percentComplete;
+}
+- (void)handleGesture:(UIPanGestureRecognizer *)gestureRecognizer {
+    CGPoint translation = [gestureRecognizer translationInView:gestureRecognizer.view.superview];
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+
+            self.interacting = YES;
+            [self.presentingVC dismissViewControllerAnimated:YES completion:nil];
+            break;
+        case UIGestureRecognizerStateChanged: {
+
+            CGFloat fraction = translation.y / ([UIScreen mainScreen].bounds.size.height * 0.6);
+            fraction = fminf(fmaxf(fraction, 0.0), 1.0);
+            self.shouldComplete = (fraction > 0.25);
+            
+            [self updateInteractiveTransition:fraction];
+            break;
+        }
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled: {
+            self.interacting = NO;
+            if (!self.shouldComplete || gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
+                [self cancelInteractiveTransition];
+            } else {
+                [self finishInteractiveTransition];
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+- (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext{
+    return 0.25f;
+}
+
+- (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext{
+    UIViewController *fromVC = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+    UIViewController *toVC = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+    
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    CGRect initFrame = [transitionContext initialFrameForViewController:fromVC];
+    CGRect finalFrame = CGRectOffset(initFrame, 0, screenBounds.size.height);
+    
+    UIView *containerView = [transitionContext containerView];
+    [containerView addSubview:toVC.view];
+    [containerView sendSubviewToBack:toVC.view];
+    
+    NSTimeInterval duration = [self transitionDuration:transitionContext];
+    [UIView animateWithDuration:duration animations:^{
+        fromVC.view.frame = finalFrame;
+        toVC.view.frame = initFrame;
+    } completion:^(BOOL finished) {
+        [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+    }];
+}
+
+-(id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed{
+    return self;
+}
+
+-(id<UIViewControllerInteractiveTransitioning>)interactionControllerForDismissal:(id<UIViewControllerAnimatedTransitioning>)animator {
+    return self.interacting ? self : nil;
 }
 
 @end

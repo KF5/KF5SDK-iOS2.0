@@ -17,6 +17,7 @@
     document.title = [dict kf5_stringForKeyPath:@"title"];
     document.created_at = [dict kf5_numberForKeyPath:@"created_at"].doubleValue;
     document.content = [dict kf5_stringForKeyPath:@"content"];
+    document.attachments = [dict kf5_arrayForKeyPath:@"attachments"];
     
     return document;
 }

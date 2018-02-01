@@ -7,31 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
-@class KFProgressView,KFPhotoPreviewView,KFPreviewModel;
+@class KFPreviewModel;
 @interface KFPreviewController : UIViewController<UICollectionViewDelegate,UICollectionViewDataSource>
 
 - (instancetype)initWithModels:(NSArray<KFPreviewModel *> *)models selectIndex:(NSInteger)selectIndex;
-
 + (void)presentForViewController:(UIViewController *)vc models:(NSArray <KFPreviewModel *>*)models selectIndex:(NSInteger)selectIndex;
-
 + (void)setPlaceholderErrorImage:(UIImage *)image;
 
 @end
-
-
 
 @interface KFPreviewModel: NSObject
 
 // UIImage or NSURL
 @property (nonatomic,strong) id value;
-
 @property (nonatomic,strong) UIImage *placeholder;
-
 - (instancetype)initWithValue:(id)value placeholder:(UIImage *)placeholder;
 
 @end
-
-
-
-
-

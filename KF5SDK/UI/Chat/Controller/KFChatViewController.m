@@ -524,16 +524,14 @@
             });
         }
             break;
-        case kKFLinkTypeURL:{// 聊天和工单都使用
-            NSString *formatName = info[KF5LinkTitle];
-            
-            if ([formatName isEqualToString:@"[图片]"]) {
-                [self.view endEditing:YES];
-                [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
-                [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc]initWithValue:[NSURL URLWithString:info[KF5LinkKey]] placeholder:KF5Helper.placeholderImage]] selectIndex:0];
-            }else{
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
-            }
+        case kKFLinkTypeURL:{
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
+        }
+            break;
+        case kKFLinkTypeImg:{
+            [self.view endEditing:YES];
+            [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
+            [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc]initWithValue:[NSURL URLWithString:info[KF5LinkKey]] placeholder:KF5Helper.placeholderImage]] selectIndex:0];
         }
             break;
         case kKFLinkTypeVideo:{// 可对接瞩目SDK实现应用内支持视频功能
@@ -669,12 +667,8 @@
     
     __weak typeof(self)weakSelf = self;
     [self.viewModel sendRating:rating completion:^(NSError *error) {
-        NSString *content = KF5Localized(@"kf5_rating_successfully");
-        if (error) {
-            content = KF5Localized(@"kf5_rating_failure");
-        }
         KFMessage *message = [[KFMessage alloc] init];
-        message.content = content;
+        message.content = error ? KF5Localized(@"kf5_rating_failure") : KF5Localized(@"kf5_rating_successfully");
         message.messageType = KFMessageTypeSystem;
         message.created = [NSDate date].timeIntervalSince1970;
         KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:message];

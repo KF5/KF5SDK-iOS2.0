@@ -26,7 +26,6 @@ static NSString *cellID = @"KFPreviewCell";
 
 @property (nonatomic,weak) UICollectionView *faceView;
 @property (nonatomic,weak) KFFacePageControl *facePageControl;
-@property (nonatomic,strong) NSArray *landscapeEmojis;
 @property (nonatomic,strong) NSMutableArray *emojis;
 
 @property (nonatomic,strong) NSLayoutConstraint *faceViewHeightLayout;
@@ -57,13 +56,13 @@ static NSString *cellID = @"KFPreviewCell";
         faceView.contentOffset = CGPointZero;
         [faceView registerClass:[KFFaceBoardViewCell class] forCellWithReuseIdentifier:cellID];
         [self addSubview:faceView];
-        self.faceView = faceView;
+        _faceView = faceView;
         
         KFFacePageControl *facePageControl = [[KFFacePageControl alloc] init];
         [facePageControl addTarget:self action:@selector(pageChange:) forControlEvents:UIControlEventValueChanged];
         facePageControl.numberOfPages = [self numberOfPages];
         [self addSubview:facePageControl];
-        self.facePageControl = facePageControl;
+        _facePageControl = facePageControl;
         
         UIButton *sendBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         sendBtn.titleLabel.font = KF5Helper.KF5TitleFont;
@@ -182,7 +181,7 @@ static NSString *cellID = @"KFPreviewCell";
         UIButton *faceBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [faceBtn addTarget:self action:@selector(clickFaceBtn:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:faceBtn];
-        self.faceBtn = faceBtn;
+        _faceBtn = faceBtn;
         [faceBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             make.top.equalTo(self.contentView);
             make.left.equalTo(self.contentView);

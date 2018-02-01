@@ -14,21 +14,23 @@
 
 @implementation KFContentLabelHelp
 
-+ (NSMutableAttributedString *)documentStringWithString:(NSString *)string urlString:(NSString *)urlString font:(UIFont *)font color:(UIColor *)color{
-    if (string.length == 0) return [self attStringWithString:@" " font:font color:color];
-    
-    NSMutableAttributedString *text = [self hightlightBorderWithString:string userInfo:[self userInfoWithType:kKFLinkTypeURL title:string key:urlString] font:font color:color];
-    return text;
++ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string font:(UIFont *)font color:(UIColor *)color{
+    return [self attributedString:string labelHelpHandle:KFLabelHelpHandleATag|KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleBracket|KFLabelHelpHandleImg font:font color:color];
 }
+
++ (NSMutableAttributedString *)documentStringWithString:(NSString *)string urlString:(NSString *)urlString font:(UIFont *)font color:(UIColor *)color{
+    return [self hightlightBorderWithString:string userInfo:[self userInfoWithType:kKFLinkTypeURL title:string key:urlString] font:font color:color];
+}
+
 + (NSMutableAttributedString *)customMessageWithJSONString:(NSString *)JSONString font:(UIFont *)font color:(UIColor *)color{
     NSDictionary *dict = [KFHelper dictWithJSONString:JSONString];
     if (!dict) return [self attStringWithString:@" " font:font color:color];
-    
-    if ([[dict kf5_stringForKeyPath:@"type"]isEqualToString:@"video"]) {// json字符串{@"type":@"video",@"visitor_url":"xxxxxxxx";@"agent_url":"xxxxxxx"}
+    NSString *type = [dict kf5_stringForKeyPath:@"type"];
+    if ([type isEqualToString:@"video"]) {// json字符串{@"type":@"video",@"visitor_url":"xxxxxxxx";@"agent_url":"xxxxxxx"}
         NSString *visitor_url = [dict kf5_stringForKeyPath:@"visitor_url"];
         NSMutableAttributedString *text = [self hightlightBorderWithString:KF5Localized(@"kf5_invite_video_chat") userInfo:[self userInfoWithType:kKFLinkTypeVideo title:@"视频会话" key:visitor_url] font:font color:color];
         return text;
-    }else if([[dict kf5_stringForKeyPath:@"type"]isEqualToString:@"document"]){// json字符串{@"type":@"document", @"content":"";@"documents":[{@"post_id":@(),@"title":@"",@"url":@""}]}
+    }else if([type isEqualToString:@"document"]){// json字符串{@"type":@"document", @"content":"";@"documents":[{@"post_id":@(),@"title":@"",@"url":@""}]}
         
         NSString *content = [dict objectForKey:@"content"];
         
@@ -50,7 +52,7 @@
             [text appendAttributedString:docText];
         }
         return text;
-    }else if([[dict kf5_stringForKeyPath:@"type"] isEqualToString:@"question"]){// json字符串{@"type":@"question", @"content":"";@"questions":[{@"id":@(),@"title":@""}]}
+    }else if([type isEqualToString:@"question"]){// json字符串{@"type":@"question", @"content":"";@"questions":[{@"id":@(),@"title":@""}]}
         NSString *content = [dict objectForKey:@"content"];
         
         NSMutableAttributedString *text = [self baseMessageWithString:content font:font color:color];
@@ -74,136 +76,88 @@
     }
 }
 
-+ (NSMutableAttributedString *)systemMessageWithString:(NSString *)string font:(UIFont *)font color:(UIColor *)color{
-    if (string.length == 0) [self attStringWithString:@" " font:font color:color];
-    
-    NSMutableAttributedString *text = [self attStringWithString:string font:font color:color];
-    // 匹配{{}}
-    NSArray *bracketResults = [[self regexBracket]matchesInString:text.string options:kNilOptions range:NSMakeRange(0, text.length)];
-    NSUInteger bracketResultsChangeLength = 0;
-    for (NSTextCheckingResult *bracketResult in bracketResults) {
-        if (bracketResult.range.location == NSNotFound && bracketResult.range.length <= 1) continue;
-        NSRange range = bracketResult.range;
-        range.location += bracketResultsChangeLength;
-        if ([self attribute:text attributeName:KFLinkAttributeName atIndex:range.location]) continue;
-        
-        NSString *bracketString = [text.string substringWithRange:NSMakeRange(range.location + 2, range.length - 4)];
-        
-        // 要替换的字符串
-        NSMutableAttributedString *replace = [self hightlightBorderWithString:bracketString userInfo:[self userInfoWithType:kKFLinkTypeLeaveMessage title:bracketString key:bracketString] font:font color:color];
-        // 替换
-        [text replaceCharactersInRange:range withAttributedString:replace];
-        bracketResultsChangeLength += replace.length - range.length;
-    }
-    return text;
-}
-
-+ (id)attribute:(NSAttributedString *)attribute  attributeName:(NSString *)attributeName atIndex:(NSUInteger)index {
-    if (!attributeName) return nil;
-    if (index > attribute.length || attribute.length == 0) return nil;
-    if (attribute.length > 0 && index == attribute.length) index--;
-    return [attribute attribute:attributeName atIndex:index effectiveRange:NULL];
-}
-
-+ (NSMutableAttributedString *)baseMessageWithString:(NSString *)string font:(UIFont *)font color:(UIColor *)color{
-    return [self attributedString:string labelHelpHandle:KFLabelHelpHandleATag|KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleBracket font:font color:color];
-}
-
 + (NSMutableAttributedString *)attributedString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font color:(UIColor *)color{
     if (string.length == 0) return [self attStringWithString:@" " font:font color:color];
     
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:color];
-    
+    __weak typeof(self)weakSelf = self;
     if (optional&1<<0) {
-        // 匹配 <a></a>
-        NSArray *aTagFormatResults = [[self regexAtagFormat] matchesInString:text.string options:kNilOptions range:NSMakeRange(0, text.length)];
-        NSUInteger aTagFormatchangeLength = 0;
-        for (NSTextCheckingResult *aTagFormat in aTagFormatResults) {
-            if (aTagFormat.range.location == NSNotFound && aTagFormat.range.length <= 1) continue;
-            NSRange range = aTagFormat.range;
-            range.location += aTagFormatchangeLength;
-            if ([self attribute:text attributeName:KFLinkAttributeName atIndex:range.location]) continue;
-    
-            NSString *aTag = [text.string substringWithRange:range];
-    
-            // 获取url
-            NSArray *urls = [[self regexHttp]matchesInString:aTag options:kNilOptions range:NSMakeRange(0, aTag.length)];
-            if (urls.count == 0) continue;
-            NSTextCheckingResult *urlResult = urls.firstObject;
-            if (urlResult.range.location == NSNotFound && urlResult.range.length <= 1) continue;
-            NSString *url = [aTag substringWithRange:urlResult.range];
-            // 获取文本信息
-            NSString *pageStart=@">";
-            NSString *pageEnd=@"</";
-            NSRange startRange=[aTag rangeOfString:pageStart];
-            NSRange endRange=[aTag rangeOfString:pageEnd];
-            NSString *title=[aTag substringWithRange:NSMakeRange(NSMaxRange(startRange), endRange.location-NSMaxRange(startRange))];
-    
-            // 要替换的字符串
-            NSMutableAttributedString *replace = [self hightlightBorderWithString:title userInfo:[self userInfoWithType:kKFLinkTypeURL title:title key:url] font:font color:color];
-    
-            // 替换
-            [text replaceCharactersInRange:range withAttributedString:replace];
-            aTagFormatchangeLength += replace.length - range.length;
-        }
+        // 匹配 atag
+        text = [self matchingWithRegular:self.regexAtagFormat attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+            if (results.count != 3) return nil;
+            NSString *href = results[1];
+            NSString *title = results[2];
+            return [weakSelf hightlightBorderWithString:title userInfo:[weakSelf userInfoWithType:[title isEqualToString:@"[图片]"] ? kKFLinkTypeImg : kKFLinkTypeURL title:title key:href] font:font color:color];
+        }];
     }
     
     if (optional&1<<1) {
-        // 匹配 http
-        NSArray *httpResults = [[self regexHttp] matchesInString:text.string options:kNilOptions range:NSMakeRange(0, text.length)];
-        for (NSTextCheckingResult *httpResult in httpResults) {
-            if (httpResult.range.location == NSNotFound && httpResult.range.length <= 1) continue;
-            NSRange range = httpResult.range;
-            if ([self attribute:text attributeName:KFLinkAttributeName atIndex:range.location]) continue;
-
-            NSString *httpString = [text.string substringWithRange:range];
-            
-            // 要替换的高亮富文本
-            NSMutableAttributedString *replace = [self hightlightBorderWithString:httpString userInfo:[self userInfoWithType:kKFLinkTypeURL title:httpString key:httpString] font:font color:color];
-            
-            // 替换
-            [text replaceCharactersInRange:range withAttributedString:replace];
-        }
+        // 匹配img
+        text = [self matchingWithRegular:self.regexImg attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+            if (results.count != 2) return nil;
+            NSString *imgStr = results[1];
+            NSString *title = @"[图片]";
+            return [weakSelf hightlightBorderWithString:title userInfo:[weakSelf userInfoWithType:kKFLinkTypeImg title:title key:imgStr] font:font color:color];
+        }];
     }
     
     if (optional&1<<2) {
-        // 匹配手机号
-        NSArray *phoneResults = [[self regexPhone]matchesInString:text.string options:kNilOptions range:NSMakeRange(0, text.length)];
-        for (NSTextCheckingResult *phoneResult in phoneResults) {
-            if (phoneResult.range.location == NSNotFound && phoneResult.range.length <= 1) continue;
-            NSRange range = phoneResult.range;
-            if ([self attribute:text attributeName:KFLinkAttributeName atIndex:range.location]) continue;
-            
-            NSString *phoneString = [text.string substringWithRange:range];
-            // 要替换的字符串
-            NSMutableAttributedString *replace = [self hightlightBorderWithString:phoneString userInfo:[self userInfoWithType:kKFLinkTypePhone title:phoneString key:phoneString] font:font color:color];
-            // 替换
-            [text replaceCharactersInRange:range withAttributedString:replace];
-        }
+        // 匹配 http
+        text = [self matchingWithRegular:self.regexHttp attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+            if (results.count == 0) return nil;
+            NSString *httpStr = results[0];
+            return [weakSelf hightlightBorderWithString:httpStr userInfo:[weakSelf userInfoWithType:kKFLinkTypeURL title:httpStr key:httpStr] font:font color:color];
+        }];
     }
+    
     if (optional&1<<3) {
+        // 匹配phone
+        text = [self matchingWithRegular:self.regexPhone attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+            if (results.count != 1) return nil;
+            NSString *phoneStr = results[0];
+            return [weakSelf hightlightBorderWithString:phoneStr userInfo:[weakSelf userInfoWithType:kKFLinkTypePhone title:phoneStr key:phoneStr] font:font color:color];
+        }];
+    }
+    if (optional&1<<4) {
         // 匹配{{}}
-        NSArray *bracketResults = [[self regexBracket]matchesInString:text.string options:kNilOptions range:NSMakeRange(0, text.length)];
-        NSUInteger bracketResultsChangeLength = 0;
-        for (NSTextCheckingResult *bracketResult in bracketResults) {
-            if (bracketResult.range.location == NSNotFound && bracketResult.range.length <= 1) continue;
-            NSRange range = bracketResult.range;
-            range.location += bracketResultsChangeLength;
-            if ([self attribute:text attributeName:KFLinkAttributeName atIndex:range.location]) continue;
-
-            NSString *bracketString = [text.string substringWithRange:NSMakeRange(range.location + 2, range.length - 4)];
-            
-            // 要替换的字符串
-            NSMutableAttributedString *replace = [self hightlightBorderWithString:bracketString userInfo:[self userInfoWithType:kKFLinkTypeBracket title:bracketString key:bracketString] font:font color:color];
-            // 替换
-            [text replaceCharactersInRange:range withAttributedString:replace];
-            bracketResultsChangeLength += replace.length - range.length;
-        }
+        text = [self matchingWithRegular:self.regexBracket attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+            if (results.count != 2) return nil;
+            NSString *bracketStr = results[1];
+            return [weakSelf hightlightBorderWithString:bracketStr userInfo:[weakSelf userInfoWithType:kKFLinkTypeBracket title:bracketStr key:bracketStr] font:font color:color];
+        }];
     }
     
     return text;
 }
 
++ (NSMutableAttributedString *)matchingWithRegular:(NSRegularExpression *)regular attributeString:(NSMutableAttributedString *)attributeString mapHandle:(NSAttributedString * (^)(NSArray *results))mapHandle {
+    NSArray *array = [regular matchesInString:attributeString.string options:kNilOptions range:NSMakeRange(0, attributeString.string.length)];
+    NSUInteger offSet = 0;
+    for (NSTextCheckingResult *value in array) {
+        if (value.range.location == NSNotFound && value.range.length <= 1) continue;
+        NSRange range = value.range;
+        range.location += offSet;
+        if ([self attribute:attributeString attributeName:KFLinkAttributeName atIndex:range.location]) continue;
+        
+        NSMutableArray <NSString *>*results = [NSMutableArray array];
+        for (NSInteger index = 0; index < value.numberOfRanges; index++) {
+            NSRange ran = [value rangeAtIndex:index];
+            if (ran.location != NSNotFound) {
+                ran.location += offSet;
+                NSString *str = [attributeString.string substringWithRange:ran];
+                if (str.length > 0) {
+                    [results addObject: str];
+                }
+            }
+        }
+        NSAttributedString *replace = mapHandle(results);
+        if (replace) {
+            [attributeString replaceCharactersInRange:range withAttributedString:replace];
+            offSet += replace.length - range.length;
+        }
+    }
+    return attributeString;
+}
 
 
 /**
@@ -249,7 +203,7 @@
     static NSRegularExpression *atagFormat;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        atagFormat = [NSRegularExpression regularExpressionWithPattern:@"<a.*?[^<]+</a>" options:kNilOptions error:NULL];
+        atagFormat = [NSRegularExpression regularExpressionWithPattern:@"<a\\b[^>]+\\bhref\\s*=\\s*\"([^\"]*)\"[^>]*>([\\s\\S]*?)</a>" options:kNilOptions error:NULL];
     });
     return atagFormat;
 }
@@ -271,7 +225,15 @@
     });
     return http;
 }
-
+#pragma mark 匹配img
++ (NSRegularExpression *)regexImg{
+    static NSRegularExpression *img;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        img = [NSRegularExpression regularExpressionWithPattern:@"<img.*?src\\s*=\\s*\"(.*?)\".*?>" options:kNilOptions error:NULL];
+    });
+    return img;
+}
 
 #pragma mark userInfo制作
 + (NSMutableDictionary *)userInfoWithType:(kKFLinkType)linkType title:(NSString *)title key:(NSString *)key{
@@ -280,6 +242,13 @@
     [userInfo setObject:title?:@"" forKey:KF5LinkTitle];
     [userInfo setObject:key?:@"" forKey:KF5LinkKey];
     return userInfo;
+}
+
++ (id)attribute:(NSAttributedString *)attribute attributeName:(NSString *)attributeName atIndex:(NSUInteger)index {
+    if (!attributeName) return nil;
+    if (index > attribute.length || attribute.length == 0) return nil;
+    if (attribute.length > 0 && index == attribute.length) index--;
+    return [attribute attribute:attributeName atIndex:index effectiveRange:NULL];
 }
 
 @end

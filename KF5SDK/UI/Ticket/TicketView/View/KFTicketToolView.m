@@ -28,7 +28,7 @@ static const CGFloat kKF5MaxHeight = 130;
         [self setupView];
         [self layoutView];
         self.userInteractionEnabled = YES;
-        self.type = KFTicketToolTypeInputText;
+        _type = KFTicketToolTypeInputText;
     }
     return self;
 }
@@ -40,7 +40,7 @@ static const CGFloat kKF5MaxHeight = 130;
     attView.hidden = YES;
     attView.backgroundColor = KF5Helper.KF5BgColor;
     [self addSubview:attView];
-    self.attView = attView;
+    _attView = attView;
     
     __weak typeof(self)weakSelf = self;
     attView.closeViewBlock = ^{
@@ -56,31 +56,31 @@ static const CGFloat kKF5MaxHeight = 130;
     [inputView.attBtn addTarget:self action:@selector(att:) forControlEvents:UIControlEventTouchUpInside];
     inputView.textView.textDelegate = self;
     [self addSubview:inputView];
-    self.inputView = inputView;
+    _inputView = inputView;
     
     // 3.关闭视图
     KFCloseView *closeView = [[KFCloseView alloc]init];
     closeView.hidden = YES;
     [self addSubview:closeView];
-    self.closeView = closeView;
+    _closeView = closeView;
 }
 
 - (void)layoutView {
-    [self.attView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+    [_attView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing/2);
         make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing/2);
         make.right.equalTo(self.kf5_left);
         make.width.equalTo(self);
     }];
     
-    [self.inputView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+    [_inputView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.top.equalTo(self);
         make.bottom.equalTo(self);
         make.left.equalTo(self);
         make.width.equalTo(self);
     }];
     
-    [self.closeView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+    [_closeView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.top.equalTo(self);
         make.bottom.equalTo(self);
         make.left.equalTo(self);
@@ -104,7 +104,10 @@ static const CGFloat kKF5MaxHeight = 130;
     self.closeView.hidden = type != KFTicketToolTypeClose;
     self.heightLayout.active = type != KFTicketToolTypeInputText;
     
-    if (type == KFTicketToolTypeClose) return;
+    if (type == KFTicketToolTypeClose){
+        self.backgroundColor = [UIColor whiteColor];
+        return;
+    }
     if (type == KFTicketToolTypeAddImage) {
         self.attView.hidden = NO;
         // 如果点击添加附件按钮时,记录下键盘的状态,tag = 1 为键盘在弹出,等关闭附件添加控件时,再恢复状态
@@ -207,7 +210,7 @@ static const CGFloat kKF5MaxHeight = 130;
         UIButton *attBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [attBtn setImage:KF5Helper.ticketTool_openAtt forState:UIControlStateNormal];
         [self addSubview:attBtn];
-        self.attBtn = attBtn;
+        _attBtn = attBtn;
         // 输入框
         KFTextView *textView = [[KFTextView alloc]init];
         textView.layer.borderColor = KF5Helper.KF5BgColor.CGColor;
@@ -219,7 +222,7 @@ static const CGFloat kKF5MaxHeight = 130;
         textView.showsVerticalScrollIndicator = NO;
         textView.showsHorizontalScrollIndicator = NO;
         [self addSubview:textView];
-        self.textView = textView;
+        _textView = textView;
         
         [attBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             make.left.equalTo(self);

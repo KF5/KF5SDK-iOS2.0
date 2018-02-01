@@ -81,7 +81,7 @@ BOOL isShowTime(double time){
             }
         }
     }else{
-        _systemText = [KFContentLabelHelp systemMessageWithString:_message.content font:KF5Helper.KF5TimeFont color:[UIColor whiteColor]];
+        _systemText = [KFContentLabelHelp attributedString:_message.content labelHelpHandle:KFLabelHelpHandleBracket font:KF5Helper.KF5TimeFont color:[UIColor whiteColor]];
     }
 }
 

@@ -118,7 +118,7 @@
 - (void)setComment:(KFComment *)comment{
     _comment = comment;
     
-    NSAttributedString *text = [KFContentLabelHelp attributedString:_comment.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag font:KF5Helper.KF5TitleFont color:KF5Helper.KF5TitleColor];
+    NSAttributedString *text = [KFContentLabelHelp attributedString:_comment.content labelHelpHandle:KFLabelHelpHandleHttp|KFLabelHelpHandlePhone|KFLabelHelpHandleATag|KFLabelHelpHandleImg font:KF5Helper.KF5TitleFont color:KF5Helper.KF5TitleColor];
     _commentLabel.attributedText = text;
     _photoImageView.items = comment.attachments;
     _timeLabel.text = [NSDate kf5_stringFromDate:[NSDate dateWithTimeIntervalSince1970:comment.created]];

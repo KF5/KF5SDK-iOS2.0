@@ -4,8 +4,3 @@ framework module KF5SDK {
   export *
   module * { export * }
 }
-
-module KF5SDK.Swift {
-    header "KF5SDK-Swift.h"
-    requires objc
-}

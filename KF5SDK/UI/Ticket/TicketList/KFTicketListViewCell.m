@@ -24,20 +24,20 @@
         pointView.backgroundColor = KF5Helper.KF5TicketPointColor;
         pointView.hidden = YES;
         [self.contentView addSubview:pointView];
-        self.pointView = pointView;
+        _pointView = pointView;
         
         UILabel *contentLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5TitleColor];
         contentLabel.numberOfLines = 2;
         [self.contentView addSubview:contentLabel];
-        self.contentLabel = contentLabel;
+        _contentLabel = contentLabel;
         
         UILabel *timeLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:KF5Helper.KF5NameColor];
         [self.contentView addSubview:timeLabel];
-        self.timeLabel = timeLabel;
+        _timeLabel = timeLabel;
         
         UILabel *statusLabel = [KFHelper labelWithFont:KF5Helper.KF5NameFont textColor:KF5Helper.KF5NameColor];
         [self.contentView addSubview:statusLabel];
-        self.statusLabel = statusLabel;
+        _statusLabel = statusLabel;
         
         [self layoutView];
         
@@ -47,29 +47,29 @@
 
 - (void)layoutView{
     UIView *superview = self.contentView;
-    [self.pointView kf5_makeConstraints:^(KFAutoLayout *make) {
+    [_pointView kf5_makeConstraints:^(KFAutoLayout *make) {
         make.centerX.equalTo(superview.kf5_left).offset(KF5Helper.KF5HorizSpacing/2);
         make.centerY.equalTo(superview.kf5_centerY);
         make.height.kf_equal(KF5Helper.KF5TicketPointViewWitdh);
         make.width.kf_equal(KF5Helper.KF5TicketPointViewWitdh);
     }];
     
-    [self.contentLabel kf5_makeConstraints:^(KFAutoLayout *make) {
+    [_contentLabel kf5_makeConstraints:^(KFAutoLayout *make) {
         make.top.equalTo(superview).offset(KF5Helper.KF5DefaultSpacing);
         make.left.equalTo(superview).offset(KF5Helper.KF5HorizSpacing);
         make.right.equalTo(superview);
     }];
 
-    [self.timeLabel kf5_makeConstraints:^(KFAutoLayout *make) {
-        make.left.equalTo(self.contentLabel);
-        make.top.equalTo(self.contentLabel.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+    [_timeLabel kf5_makeConstraints:^(KFAutoLayout *make) {
+        make.left.equalTo(_contentLabel);
+        make.top.equalTo(_contentLabel.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
         make.bottom.equalTo(superview).offset(-KF5Helper.KF5DefaultSpacing);
     }];
     
-    [self.statusLabel kf5_makeConstraints:^(KFAutoLayout *make) {
-        make.centerY.equalTo(self.timeLabel);
-        make.left.greaterThanOrEqualTo(self.timeLabel.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(self.contentLabel);
+    [_statusLabel kf5_makeConstraints:^(KFAutoLayout *make) {
+        make.centerY.equalTo(_timeLabel);
+        make.left.greaterThanOrEqualTo(_timeLabel.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
+        make.right.equalTo(_contentLabel);
     }];
 }
 

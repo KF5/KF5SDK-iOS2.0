@@ -204,7 +204,7 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
 - (void)layoutSubviews{
     [super layoutSubviews];
     if (!self.heightLayout) {
-        self.heightLayout = [[KFAutoLayoutMaker alloc] initWithFirstItem:self firstAttribute:NSLayoutAttributeHeight].kf_equal(self.frame.size.height).active;
+        self.heightLayout = [[KFAutoLayoutMaker alloc] initWithFirstItem:self firstAttribute:NSLayoutAttributeHeight].kf_equal(self.frame.size.height).priority(UILayoutPriorityDefaultHigh).active;
         self.heightLayout.active = NO;
     }
 }

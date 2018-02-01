@@ -49,3 +49,8 @@ img{
     max-width: 100% !important;
     height: auto !important;
 }
+.attachment-list {
+    border: dashed 1px #a0a0a0;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}

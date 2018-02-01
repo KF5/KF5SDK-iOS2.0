@@ -27,18 +27,15 @@
 - (instancetype)initWithViewController:(UIViewController *)viewController title:(NSString *)title duration:(CGFloat)duration showType:(KF5AlertType)alertType{
     self = [super init];
     if (self) {
-        self.timeDuration = duration;
+        self.textAlignment = NSTextAlignmentCenter;
+        self.textColor = [UIColor whiteColor];
+        self.font = [UIFont fontWithName:@"HelveticaNeue" size:16.0];
+        self.minimumScaleFactor = 14.0/16.0;
         self.text = title;
-        self.backgroundColor = [UIColor colorWithRed:0.91 green:0.302 blue:0.235 alpha:1];
-        [self setTextAlignment:NSTextAlignmentCenter];
-        [self setTextColor:[UIColor whiteColor]];
-        [self setFont:[UIFont fontWithName:@"HelveticaNeue" size:16.0]];
-        [self setMinimumScaleFactor:14.0/16.0];
         
         self.viewController = viewController;
         self.timeDuration = duration;
         self.alertType = alertType;
-        self.text = title;
     }
     
     return self;
@@ -59,14 +56,13 @@
 
 #pragma mark Accessor Methods
 -(void)setAlertType:(KF5AlertType)alertType{
+    _alertType = alertType;
     if (alertType == KF5AlertTypeError) {
-        [self setBackgroundColor:[UIColor colorWithRed:0.91 green:0.302 blue:0.235 alpha:1] /*#e84d3c*/];
-    }
-    else if (alertType == KF5AlertTypeSuccess) {
-        [self setBackgroundColor:[UIColor colorWithRed:0.196 green:0.576 blue:0.827 alpha:1] /*#3293d3*/];
-    }
-    else if (alertType == KF5AlertTypeWarning) {
-        [self setBackgroundColor:[UIColor colorWithRed:1 green:0.804 blue:0 alpha:1] /*#ffcd00*/];
+        self.backgroundColor = [UIColor colorWithRed:0.91 green:0.302 blue:0.235 alpha:1]; /*#e84d3c*/
+    }else if (alertType == KF5AlertTypeSuccess) {
+        self.backgroundColor = [UIColor colorWithRed:0.196 green:0.576 blue:0.827 alpha:1]; /*#3293d3*/
+    }else if (alertType == KF5AlertTypeWarning) {
+        self.backgroundColor = [UIColor colorWithRed:1 green:0.804 blue:0 alpha:1]; /*#ffcd00*/
     }
 }
 

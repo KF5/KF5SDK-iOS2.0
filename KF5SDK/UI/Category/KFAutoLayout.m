@@ -45,13 +45,13 @@
     self = [super init];
     if (!self) return nil;
     
-    self.firstItem = firstItem;
-    self.firstAttribute = firstAttribute;
-    self.secondItem = nil;
-    self.secondAttribute = NSLayoutAttributeNotAnAttribute;
-    self.multiplierValue = 1.0;
-    self.constant = 0;
-    self.priorityValue = UILayoutPriorityRequired;
+    _firstItem = firstItem;
+    _firstAttribute = firstAttribute;
+    _secondItem = nil;
+    _secondAttribute = NSLayoutAttributeNotAnAttribute;
+    _multiplierValue = 1.0;
+    _constant = 0;
+    _priorityValue = UILayoutPriorityRequired;
     
     return self;
 }

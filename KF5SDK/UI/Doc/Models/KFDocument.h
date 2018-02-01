@@ -18,6 +18,8 @@
 @property (nonatomic, assign) double created_at;
 ///内容
 @property (nullable, nonatomic, copy) NSString *content;
+///附件
+@property (nullable, nonatomic,strong) NSArray *attachments;
 
 + (nullable instancetype)documentWithDict:(nonnull NSDictionary *)dict;
 

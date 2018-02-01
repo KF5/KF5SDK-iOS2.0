@@ -74,15 +74,8 @@ return _##property;\
     __block CGRect frame = [UIScreen mainScreen].bounds;
 #ifdef __IPHONE_11_0
     if (@available(iOS 11.0, *)) {
-        if (![NSThread isMainThread]) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
-                frame = UIEdgeInsetsInsetRect(vc.view.frame, vc.view.safeAreaInsets);
-            });
-        }else{
-            UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
-            frame = UIEdgeInsetsInsetRect(vc.view.frame, vc.view.safeAreaInsets);
-        }
+        UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+        frame = UIEdgeInsetsInsetRect(vc.view.frame, vc.view.safeAreaInsets);
     }
 #endif
     return frame;

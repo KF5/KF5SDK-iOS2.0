@@ -7,7 +7,6 @@
 //
 
 #import "KFDocumentViewController.h"
-
 #import "KFHelper.h"
 #import "KFDocument.h"
 #import "KFProgressHUD.h"
@@ -32,9 +31,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    if (!self.title.length) {
-        if (self.post)self.title = self.post.title;
-    }
+    if (!self.title.length && self.post) self.title = self.post.title;
     
     UIWebView *webView = [[UIWebView alloc]init];
     webView.delegate = self;
@@ -58,19 +55,16 @@
         make.bottom.equalTo(self.view);
         make.right.equalTo(self.view);
     }];
-        
-    [KFProgressHUD showDefaultLoadingTo:self.view];
     
     [self reloadData];
 }
 
 - (void)reloadData{
     if (![KFHelper isNetworkEnable]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
-        });
+        [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
         return ;
     }
+    [KFProgressHUD showDefaultLoadingTo:self.view];
     NSDictionary *params =
     @{
       KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
@@ -79,40 +73,34 @@
     
     __weak typeof(self)weakSelf = self;
     [KFHttpTool getDocumentWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
-        if (!error) {
-            KFDocument *document = [KFDocument documentWithDict:[result kf5_dictionaryForKeyPath:@"data.post"]];
-            //progress在webView的代理中隐藏
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf refreshWithDocument:document];
-            });
-        }else{
-            dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!error) {
+                //progress在webView的代理中隐藏
+                [weakSelf refreshWithDocument:[KFDocument documentWithDict:[result kf5_dictionaryForKeyPath:@"data.post"]]];
+            }else{
                 [weakSelf endLoading];
                 [[[UIAlertView alloc]initWithTitle:KF5Localized(@"kf5_reminder") message:error.localizedDescription delegate:nil cancelButtonTitle:KF5Localized(@"kf5_confirm") otherButtonTitles:nil, nil]show];
-            });
-        }
+            }
+        });
+        
     }];
 }
 
 - (void)refreshWithDocument:(KFDocument *)document{
+
+    NSMutableString *attachmentStr = nil;
+    if (document.attachments.count > 0) {
+        attachmentStr = [[NSMutableString alloc] initWithString:@"<ul class=\"attachment-list\">"];
+        for (NSDictionary *attachment in document.attachments) {
+            NSString *url = [attachment kf5_stringForKeyPath:@"content_url"];
+            NSString *name = [attachment kf5_stringForKeyPath:@"name"];
+            NSString *size = [NSByteCountFormatter stringFromByteCount:[attachment kf5_numberForKeyPath:@"size"].longLongValue countStyle:NSByteCountFormatterCountStyleBinary];
+            [attachmentStr appendFormat:@"<li><a href=\"%@\">%@</a><span> • %@</span></li>",url,name,size];
+        }
+        [attachmentStr appendString:@"</ul>"];
+    }
     
-    NSString *html = [NSString stringWithFormat:@"<!DOCTYPE html>\n"
-                      "<html>\n"
-                      "<head>\n"
-                      "<meta content=\"user-scalable=no,width=device-width, initial-scale=1\" name=\"viewport\">\n"
-                      "<title></title>\n"
-                      "<meta charset=\"utf-8\" />\n"
-                      "<link rel=\"stylesheet\" href = \"%@\" type=\"text/css\"/>"
-                      "<link rel=\"stylesheet\" href = \"%@\" type=\"text/css\"/>"
-                      "</head>\n"
-                      "<body>\n"
-                      "<body><article>\n"
-                      "<div class=\"title\">%@</div>\n"
-                      "<div class=\"content\">%@</div>\n"
-                      "<div class=\"datetime\">%@</div>\n"
-                      "</article>\n"
-                      "</body>\n"
-                      "</html>",KF5SrcName(@"KFBaseDocument.css"),KF5SrcName(@"KFUserDocument.css"),document.title,document.content,[[NSDate dateWithTimeIntervalSince1970:document.created_at] kf5_string]];
+    NSString *html = [NSString stringWithFormat:[NSString stringWithContentsOfFile:KF5SrcName(@"kf5_document.html") encoding:NSUTF8StringEncoding error:nil],KF5SrcName(@"KFUserDocument.css"),document.title,document.content,attachmentStr?:@"",[[NSDate dateWithTimeIntervalSince1970:document.created_at] kf5_string]];
     [self.webView loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle]  bundlePath]]];
 }
 
@@ -124,9 +112,11 @@
 -(void)webViewDidFinishLoad:(UIWebView *)webView{
     [self endLoading];
 }
+
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
     [self endLoading];
 }
+
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType{
     NSURL *requestURL =request.URL;
     if (([[requestURL scheme] isEqualToString: @"http"] || [[ requestURL scheme] isEqualToString: @"https"])

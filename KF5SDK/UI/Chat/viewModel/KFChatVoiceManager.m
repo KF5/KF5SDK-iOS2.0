@@ -211,8 +211,10 @@ static KFChatVoiceManager *sharedManager = nil;
     if (local_path.length > 0) {
         messageModel.message.local_path = local_path;
         messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:local_path];
-        [messageModel updateFrame];
-        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [messageModel updateFrame];
+            [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
+        });
         return;
     }
     [self.messageList addObject:messageModel];
@@ -224,8 +226,11 @@ static KFChatVoiceManager *sharedManager = nil;
             [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
             messageModel.message.local_path = localURL.path;
             messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:messageModel.message.local_path];
-            [messageModel updateFrame];
-            [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [messageModel updateFrame];
+                [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
+            });
+
         }
         [weakSelf.messageList removeObject:messageModel];
     }];

@@ -21,16 +21,16 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         UIImageView *headerImageView = [[UIImageView alloc] init];
-        self.headerImageView = headerImageView;
+        _headerImageView = headerImageView;
         [self.contentView addSubview:headerImageView];
         
         UILabel *titleLabel = [KFHelper labelWithFont:KF5Helper.KF5TitleFont textColor:KF5Helper.KF5ChatCardCellTitleLabelTextColor];
         titleLabel.numberOfLines = 2;
-        self.titleLabel = titleLabel;
+        _titleLabel = titleLabel;
         [self.contentView addSubview:titleLabel];
         
         UILabel *priceLabel = [KFHelper labelWithFont:KF5Helper.KF5ContentFont textColor:KF5Helper.KF5ChatCardCellPriceLabelTextColor];
-        self.priceLabel = priceLabel;
+        _priceLabel = priceLabel;
         [self.contentView addSubview:priceLabel];
         
         UIButton *linkBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -38,7 +38,7 @@
         [linkBtn setTitleColor:KF5Helper.KF5ChatCardCellLinkBtnTextColor forState:UIControlStateNormal];
         linkBtn.backgroundColor = KF5Helper.KF5ChatCardCellLinkBtnBackgroundColor;
         [linkBtn addTarget:self action:@selector(clickLinkBtn:) forControlEvents:UIControlEventTouchUpInside];
-        self.linkBtn = linkBtn;
+        _linkBtn = linkBtn;
         [self.contentView addSubview:linkBtn];
         self.backgroundColor = KF5Helper.KF5ChatCardCellBackgroundColor;
     }

@@ -86,7 +86,7 @@
                 [weakSelf.tableView kf5_endHeaderRefreshing];
         });
         if (!error) {
-            self.tableView.commentList = [NSMutableArray arrayWithArray:[KFComment commentWithDict:result]];
+            weakSelf.tableView.commentList = [NSMutableArray arrayWithArray:[KFComment commentWithDict:result]];
             
             KFRatingModel *ratingModel = nil;
             if ([result kf5_numberForKeyPath:@"data.request.rating_flag"].boolValue) {
@@ -218,15 +218,13 @@
         }
             break;
         case kKFLinkTypeURL:{
-            NSString *formatName = info[KF5LinkTitle];
-            
-            if ([formatName isEqualToString:@"[图片]"]) {
-                [self.view endEditing:YES];
-                [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
-                [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:[NSURL URLWithString:info[KF5LinkKey]] placeholder:KF5Helper.placeholderImage]] selectIndex:0];
-            }else{
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
-            }
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
+        }
+            break;
+        case kKFLinkTypeImg:{
+            [self.view endEditing:YES];
+            [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
+            [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:[NSURL URLWithString:info[KF5LinkKey]] placeholder:KF5Helper.placeholderImage]] selectIndex:0];
         }
             break;
         default:

@@ -36,7 +36,7 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
         placeholderLabel.backgroundColor = [UIColor clearColor];
         placeholderLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         [self addSubview:placeholderLabel];
-        self.placeholderLabel = placeholderLabel;
+        _placeholderLabel = placeholderLabel;
         
         [placeholderLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             make.top.equalTo(self).offset(KF5PlaceHolderLeft);

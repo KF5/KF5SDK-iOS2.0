@@ -44,8 +44,6 @@
             [_messageImageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@&thumb=1",messageModel.message.url]] placeholderImage:KF5Helper.placeholderImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                 if (error) {
                     weakImageView.image = KF5Helper.placeholderImageFailed;
-                }else{
-                    messageModel.image = image;
                 }
             }];
         }
