@@ -7,7 +7,6 @@
 //
 
 #import "KFMessageModel.h"
-#import "KFHelper.h"
 #import "KFContentLabelHelp.h"
 #import "KFChatVoiceManager.h"
 

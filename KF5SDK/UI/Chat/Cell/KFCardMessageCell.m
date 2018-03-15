@@ -50,7 +50,7 @@
     
     NSString *imgUrl = messageModel.cardDict[@"img_url"];
     NSString *title = messageModel.cardDict[@"title"];
-    NSString *description = messageModel.cardDict[@"price"];
+    NSString *description = messageModel.cardDict[@"description"];
     NSString *link_title = messageModel.cardDict[@"link_title"];
     self.linkUrl = messageModel.cardDict[@"link_url"];
     

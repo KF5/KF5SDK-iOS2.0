@@ -323,8 +323,6 @@ static NSString *cellID = @"KFPreviewCell";
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (error) {
                     weakSelf.imageView.image = placeHolderErrorImage;
-                }else{
-                    weakSelf.imageView.image = image;
                 }
                 [weakSelf resizeSubviews];
                 weakSelf.progressView.hidden = YES;
