@@ -26,6 +26,8 @@ static NSString * _Nonnull const KF5Uploads      = @"uploads";
 static NSString * _Nonnull const KF5CustomFields = @"custom_fields";
 static NSString * _Nonnull const KF5Rating       = @"rating";
 static NSString * _Nonnull const KF5FullSearch   = @"full_search";
+static NSString * _Nonnull const KF5UserFields   = @"user_fields";
+static NSString * _Nonnull const KF5OrganizationId = @"organization_id";
 
 
 @interface KFFileModel : NSObject

@@ -79,9 +79,11 @@ KFLogger为日志打印类，当有错误信息时，会输入日志。开启方
 1、KF5SDKUI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。     
 2、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 ## 七、最新版本            
+#### V2.6.3 最后更新于 2018-03-22            
+新增支持IM机器人选择机器人题库分类和文档知识库分类
+### 历史版本
 #### V2.6.2 最后更新于 2018-03-15            
 添加支持IM排队超时提醒            
-### 历史版本
 #### V2.6.1 最后更新于 2018-02-06            
 新增IM聊天消息对img标签的支持,新增文档内容支持附件,优化性能            
 #### V2.6.0 最后更新于 2017-12-15
