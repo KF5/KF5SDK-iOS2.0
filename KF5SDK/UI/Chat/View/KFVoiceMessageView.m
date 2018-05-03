@@ -76,7 +76,7 @@
 - (void)layoutSubviews{
     
     CGSize timeSize = [self.timeLabel sizeThatFits:CGSizeMake(150, 20)];
-    timeSize.width += 3;
+    timeSize.width += 10;
     if (_messageForm == KFMessageFromMe) {
         self.voiceImageView.image = KF5Helper.chat_meWaves.lastObject;
         self.timeLabel.textColor = self.meTextColor;

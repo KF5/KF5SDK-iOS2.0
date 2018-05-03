@@ -45,10 +45,10 @@
     [headerView addSubview:label];
     
     [label kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(headerView);
-        make.left.equalTo(headerView.kf5_safeAreaLayoutGuideLeft).offset(KF5Helper.KF5MiddleSpacing);
-        make.right.equalTo(headerView.kf5_safeAreaLayoutGuideRight).offset(-KF5Helper.KF5MiddleSpacing);
-        make.bottom.equalTo(headerView);
+        make.top.kf_equalTo(headerView);
+        make.left.kf_equalTo(headerView.kf5_safeAreaLayoutGuideLeft).kf_offset(KF5Helper.KF5MiddleSpacing);
+        make.right.kf_equalTo(headerView.kf5_safeAreaLayoutGuideRight).kf_offset(-KF5Helper.KF5MiddleSpacing);
+        make.bottom.kf_equalTo(headerView);
     }];
     
     return headerView;
@@ -73,9 +73,9 @@
     self.textView = textView;
     
     [textView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(footerView);
-        make.left.equalTo(footerView.kf5_safeAreaLayoutGuideLeft).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(footerView.kf5_safeAreaLayoutGuideRight).offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.kf_equalTo(footerView);
+        make.left.kf_equalTo(footerView.kf5_safeAreaLayoutGuideLeft).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.right.kf_equalTo(footerView.kf5_safeAreaLayoutGuideRight).kf_offset(-KF5Helper.KF5DefaultSpacing);
         make.height.kf_equal(textViewHeight);
     }];
     
@@ -101,10 +101,10 @@
     self.tableView = tableView;
     
     [self.tableView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self.view);
-        make.left.equalTo(self.view);
-        make.right.equalTo(self.view);
-        self.tableViewBottomLayout = make.bottom.equalTo(self.view).active;
+        make.top.kf_equalTo(self.view);
+        make.left.kf_equalTo(self.view);
+        make.right.kf_equalTo(self.view);
+        self.tableViewBottomLayout = make.bottom.kf_equalTo(self.view).active;
     }];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];

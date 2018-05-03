@@ -40,7 +40,7 @@ static NSString *cellID = @"KFSudokuViewCell";
 - (void)didMoveToSuperview{
     [super didMoveToSuperview];
     [self kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        self.heightLayoutMaker = make.height.equalTo(self.kf5_width).multiplier(0).priority(UILayoutPriorityDefaultHigh);
+        self.heightLayoutMaker = make.height.kf_equalTo(self.kf5_width).multiplier(0).priority(UILayoutPriorityDefaultHigh);
     }];
 }
 
@@ -94,10 +94,10 @@ static NSString *cellID = @"KFSudokuViewCell";
         _imageView = imageView;
         [imageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             CGFloat spacing = KF5Helper.KF5DefaultSpacing/2;
-            make.top.equalTo(self.contentView).offset(spacing);
-            make.left.equalTo(self.contentView).offset(spacing);
-            make.bottom.equalTo(self.contentView).offset(-spacing);
-            make.right.equalTo(self.contentView).offset(-spacing);
+            make.top.kf_equalTo(self.contentView).kf_offset(spacing);
+            make.left.kf_equalTo(self.contentView).kf_offset(spacing);
+            make.bottom.kf_equalTo(self.contentView).kf_offset(-spacing);
+            make.right.kf_equalTo(self.contentView).kf_offset(-spacing);
         }];
         [imageView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapImageView:)]];
     }

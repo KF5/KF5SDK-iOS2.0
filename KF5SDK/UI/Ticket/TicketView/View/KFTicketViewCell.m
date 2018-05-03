@@ -78,38 +78,38 @@
 - (void)layoutView{
     UIView *superview = self.contentView;
     [self.commentLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(superview).offset(KF5Helper.KF5DefaultSpacing);
-        make.left.equalTo(superview).offset(KF5Helper.KF5HorizSpacing);
-        make.right.equalTo(superview).offset(-KF5Helper.KF5HorizSpacing);
+        make.top.kf_equalTo(superview).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(superview).kf_offset(KF5Helper.KF5HorizSpacing);
+        make.right.kf_equalTo(superview).kf_offset(-KF5Helper.KF5HorizSpacing);
     }];
     
     [self.photoImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.commentLabel);
-        make.right.equalTo(self.commentLabel);
-        make.top.equalTo(self.commentLabel.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(self.commentLabel);
+        make.right.kf_equalTo(self.commentLabel);
+        make.top.kf_equalTo(self.commentLabel.kf5_bottom).kf_offset(KF5Helper.KF5DefaultSpacing);
     }];
     
     [self.timeLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.commentLabel);
-        make.right.lessThanOrEqualTo(self.headImageView.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
-        make.top.equalTo(self.photoImageView.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
-        make.bottom.equalTo(superview).offset(-KF5Helper.KF5DefaultSpacing).priority(UILayoutPriorityDefaultHigh);
+        make.left.kf_equalTo(self.commentLabel);
+        make.right.kf_lessThanOrEqualTo(self.headImageView.kf5_left).kf_offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.kf_equalTo(self.photoImageView.kf5_bottom).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.bottom.kf_equalTo(superview).kf_offset(-KF5Helper.KF5DefaultSpacing).priority(UILayoutPriorityDefaultHigh);
     }];
     [self.headImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.width.kf_equal(20);
         make.height.kf_equal(20);
-        make.centerY.equalTo(self.timeLabel);
-        make.right.equalTo(self.nameLabel.kf5_left).offset(-5);
+        make.centerY.kf_equalTo(self.timeLabel);
+        make.right.kf_equalTo(self.nameLabel.kf5_left).kf_offset(-5);
     }];
     
     [self.nameLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.centerY.equalTo(self.timeLabel);
-        make.right.equalTo(self.commentLabel.kf5_right);
+        make.centerY.kf_equalTo(self.timeLabel);
+        make.right.kf_equalTo(self.commentLabel.kf5_right);
     }];
     
     [self.loadView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.centerY.equalTo(superview);
-        make.left.equalTo(superview);
+        make.centerY.kf_equalTo(superview);
+        make.left.kf_equalTo(superview);
         make.width.kf_equal(20);
         make.height.kf_equal(20);
     }];
@@ -127,11 +127,11 @@
     _loadView.status = comment.messageStatus;
     
     [self.timeLabel kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.commentLabel);
-        make.right.lessThanOrEqualTo(self.headImageView.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(self.commentLabel);
+        make.right.kf_lessThanOrEqualTo(self.headImageView.kf5_left).kf_offset(-KF5Helper.KF5DefaultSpacing);
         CGFloat offset = comment.attachments.count == 0 ? 0 : KF5Helper.KF5DefaultSpacing;
-        make.top.equalTo(self.photoImageView.kf5_bottom).offset(offset);
-        make.bottom.equalTo(self.contentView).offset(-KF5Helper.KF5DefaultSpacing).priority(500);
+        make.top.kf_equalTo(self.photoImageView.kf5_bottom).kf_offset(offset);
+        make.bottom.kf_equalTo(self.contentView).kf_offset(-KF5Helper.KF5DefaultSpacing).priority(500);
     }];
 }
 

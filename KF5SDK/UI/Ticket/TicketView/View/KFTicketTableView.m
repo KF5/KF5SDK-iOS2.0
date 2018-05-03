@@ -136,21 +136,21 @@
         [self addSubview:accessoryView];
         
         [titleLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.left.equalTo(self.kf5_safeAreaLayoutGuideLeft).offset(KF5Helper.KF5HorizSpacing);
+            make.left.kf_equalTo(self.kf5_safeAreaLayoutGuideLeft).kf_offset(KF5Helper.KF5HorizSpacing);
             make.width.kf_equal(200);
-            make.top.equalTo(self);
-            make.bottom.equalTo(self);
+            make.top.kf_equalTo(self);
+            make.bottom.kf_equalTo(self);
         }];
         
         [accessoryView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.right.equalTo(self.kf5_safeAreaLayoutGuideRight).offset(-KF5Helper.KF5HorizSpacing);
-            make.centerY.equalTo(titleLabel);
+            make.right.kf_equalTo(self.kf5_safeAreaLayoutGuideRight).kf_offset(-KF5Helper.KF5HorizSpacing);
+            make.centerY.kf_equalTo(titleLabel);
         }];
         
         [ratingLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             CGSize ratingSize = [KFHelper sizeWithText:ratingLabel.text font:ratingLabel.font];
-            make.right.equalTo(accessoryView.kf5_left).offset(-KF5Helper.KF5MiddleSpacing);
-            make.centerY.equalTo(titleLabel);
+            make.right.kf_equalTo(accessoryView.kf5_left).kf_offset(-KF5Helper.KF5MiddleSpacing);
+            make.centerY.kf_equalTo(titleLabel);
             make.width.kf_equal(ratingSize.width + KF5Helper.KF5MiddleSpacing);
             make.height.kf_equal(ratingSize.height + KF5Helper.KF5DefaultSpacing);
         }];

@@ -67,24 +67,24 @@ static const CGFloat kKF5MaxHeight = 130;
 
 - (void)layoutView {
     [_attView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing/2);
-        make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing/2);
-        make.right.equalTo(self.kf5_left);
-        make.width.equalTo(self);
+        make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing/2);
+        make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing/2);
+        make.right.kf_equalTo(self.kf5_left);
+        make.width.kf_equalTo(self);
     }];
     
     [_inputView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self);
-        make.bottom.equalTo(self);
-        make.left.equalTo(self);
-        make.width.equalTo(self);
+        make.top.kf_equalTo(self);
+        make.bottom.kf_equalTo(self);
+        make.left.kf_equalTo(self);
+        make.width.kf_equalTo(self);
     }];
     
     [_closeView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self);
-        make.bottom.equalTo(self);
-        make.left.equalTo(self);
-        make.right.equalTo(self);
+        make.top.kf_equalTo(self);
+        make.bottom.kf_equalTo(self);
+        make.left.kf_equalTo(self);
+        make.right.kf_equalTo(self);
     }];
 }
 
@@ -124,23 +124,23 @@ static const CGFloat kKF5MaxHeight = 130;
         }
     }
     [self.attView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing/2);
-        make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing/2);
-        make.width.equalTo(self);
+        make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing/2);
+        make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing/2);
+        make.width.kf_equalTo(self);
         if (type == KFTicketToolTypeAddImage) {
-            make.left.equalTo(self.kf5_left);
+            make.left.kf_equalTo(self.kf5_left);
         }else{
-            make.right.equalTo(self.kf5_left);
+            make.right.kf_equalTo(self.kf5_left);
         }
     }];
     [self.inputView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self);
-        make.bottom.equalTo(self);
-        make.width.equalTo(self);
+        make.top.kf_equalTo(self);
+        make.bottom.kf_equalTo(self);
+        make.width.kf_equalTo(self);
         if (type == KFTicketToolTypeAddImage) {
-            make.left.equalTo(self.kf5_right);
+            make.left.kf_equalTo(self.kf5_right);
         }else{
-            make.left.equalTo(self.kf5_left);
+            make.left.kf_equalTo(self.kf5_left);
         }
     }];
 
@@ -190,10 +190,10 @@ static const CGFloat kKF5MaxHeight = 130;
         closeLabel.textAlignment = NSTextAlignmentCenter;
         
         [closeLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
-            make.left.equalTo(self).offset(KF5Helper.KF5VerticalSpacing);
-            make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
-            make.right.equalTo(self).offset(-KF5Helper.KF5VerticalSpacing);
+            make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
+            make.left.kf_equalTo(self).kf_offset(KF5Helper.KF5VerticalSpacing);
+            make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+            make.right.kf_equalTo(self).kf_offset(-KF5Helper.KF5VerticalSpacing);
         }];
     }
     return self;
@@ -225,17 +225,17 @@ static const CGFloat kKF5MaxHeight = 130;
         _textView = textView;
         
         [attBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.left.equalTo(self);
+            make.left.kf_equalTo(self);
             make.width.kf_equal(30);
             make.height.kf_equal(30);
-            make.centerY.equalTo(self);
+            make.centerY.kf_equalTo(self);
         }];
         
         [textView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.left.equalTo(attBtn.kf5_right);
-            make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
-            make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
-            make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+            make.left.kf_equalTo(attBtn.kf5_right);
+            make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
+            make.right.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing);
+            make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
             textView.heightLayout = make.height.kf_equal(textView.textHeight).active;
         }];
     }

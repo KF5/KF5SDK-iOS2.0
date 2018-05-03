@@ -136,25 +136,25 @@
 
 - (void)layoutView{
     [self.tableView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self.view.kf5_safeAreaLayoutGuideTop);
-        make.left.equalTo(self.view);
-        make.right.equalTo(self.view);
-        make.bottom.equalTo(self.toolView.kf5_top);
+        make.top.kf_equalTo(self.view.kf5_safeAreaLayoutGuideTop);
+        make.left.kf_equalTo(self.view);
+        make.right.kf_equalTo(self.view);
+        make.bottom.kf_equalTo(self.toolView.kf5_top);
     }];
     
     [self.toolView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
-        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
-        self.toolBottomLayout = make.bottom.equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
+        make.left.kf_equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.kf_equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        self.toolBottomLayout = make.bottom.kf_equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
     }];
     UIView *bottomView = [[UIView alloc] init];
     bottomView.backgroundColor = self.toolView.backgroundColor;
     [self.view insertSubview:bottomView belowSubview:self.toolView];
     [bottomView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self.toolView);
-        make.left.equalTo(self.view);
-        make.right.equalTo(self.view);
-        make.bottom.equalTo(self.view);
+        make.top.kf_equalTo(self.toolView);
+        make.left.kf_equalTo(self.view);
+        make.right.kf_equalTo(self.view);
+        make.bottom.kf_equalTo(self.view);
     }];
 }
 

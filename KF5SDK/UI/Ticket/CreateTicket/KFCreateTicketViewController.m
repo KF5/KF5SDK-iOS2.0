@@ -67,19 +67,19 @@ static NSArray *CustomFields = nil;
     [scrollView addSubview:createView];
     
     [scrollView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self.kf5_safeAreaTopLayoutGuide);
-        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
-        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
-        self.scrollBottomLayout = make.bottom.equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
+        make.top.kf_equalTo(self.kf5_safeAreaTopLayoutGuide);
+        make.left.kf_equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.kf_equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        self.scrollBottomLayout = make.bottom.kf_equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
     }];
     
     [createView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(scrollView);
-        make.left.equalTo(scrollView);
-        make.right.equalTo(scrollView);
-        make.bottom.equalTo(scrollView);
-        make.width.equalTo(scrollView);
-        make.height.greaterThanOrEqualTo(scrollView).priority(UILayoutPriorityDefaultLow);
+        make.top.kf_equalTo(scrollView);
+        make.left.kf_equalTo(scrollView);
+        make.right.kf_equalTo(scrollView);
+        make.bottom.kf_equalTo(scrollView);
+        make.width.kf_equalTo(scrollView);
+        make.height.kf_greaterThanOrEqualTo(scrollView).priority(UILayoutPriorityDefaultLow);
     }];
 }
 

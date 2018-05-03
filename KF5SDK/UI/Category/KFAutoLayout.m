@@ -56,25 +56,25 @@
     return self;
 }
 
-- (KFAutoLayoutMaker *(^)(CGFloat))offset{
+- (KFAutoLayoutMaker *(^)(CGFloat))kf_offset{
     return ^id(CGFloat offset){
         self.constant = offset;
         return self;
     };
 }
 
-- (KFAutoLayoutMaker * _Nonnull (^)(id _Nonnull))equalTo{
+- (KFAutoLayoutMaker * _Nonnull (^)(id _Nonnull))kf_equalTo{
     return ^id(id attribute) {
         return self.equalToWithRelation(attribute, NSLayoutRelationEqual);
     };
 }
-- (KFAutoLayoutMaker * _Nonnull (^)(id _Nonnull))greaterThanOrEqualTo{
+- (KFAutoLayoutMaker * _Nonnull (^)(id _Nonnull))kf_greaterThanOrEqualTo{
     return ^id(id attribute) {
         return self.equalToWithRelation(attribute, NSLayoutRelationGreaterThanOrEqual);
     };
 }
 
-- (KFAutoLayoutMaker * _Nonnull (^)(id _Nonnull))lessThanOrEqualTo{
+- (KFAutoLayoutMaker * _Nonnull (^)(id _Nonnull))kf_lessThanOrEqualTo{
     return ^id(id attribute) {
         return self.equalToWithRelation(attribute, NSLayoutRelationLessThanOrEqual);
     };

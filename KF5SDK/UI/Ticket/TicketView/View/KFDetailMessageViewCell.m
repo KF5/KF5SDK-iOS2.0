@@ -50,14 +50,14 @@
 - (void)layoutView{
     UIView *superView = self.contentView;
     [_titleLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(superView).offset(KF5Helper.KF5MiddleSpacing);
-        make.left.equalTo(superView).offset(KF5Helper.KF5HorizSpacing);
-        make.right.greaterThanOrEqualTo(_contentLabel.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
-        make.bottom.equalTo(superView).offset(-KF5Helper.KF5MiddleSpacing);
+        make.top.kf_equalTo(superView).kf_offset(KF5Helper.KF5MiddleSpacing);
+        make.left.kf_equalTo(superView).kf_offset(KF5Helper.KF5HorizSpacing);
+        make.right.kf_greaterThanOrEqualTo(self.contentLabel.kf5_left).kf_offset(-KF5Helper.KF5DefaultSpacing);
+        make.bottom.kf_equalTo(superView).kf_offset(-KF5Helper.KF5MiddleSpacing);
     }];
     [_contentLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.centerY.equalTo(_titleLabel);
-        make.right.equalTo(superView).offset(-KF5Helper.KF5HorizSpacing);
+        make.centerY.kf_equalTo(self.titleLabel);
+        make.right.kf_equalTo(superView).kf_offset(-KF5Helper.KF5HorizSpacing);
     }];
 }
 

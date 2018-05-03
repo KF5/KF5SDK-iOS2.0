@@ -20,6 +20,8 @@
 #import "TZImagePickerController.h"
 #import "KFSelectQuestionController.h"
 
+#import <AVFoundation/AVCaptureDevice.h>
+
 #if __has_include("KFDocumentViewController.h")
 #import "KFDocumentViewController.h"
 #import "KFDocItem.h"
@@ -172,23 +174,23 @@
 
 - (void)layoutView {
     [self.tableView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
-        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
-        make.top.equalTo(self.view);
-        make.bottom.equalTo(self.chatToolView.kf5_top);
+        make.left.kf_equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.kf_equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        make.top.kf_equalTo(self.view);
+        make.bottom.kf_equalTo(self.chatToolView.kf5_top);
     }];
     
     [self.chatToolView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
-        make.right.equalTo(self.view.kf5_safeAreaLayoutGuideRight);
-        self.toolBottomLayout = make.bottom.equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
+        make.left.kf_equalTo(self.view.kf5_safeAreaLayoutGuideLeft);
+        make.right.kf_equalTo(self.view.kf5_safeAreaLayoutGuideRight);
+        self.toolBottomLayout = make.bottom.kf_equalTo(self.view.kf5_safeAreaLayoutGuideBottom).active;
     }];
     
     [self.recordView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.width.kf_equal(150);
         make.height.kf_equal(132);
-        make.centerX.equalTo(self.view);
-        make.centerY.equalTo(self.view);
+        make.centerX.kf_equalTo(self.view);
+        make.centerY.kf_equalTo(self.view);
     }];
     UIView *bottomView = [[UIView alloc] init];
     bottomView.backgroundColor = self.chatToolView.backgroundColor;
@@ -197,16 +199,16 @@
     [bottomView addSubview:lineView];
     [self.view insertSubview:bottomView belowSubview:self.chatToolView];
     [lineView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(bottomView);
-        make.left.equalTo(bottomView);
-        make.right.equalTo(bottomView);
+        make.top.kf_equalTo(bottomView);
+        make.left.kf_equalTo(bottomView);
+        make.right.kf_equalTo(bottomView);
         make.height.kf_equal(0.5);
     }];
     [bottomView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self.chatToolView).offset(-0.5);
-        make.left.equalTo(self.view);
-        make.right.equalTo(self.view);
-        make.bottom.equalTo(self.view);
+        make.top.kf_equalTo(self.chatToolView).kf_offset(-0.5);
+        make.left.kf_equalTo(self.view);
+        make.right.kf_equalTo(self.view);
+        make.bottom.kf_equalTo(self.view);
     }];
 }
 
@@ -412,9 +414,20 @@
 }
 #pragma mark 开始录音
 - (BOOL)chatToolViewStartVoice:(KFChatToolView *)chatToolView{
-    [[KFChatVoiceManager sharedChatVoiceManager]startVoiceRecord];
-    return YES;
+    
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+    
+    if (authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[[UIAlertView alloc] initWithTitle:KF5Localized(@"kf5_Microphone_Privacy") message:KF5Localized(@"kf5_Microphone_Warning") delegate:nil cancelButtonTitle:KF5Localized(@"kf5_cancel") otherButtonTitles:nil] show];
+        });
+        return NO;
+    }else{
+        [[KFChatVoiceManager sharedChatVoiceManager]startVoiceRecord];
+        return YES;
+    }
 }
+
 #pragma mark 取消录音
 - (void)chatToolViewCancelVoice:(KFChatToolView *)chatToolView{
     [[KFChatVoiceManager sharedChatVoiceManager]cancleVoiveRecord];

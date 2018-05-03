@@ -36,16 +36,16 @@
         _failureBtn = failureBtn;
         
         [loadingView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.left.equalTo(self);
-            make.right.equalTo(self);
-            make.top.equalTo(self);
-            make.bottom.equalTo(self);
+            make.left.kf_equalTo(self);
+            make.right.kf_equalTo(self);
+            make.top.kf_equalTo(self);
+            make.bottom.kf_equalTo(self);
         }];
         [failureBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.left.equalTo(self);
-            make.right.equalTo(self);
-            make.top.equalTo(self);
-            make.bottom.equalTo(self);
+            make.left.kf_equalTo(self);
+            make.right.kf_equalTo(self);
+            make.top.kf_equalTo(self);
+            make.bottom.kf_equalTo(self);
         }];
         
     }

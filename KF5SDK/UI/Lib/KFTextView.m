@@ -39,8 +39,8 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
         _placeholderLabel = placeholderLabel;
         
         [placeholderLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.top.equalTo(self).offset(KF5PlaceHolderLeft);
-            make.left.equalTo(self).offset(KF5PlaceHolderLeft);
+            make.top.kf_equalTo(self).kf_offset(KF5PlaceHolderLeft);
+            make.left.kf_equalTo(self).kf_offset(KF5PlaceHolderLeft);
         }];
         
         // some observations

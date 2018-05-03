@@ -70,9 +70,9 @@
     [self.viewController.view addSubview:self];
     
     [self kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.viewController.view);
-        self.topLayout =make.top.equalTo(self.viewController.kf5_safeAreaTopLayoutGuide).offset(-40).active;
-        make.right.equalTo(self.viewController.view);
+        make.left.kf_equalTo(self.viewController.view);
+        self.topLayout =make.top.kf_equalTo(self.viewController.kf5_safeAreaTopLayoutGuide).kf_offset(-40).active;
+        make.right.kf_equalTo(self.viewController.view);
         make.height.kf_equal(40);
     }];
     [self.superview layoutIfNeeded];

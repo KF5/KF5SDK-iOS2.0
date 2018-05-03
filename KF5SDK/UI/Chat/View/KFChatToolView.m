@@ -162,41 +162,41 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
     [self.voiceBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.width.kf_equal(kKF5ChatToolBtnWidth);
         make.height.kf_equal(kKF5ChatToolBtnWidth);
-        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
-        make.centerY.equalTo(self.speakBtn);
+        make.left.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.centerY.kf_equalTo(self.speakBtn);
     }];
     
     [self.textView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
-        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
-        make.left.equalTo(self.voiceBtn.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(self.faceBtn.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+        make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.kf_equalTo(self.voiceBtn.kf5_right).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.right.kf_equalTo(self.faceBtn.kf5_left).kf_offset(-KF5Helper.KF5DefaultSpacing);
         self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
     }];
     
     [self.faceBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.width.equalTo(self.voiceBtn);
-        make.height.equalTo(self.voiceBtn);
-        make.centerY.equalTo(self.voiceBtn);
-        make.right.equalTo(self.pictureBtn.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        make.width.kf_equalTo(self.voiceBtn);
+        make.height.kf_equalTo(self.voiceBtn);
+        make.centerY.kf_equalTo(self.voiceBtn);
+        make.right.kf_equalTo(self.pictureBtn.kf5_left).kf_offset(-KF5Helper.KF5DefaultSpacing);
     }];
 
     [self.pictureBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.width.equalTo(self.voiceBtn);
-        make.height.equalTo(self.voiceBtn);
-        make.centerY.equalTo(self.voiceBtn);
-        make.right.equalTo(self.kf5_right).offset(-KF5Helper.KF5DefaultSpacing);
+        make.width.kf_equalTo(self.voiceBtn);
+        make.height.kf_equalTo(self.voiceBtn);
+        make.centerY.kf_equalTo(self.voiceBtn);
+        make.right.kf_equalTo(self.kf5_right).kf_offset(-KF5Helper.KF5DefaultSpacing);
     }];
     [self.transferBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing);
         make.height.kf_equal(kKF5ChatToolDefaultTextViewHeight);
         make.width.kf_equal(63);
-        make.centerY.equalTo(self.voiceBtn);
+        make.centerY.kf_equalTo(self.voiceBtn);
     }];
     [self.speakBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.textView);
-        make.bottom.equalTo(self.textView);
-        make.right.equalTo(self.textView);
+        make.left.kf_equalTo(self.textView);
+        make.bottom.kf_equalTo(self.textView);
+        make.right.kf_equalTo(self.textView);
         make.height.kf_equal(self.textView.textHeight);
     }];
 }
@@ -212,10 +212,10 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
 #pragma mark 聊天状态
 - (void)layoutForChattingView{
     [self.textView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
-        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
-        make.left.equalTo(self.voiceBtn.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(self.faceBtn.kf5_left).offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+        make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.kf_equalTo(self.voiceBtn.kf5_right).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.right.kf_equalTo(self.faceBtn.kf5_left).kf_offset(-KF5Helper.KF5DefaultSpacing);
         self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
     }];
     
@@ -228,10 +228,10 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
 - (void)layoutForAIView{
     
     [self.textView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
-        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
-        make.left.equalTo(self.transferBtn.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5ChatToolTextViewTopSpacing).priority(UILayoutPriorityDefaultHigh);
+        make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.kf_equalTo(self.transferBtn.kf5_right).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.right.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing);
         self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
     }];
     
@@ -247,10 +247,10 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
 - (void)layoutForAfterQueueView{
     // 只有输入框
     [self.textView kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self).offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
-        make.bottom.equalTo(self).offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
-        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5ChatToolTextViewTopSpacing);
+        make.left.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.right.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing);
         self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
     }];
     self.voiceBtn.hidden = self.faceBtn.hidden = self.pictureBtn.hidden = self.transferBtn.hidden = YES;
@@ -264,15 +264,15 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
     _chatToolViewType = chatToolViewType;
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (_chatToolViewType == KFChatStatusNone) {
+        if (self.chatToolViewType == KFChatStatusNone) {
             if (self.assignAgentWhenSendedMessage) {
                 [self layoutForAfterQueueView];
             }else{
                 [self layoutForChattingView];
             }
-        }else if (_chatToolViewType == KFChatStatusChatting || _chatToolViewType == KFChatStatusQueue){
+        }else if (self.chatToolViewType == KFChatStatusChatting || self.chatToolViewType == KFChatStatusQueue){
             [self layoutForChattingView];
-        }else if (_chatToolViewType == KFChatStatusAIAgent){
+        }else if (self.chatToolViewType == KFChatStatusAIAgent){
             [self layoutForAIView];
         }
     });

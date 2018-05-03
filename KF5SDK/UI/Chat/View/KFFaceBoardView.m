@@ -78,23 +78,23 @@ static NSString *cellID = @"KFPreviewCell";
 
         [faceView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             self.faceViewHeightLayout = make.height.kf_equal(0).active;
-            make.left.equalTo(self.kf5_safeAreaLayoutGuideLeft);
-            make.right.equalTo(self.kf5_safeAreaLayoutGuideRight);
-            make.bottom.equalTo(facePageControl.kf5_top);
+            make.left.kf_equalTo(self.kf5_safeAreaLayoutGuideLeft);
+            make.right.kf_equalTo(self.kf5_safeAreaLayoutGuideRight);
+            make.bottom.kf_equalTo(facePageControl.kf5_top);
         }];
         
         [facePageControl kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.left.equalTo(faceView);
+            make.left.kf_equalTo(faceView);
             make.height.kf_equal(kPageControlHeight);
-            make.right.equalTo(faceView);
-            make.bottom.equalTo(self.kf5_safeAreaLayoutGuideBottom);
+            make.right.kf_equalTo(faceView);
+            make.bottom.kf_equalTo(self.kf5_safeAreaLayoutGuideBottom);
         }];
         
         [sendBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
             make.width.kf_equal(60);
             make.height.kf_equal(35);
-            make.centerY.equalTo(facePageControl);
-            make.right.equalTo(faceView).offset(-KF5Helper.KF5DefaultSpacing);
+            make.centerY.kf_equalTo(facePageControl);
+            make.right.kf_equalTo(faceView).kf_offset(-KF5Helper.KF5DefaultSpacing);
         }];
 
     }
@@ -183,10 +183,10 @@ static NSString *cellID = @"KFPreviewCell";
         [self.contentView addSubview:faceBtn];
         _faceBtn = faceBtn;
         [faceBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.top.equalTo(self.contentView);
-            make.left.equalTo(self.contentView);
-            make.bottom.equalTo(self.contentView);
-            make.right.equalTo(self.contentView);
+            make.top.kf_equalTo(self.contentView);
+            make.left.kf_equalTo(self.contentView);
+            make.bottom.kf_equalTo(self.contentView);
+            make.right.kf_equalTo(self.contentView);
         }];
     }
     return self;

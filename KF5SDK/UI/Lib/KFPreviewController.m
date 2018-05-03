@@ -117,15 +117,15 @@ static NSString *cellID = @"KFPreviewCell";
     self.numberLabel = numberLabel;
     
     [numberLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.centerX.equalTo(self.view);
-        make.bottom.equalTo(self.view.kf5_safeAreaLayoutGuideBottom);
+        make.centerX.kf_equalTo(self.view);
+        make.bottom.kf_equalTo(self.view.kf5_safeAreaLayoutGuideBottom);
     }];
     
     [collectionView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self.view);
-        make.left.equalTo(self.view).offset(-10);
-        make.right.equalTo(self.view).offset(10);
-        make.bottom.equalTo(self.view);
+        make.top.kf_equalTo(self.view);
+        make.left.kf_equalTo(self.view).kf_offset(-10);
+        make.right.kf_equalTo(self.view).kf_offset(10);
+        make.bottom.kf_equalTo(self.view);
     }];
     
     [_collectionView registerClass:[KFPreviewCell class] forCellWithReuseIdentifier:cellID];

@@ -29,10 +29,10 @@ static NSString *cellID = @"selectQuestionCell";
     label.text = KF5Localized(@"kf5_select_question_description");
     [headerView addSubview:label];
     [label kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(headerView);
-        make.left.equalTo(headerView.kf5_safeAreaLayoutGuideLeft).offset(KF5Helper.KF5MiddleSpacing);
-        make.right.equalTo(headerView.kf5_safeAreaLayoutGuideRight);
-        make.bottom.equalTo(headerView);
+        make.top.kf_equalTo(headerView);
+        make.left.kf_equalTo(headerView.kf5_safeAreaLayoutGuideLeft).kf_offset(KF5Helper.KF5MiddleSpacing);
+        make.right.kf_equalTo(headerView.kf5_safeAreaLayoutGuideRight);
+        make.bottom.kf_equalTo(headerView);
     }];
     self.tableView.tableHeaderView = headerView;
 }

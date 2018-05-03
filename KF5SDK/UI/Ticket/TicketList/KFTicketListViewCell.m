@@ -48,28 +48,28 @@
 - (void)layoutView{
     UIView *superview = self.contentView;
     [_pointView kf5_makeConstraints:^(KFAutoLayout *make) {
-        make.centerX.equalTo(superview.kf5_left).offset(KF5Helper.KF5HorizSpacing/2);
-        make.centerY.equalTo(superview.kf5_centerY);
+        make.centerX.kf_equalTo(superview.kf5_left).kf_offset(KF5Helper.KF5HorizSpacing/2);
+        make.centerY.kf_equalTo(superview.kf5_centerY);
         make.height.kf_equal(KF5Helper.KF5TicketPointViewWitdh);
         make.width.kf_equal(KF5Helper.KF5TicketPointViewWitdh);
     }];
     
     [_contentLabel kf5_makeConstraints:^(KFAutoLayout *make) {
-        make.top.equalTo(superview).offset(KF5Helper.KF5DefaultSpacing);
-        make.left.equalTo(superview).offset(KF5Helper.KF5HorizSpacing);
-        make.right.equalTo(superview);
+        make.top.kf_equalTo(superview).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(superview).kf_offset(KF5Helper.KF5HorizSpacing);
+        make.right.kf_equalTo(superview);
     }];
 
     [_timeLabel kf5_makeConstraints:^(KFAutoLayout *make) {
-        make.left.equalTo(_contentLabel);
-        make.top.equalTo(_contentLabel.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
-        make.bottom.equalTo(superview).offset(-KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(self.contentLabel);
+        make.top.kf_equalTo(self.contentLabel.kf5_bottom).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.bottom.kf_equalTo(superview).kf_offset(-KF5Helper.KF5DefaultSpacing);
     }];
     
     [_statusLabel kf5_makeConstraints:^(KFAutoLayout *make) {
-        make.centerY.equalTo(_timeLabel);
-        make.left.greaterThanOrEqualTo(_timeLabel.kf5_right).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(_contentLabel);
+        make.centerY.kf_equalTo(self.timeLabel);
+        make.left.kf_greaterThanOrEqualTo(self.timeLabel.kf5_right).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.right.kf_equalTo(self.contentLabel);
     }];
 }
 

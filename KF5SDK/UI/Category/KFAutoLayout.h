@@ -24,11 +24,11 @@
 
 - (nonnull instancetype)initWithFirstItem:(nonnull id)firstItem firstAttribute:(NSLayoutAttribute)firstAttribute;
 // 偏移量
-- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(CGFloat offset))offset;
+- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(CGFloat offset))kf_offset;
 // 关系
-- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(id _Nonnull attr))equalTo;
-- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(id _Nonnull attr))greaterThanOrEqualTo;
-- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(id _Nonnull attr))lessThanOrEqualTo;
+- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(id _Nonnull attr))kf_equalTo;
+- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(id _Nonnull attr))kf_greaterThanOrEqualTo;
+- (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(id _Nonnull attr))kf_lessThanOrEqualTo;
 // 赋值
 - (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(CGFloat constant))kf_equal;
 - (KFAutoLayoutMaker * _Nonnull (^_Nonnull)(CGFloat constant))kf_greaterThanOrEqual;

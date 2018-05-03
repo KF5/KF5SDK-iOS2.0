@@ -110,8 +110,7 @@ BOOL isShowTime(double time){
                 messageSize = CGSizeMake(100, 100);
             }
         }else if(_message.messageType == KFMessageTypeVoice){
-            CGFloat width = (_voiceLength > 60 ? 60 : _voiceLength) / 60.0 * 170;
-            messageSize = CGSizeMake(width < 50 ? 50 : width, 15);
+            messageSize = CGSizeMake(KF_CLAMP(_voiceLength, 12, 60) / 6 * 18, 15);
         }else{
             messageSize = [self.text boundingRectWithSize:CGSizeMake(screenWidth-160, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
         }

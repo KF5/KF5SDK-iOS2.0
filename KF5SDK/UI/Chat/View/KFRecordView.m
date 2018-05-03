@@ -36,15 +36,15 @@
         _recordInfoLabel = recordInfoLabel;
         
         [amplitudeImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.top.equalTo(self).offset(KF5Helper.KF5VerticalSpacing);
+            make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5VerticalSpacing);
             make.width.kf_equal(amplitudeImageView.image.size.width);
             make.height.kf_equal(amplitudeImageView.image.size.height);
-            make.centerX.equalTo(self.kf5_centerX);
+            make.centerX.kf_equalTo(self.kf5_centerX);
         }];
         [recordInfoLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-            make.bottom.equalTo(self).offset(-KF5Helper.KF5VerticalSpacing);
-            make.width.equalTo(self);
-            make.centerX.equalTo(self.kf5_centerX);
+            make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5VerticalSpacing);
+            make.width.kf_equalTo(self);
+            make.centerX.kf_equalTo(self.kf5_centerX);
         }];
         
     }

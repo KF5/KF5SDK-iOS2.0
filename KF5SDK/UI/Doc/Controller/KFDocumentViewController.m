@@ -50,10 +50,10 @@
     self.webView = webView;
     
     [webView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.top.equalTo(self.view);
-        make.left.equalTo(self.view);
-        make.bottom.equalTo(self.view);
-        make.right.equalTo(self.view);
+        make.top.kf_equalTo(self.view);
+        make.left.kf_equalTo(self.view);
+        make.bottom.kf_equalTo(self.view);
+        make.right.kf_equalTo(self.view);
     }];
     
     [self reloadData];

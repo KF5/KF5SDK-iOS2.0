@@ -157,8 +157,8 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
     [loadingView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
         make.width.kf_equal(20);
         make.height.kf_equal(20);
-        make.centerX.equalTo(self.kf5_centerX);
-        make.centerY.equalTo(self.kf5_top).offset(-KFContentInsetTop/2);
+        make.centerX.kf_equalTo(self.kf5_centerX);
+        make.centerY.kf_equalTo(self.kf5_top).kf_offset(-KFContentInsetTop/2);
     }];
     
     if ([self.tableDelegate respondsToSelector:@selector(tableViewWithRefreshData:)]) {

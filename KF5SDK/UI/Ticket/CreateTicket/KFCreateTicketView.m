@@ -65,23 +65,23 @@ static CGFloat kAttBtnLength = 30;
 - (void)layoutView{
     
     [_textView kf5_makeConstraints:^(KFAutoLayout *make) {
-        make.top.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
-        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
-        make.right.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        make.top.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.right.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing);
         self.textView.heightLayout = make.height.kf_equal(self.textView.textHeight).active;
     }];
     
     [_photoImageView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self.textView);
-        make.right.equalTo(self.textView);
-        make.top.equalTo(self.textView.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(self.textView);
+        make.right.kf_equalTo(self.textView);
+        make.top.kf_equalTo(self.textView.kf5_bottom).kf_offset(KF5Helper.KF5DefaultSpacing);
     }];
     
     [_attBtn kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
-        make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
-        make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
+        make.left.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing);
+        make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing);
         // scrollView需要使用这个计算contentSize
-        make.top.greaterThanOrEqualTo(self.photoImageView);
+        make.top.kf_greaterThanOrEqualTo(self.photoImageView);
         make.width.kf_equal(kAttBtnLength);
         make.height.kf_equal(kAttBtnLength);
     }];
@@ -91,9 +91,9 @@ static CGFloat kAttBtnLength = 30;
     if ([keyPath isEqualToString:@"photoImageView.items"]) {
         if (self.photoImageView.items.count > 0 && self.attBtn.tag == 0) {
             [self.attBtn kf5_remakeConstraints:^(KFAutoLayout * _Nonnull make) {
-                make.left.equalTo(self).offset(KF5Helper.KF5DefaultSpacing);
-                make.bottom.equalTo(self).offset(-KF5Helper.KF5DefaultSpacing);
-                make.top.equalTo(self.photoImageView.kf5_bottom).offset(KF5Helper.KF5DefaultSpacing);
+                make.left.kf_equalTo(self).kf_offset(KF5Helper.KF5DefaultSpacing);
+                make.bottom.kf_equalTo(self).kf_offset(-KF5Helper.KF5DefaultSpacing);
+                make.top.kf_equalTo(self.photoImageView.kf5_bottom).kf_offset(KF5Helper.KF5DefaultSpacing);
                 make.width.kf_equal(kAttBtnLength);
                 make.height.kf_equal(kAttBtnLength);
             }];
