@@ -12,7 +12,6 @@
 #import "KFUserManager.h"
 #import "KFTicketManager.h"
 #import "SDImageCache.h"
-#import "TZImagePickerController.h"
 
 #import "KFAutoLayout.h"
 
@@ -86,18 +85,13 @@ static NSArray *CustomFields = nil;
 - (void)addAttachment{
     [self.createView.textView resignFirstResponder];
     
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:6 delegate:nil];
-    imagePickerVc.selectedAssets = [self.createView.photoImageView.items valueForKeyPath:@"asset"];
-    imagePickerVc.allowPickingOriginalPhoto = NO;
-    imagePickerVc.barItemTextFont = [UIFont boldSystemFontOfSize:17];
     __weak typeof(self)weakSelf = self;
-    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+    UIViewController *imagePickerVC = [KFHelper imagePickerControllerWithMaxCount:6 selectedAssets:[self.createView.photoImageView.items valueForKeyPath:@"asset"] didFinishedHandle:^(NSArray<UIImage *> *photos, NSArray *assets) {
         dispatch_async(dispatch_get_main_queue(), ^{
             weakSelf.createView.photoImageView.items = [KFAssetImage assetImagesWithImages:photos assets:assets];
         });
     }];
-    
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
+    [self presentViewController:imagePickerVC animated:YES completion:nil];
 }
 
 - (void)createTicket:(UIBarButtonItem *)btnItem{

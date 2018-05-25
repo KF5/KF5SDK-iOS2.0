@@ -55,20 +55,26 @@
  *   改变recordInfoLabel的text
  */
 - (void)setDragSide:(kKF5DragSide)dragSide{
+    if (_dragSide == dragSide) return;
     _dragSide = dragSide;
     
     _recordInfoLabel.text = _dragSide == kKF5DragSideIn ? KF5Localized(@"kf5_slide_to_cancel") : KF5Localized(@"kf5_leave_to_cancel");
+    //  需要重置提示图片
+    self.amplitude = _amplitude;
 }
 
 - (void)setAmplitude:(CGFloat)amplitude{
     _amplitude = amplitude * 10 > 1 ? 1 : amplitude * 10;
     
-    NSInteger recordIndex =  (NSInteger)((_amplitude * 14) + 1) ;
-    recordIndex = recordIndex > 14 ? 14 :recordIndex;
-    
-    if (recordIndex < KF5Helper.chat_records.count)
-        _amplitudeImageView.image = KF5Helper.chat_records[recordIndex];
-    
+    if (_dragSide == kKF5DragSideOut) {
+        _amplitudeImageView.image = KF5Helper.chat_record_cancel;
+    }else{
+        NSInteger recordIndex =  (NSInteger)((_amplitude * 14) + 1) ;
+        recordIndex = recordIndex > 14 ? 14 :recordIndex;
+        
+        if (recordIndex < KF5Helper.chat_records.count)
+            _amplitudeImageView.image = KF5Helper.chat_records[recordIndex];
+    }
     [self setNeedsDisplay];
 }
 

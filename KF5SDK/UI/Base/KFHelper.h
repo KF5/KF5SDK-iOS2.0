@@ -63,6 +63,7 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 @property (nullable, nonatomic, strong) UIImage *chatTool_picture;
 @property (nullable, nonatomic, strong) UIImage *chatTool_voice;
 
+@property (nullable, nonatomic, strong) UIImage *chat_record_cancel;
 @property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_records;
 @property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_meWaves;
 @property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_otherWaves;
@@ -166,10 +167,14 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 #pragma mark - Alert
 + (UIAlertController *_Nonnull)alertWithTitle:(NSString *_Nullable)title message:(NSString *_Nullable)message;
 + (UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message confirmHandler:(void (^ __nullable)(UIAlertAction *_Nonnull action))handler;
-+(UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message;
++ (UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message;
+
++ (UIViewController *_Nonnull)imagePickerControllerWithMaxCount:(NSInteger)maxCount selectedAssets:(NSArray *_Nullable)selectedAssets didFinishedHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))didFinishedHandle;
 
 #pragma mark - helper
 + (BOOL)isNetworkEnable;
+
++ (BOOL)canRecordVoice;
 
 + (nullable NSString *)disable_emoji:(nonnull NSString *)text;
 + (nonnull UILabel *)labelWithFont:(nonnull UIFont *)font textColor:(nullable UIColor *)textColor;

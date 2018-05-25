@@ -34,6 +34,7 @@ return _##property;\
 #import "AFNetworkReachabilityManager.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "KFUserManager.h"
+#import <AVFoundation/AVCaptureDevice.h>
 
 #if __has_include("TZImagePickerController.h")
 #import "TZImagePickerController.h"
@@ -106,6 +107,7 @@ KF5LazyImage(ticketTool_openAtt, @"kf5_ticket_attBtn");
 
 KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
 
+KF5LazyImage(chat_record_cancel, @"kf5_chat_record_cancel");
 
 - (NSArray<UIImage *> *)chat_records{
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:14];
@@ -300,10 +302,41 @@ static NSBundle *bundle = nil;
     return alertController;
 }
 
++ (UIViewController *)imagePickerControllerWithMaxCount:(NSInteger)maxCount selectedAssets:(NSArray *)selectedAssets didFinishedHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))didFinishedHandle{
+#if __has_include("TZImagePickerController.h")
+    TZImagePickerController *imagePickerVC = [[TZImagePickerController alloc] initWithMaxImagesCount:maxCount delegate:nil];
+    if (selectedAssets) {
+        imagePickerVC.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
+    }
+    imagePickerVC.allowPickingOriginalPhoto = NO;
+    imagePickerVC.allowPickingVideo = NO;
+    imagePickerVC.barItemTextFont = [UIFont boldSystemFontOfSize:17];
+    imagePickerVC.preferredLanguage = [self localLanguage];    
+    [imagePickerVC setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        didFinishedHandle(photos,assets);
+    }];
+    return imagePickerVC;
+#else
+    return [[UIViewController alloc] init];
+#endif
+}
+
 #pragma mark - helper
 + (BOOL)isNetworkEnable{
     BOOL isNetwork = [[KFHelper reachabilityManager] isReachable];
     return isNetwork;
+}
+
++ (BOOL)canRecordVoice{
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+    
+    if (authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[[UIAlertView alloc] initWithTitle:KF5Localized(@"kf5_Microphone_Privacy") message:KF5Localized(@"kf5_Microphone_Warning") delegate:nil cancelButtonTitle:KF5Localized(@"kf5_cancel") otherButtonTitles:nil] show];
+        });
+        return NO;
+    }
+    return YES;
 }
 
 /**
@@ -369,17 +402,3 @@ static NSBundle *bundle = nil;
 }
 
 @end
-
-#if __has_include("TZImagePickerController.h")
-
-@interface TZImagePickerController(KF5SDK)
-@end
-@implementation TZImagePickerController(KF5SDK)
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations{
-    return UIInterfaceOrientationMaskAll;
-}
-- (BOOL)shouldAutorotate{
-    return NO;
-}
-@end
-#endif

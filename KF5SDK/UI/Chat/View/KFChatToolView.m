@@ -281,13 +281,15 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
 #pragma mark - 录音操作
 //按下操作---开始录音
 -(void)recordStart {
-    BOOL isShowRecordView = YES;
-    if ([self.delegate respondsToSelector:@selector(chatToolViewStartVoice:)]) {
-        isShowRecordView  = [self.delegate chatToolViewStartVoice:self];
+    [self recordView].dragSide = kKF5DragSideNone;
+    if ([KFHelper canRecordVoice]) {
+        [self showRecordView];
+        if ([self.delegate respondsToSelector:@selector(chatToolViewStartVoice:)]) {
+            [self.delegate chatToolViewStartVoice:self];
+        }
     }
-    if(isShowRecordView) [self showRecordView];
 }
-//按钮外抬起操作---录音停止
+//按钮外抬起操作---录音取消
 -(void)recordCancel {
     [self removeRecordView];
     if ([self.delegate respondsToSelector:@selector(chatToolViewCancelVoice:)])

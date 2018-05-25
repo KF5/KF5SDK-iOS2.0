@@ -57,7 +57,7 @@
 - (void)startAnimating{
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!self.voiceImageView.isAnimating) {
-            if (_messageForm == KFMessageFromMe) {
+            if (self.messageForm == KFMessageFromMe) {
                 self.voiceImageView.animationImages = KF5Helper.chat_meWaves;
             }else{
                 self.voiceImageView.animationImages = KF5Helper.chat_otherWaves;
@@ -83,12 +83,14 @@
         
         self.voiceImageView.frame = CGRectMake(self.frame.size.width - 20 + 5, 0, 20, 20);
         self.timeLabel.frame = CGRectMake(0, 0, timeSize.width, self.frame.size.height);
+        self.timeLabel.textAlignment = NSTextAlignmentLeft;
     }else{
         self.voiceImageView.image = KF5Helper.chat_otherWaves.lastObject;
         self.timeLabel.textColor = self.otherTextColor;
         
         self.voiceImageView.frame = CGRectMake(-5, 0, 20, 20);
         self.timeLabel.frame = CGRectMake(self.frame.size.width - timeSize.width, 0, timeSize.width, self.frame.size.height);
+        self.timeLabel.textAlignment = NSTextAlignmentRight;
     }
     
     self.voiceImageView.center = CGPointMake(self.voiceImageView.center.x, self.frame.size.height / 2);

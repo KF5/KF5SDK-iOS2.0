@@ -10,8 +10,6 @@
 
 #import "KFDetailMessageViewController.h"
 
-#import "TZImagePickerController.h"
-
 #import "UITableView+KFRefresh.h"
 #import "KFTicketTableView.h"
 #import "KFTicketToolView.h"
@@ -354,19 +352,13 @@
 
 /** 添加图片*/
 - (void)toolViewAddAttachment:(KFTicketToolView *)toolView{
-    
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:6 delegate:nil];
-    imagePickerVc.selectedAssets = [self.toolView.attView.images valueForKeyPath:@"asset"];
-    imagePickerVc.allowPickingOriginalPhoto = NO;
-    imagePickerVc.barItemTextFont = [UIFont boldSystemFontOfSize:17];
-    
     __weak typeof(self)weakSelf = self;
-    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+    UIViewController *imagePickerVC = [KFHelper imagePickerControllerWithMaxCount:6 selectedAssets:[self.toolView.attView.images valueForKeyPath:@"asset"] didFinishedHandle:^(NSArray<UIImage *> *photos, NSArray *assets) {
         dispatch_async(dispatch_get_main_queue(), ^{
             weakSelf.toolView.attView.images = [KFAssetImage assetImagesWithImages:photos assets:assets];
         });
     }];
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
+    [self presentViewController:imagePickerVC animated:YES completion:nil];
 }
 
 #pragma mark 收到键盘弹出通知后的响应

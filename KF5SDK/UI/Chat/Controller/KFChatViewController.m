@@ -17,10 +17,7 @@
 #import "KFChatVoiceManager.h"
 #import "KFPreviewController.h"
 #import "KFContentLabelHelp.h"
-#import "TZImagePickerController.h"
 #import "KFSelectQuestionController.h"
-
-#import <AVFoundation/AVCaptureDevice.h>
 
 #if __has_include("KFDocumentViewController.h")
 #import "KFDocumentViewController.h"
@@ -381,19 +378,15 @@
 #pragma mark 添加图片按钮点击事件
 - (void)chatToolViewWithAddPictureAction:(KFChatToolView *)chatToolView{
     if (![self canSendMessage]) return;
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:nil];
-    imagePickerVc.allowPickingOriginalPhoto = NO;
-    imagePickerVc.barItemTextFont = [UIFont boldSystemFontOfSize:17];
     
     __weak typeof(self)weakSelf = self;
-    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+    UIViewController *imagePickerVC = [KFHelper imagePickerControllerWithMaxCount:1 selectedAssets:nil didFinishedHandle:^(NSArray<UIImage *> *photos, NSArray *assets) {
         if (photos.count > 0){
             UIImage *newImage = [UIImage imageWithData:UIImageJPEGRepresentation(photos.firstObject, 1)];
             [weakSelf.viewModel sendMessageWithMessageType:KFMessageTypeImage data:newImage];
         }
     }];
-    
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
+    [self presentViewController:imagePickerVC animated:YES completion:nil];
 }
 #pragma mark 转接人工客服点击事件
 - (void)chatToolViewWithTransferAction:(KFChatToolView *)chatToolView{
@@ -413,19 +406,8 @@
     }
 }
 #pragma mark 开始录音
-- (BOOL)chatToolViewStartVoice:(KFChatToolView *)chatToolView{
-    
-    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-    
-    if (authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied){
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[[UIAlertView alloc] initWithTitle:KF5Localized(@"kf5_Microphone_Privacy") message:KF5Localized(@"kf5_Microphone_Warning") delegate:nil cancelButtonTitle:KF5Localized(@"kf5_cancel") otherButtonTitles:nil] show];
-        });
-        return NO;
-    }else{
-        [[KFChatVoiceManager sharedChatVoiceManager]startVoiceRecord];
-        return YES;
-    }
+- (void)chatToolViewStartVoice:(KFChatToolView *)chatToolView{
+    [[KFChatVoiceManager sharedChatVoiceManager]startVoiceRecord];
 }
 
 #pragma mark 取消录音

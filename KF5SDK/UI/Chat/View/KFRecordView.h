@@ -9,7 +9,8 @@
 #import <UIKit/UIKit.h>
 
 typedef enum {
-    kKF5DragSideOut = 0,
+    kKF5DragSideNone = 0,
+    kKF5DragSideOut,
     kKF5DragSideIn
 }kKF5DragSide;
 

@@ -28,10 +28,8 @@
 - (void)chatToolView:(nonnull KFChatToolView *)chatToolView shouldSendContent:(nullable NSString  *)content;
 /**
  开始录音
-
- @return 返回是否显示录音view
  */
-- (BOOL)chatToolViewStartVoice:(nonnull KFChatToolView *)chatToolView;
+- (void)chatToolViewStartVoice:(nonnull KFChatToolView *)chatToolView;
 /**
  取消录音
  */
