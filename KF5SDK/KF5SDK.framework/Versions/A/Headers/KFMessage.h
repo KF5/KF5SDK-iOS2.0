@@ -63,8 +63,11 @@
  图片的高度
  */
 @property (nonatomic, assign) CGFloat imageHeight;
+/**
+ 是否撤回
+ */
+@property (nonatomic, assign) BOOL recalled;
 
 @property (nonatomic, assign) BOOL is_read;
-
 
 @end

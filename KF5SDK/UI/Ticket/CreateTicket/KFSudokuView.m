@@ -141,8 +141,8 @@ static NSString *cellID = @"KFSudokuViewCell";
 @implementation KFAssetImage
 
 + (NSMutableArray<KFAssetImage *> *)assetImagesWithImages:(NSArray<UIImage *> *)images assets:(NSArray *)assets{
-    if (images.count != assets.count) return nil;
     NSMutableArray *array = [NSMutableArray array];
+    if (images.count != assets.count) return array;
     for (NSInteger i = 0; i<images.count; i++) {
         if (i < assets.count) {
             KFAssetImage *assetImage = [[KFAssetImage alloc] init];

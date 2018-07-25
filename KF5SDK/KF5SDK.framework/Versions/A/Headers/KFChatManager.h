@@ -14,8 +14,10 @@
 
 @class KFChatManager;
 
-///接受聊天消息通知
+///接收聊天消息通知
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatReceiveMessageNotification;
+///接收消息撤回通知
+UIKIT_EXTERN _Nonnull NSNotificationName const KFChatReceiveRecallMessageNotification;
 ///用户排队的当前位置通知
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatQueueNotification;
 ///用户排队失败的通知
@@ -33,12 +35,19 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
 
 @optional
 /**
- 接受聊天消息通知
+ 接收聊天消息通知
 
  @param chatManager  聊天管理对象
  @param chatMessages  消息数组
  */
 - (void)chatManager:(nonnull KFChatManager *)chatManager receiveMessages:(nonnull NSArray <KFMessage *>*)chatMessages;
+/**
+ 接收消息撤回通知
+ 
+ @param chatManager  聊天管理对象
+ @param chatMessages  被撤回的消息数组
+ */
+- (void)chatManager:(nonnull KFChatManager *)chatManager receiveRecallMessages:(nonnull NSArray <KFMessage *>*)chatMessages;
 /**
  用户排队的当前位置通知
 

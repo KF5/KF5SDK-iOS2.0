@@ -14,6 +14,8 @@
 @property (nonatomic, weak) UILabel *timeLabel;
 @property (nonatomic, weak) UIImageView *voiceImageView;
 
+@property (nonatomic, weak) UIActivityIndicatorView *loadingView;
+
 @property (nonatomic, assign) KFMessageFrom messageForm;
 
 @property (nonatomic, strong) UIColor *meTextColor;
@@ -33,7 +35,13 @@
         [self addSubview:timeLabel];
         _timeLabel  = timeLabel;
         
+        UIActivityIndicatorView *loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        loadingView.hidden = YES;
+        [self addSubview:loadingView];
+        _loadingView = loadingView;
+        
         UIImageView *voiceImageView = [[UIImageView alloc]init];
+        voiceImageView.animationImages = KF5Helper.chat_meWaves;
         voiceImageView.animationDuration    = 2.0;
         voiceImageView.animationRepeatCount = 30;
         [self addSubview:voiceImageView];
@@ -46,37 +54,48 @@
 - (void)setMessageForm:(KFMessageFrom)messageForm{
     if (messageForm != _messageForm) {
         _messageForm = messageForm;
+        if (messageForm == KFMessageFromMe) {
+            self.voiceImageView.animationImages = KF5Helper.chat_meWaves;
+        }else{
+            self.voiceImageView.animationImages = KF5Helper.chat_otherWaves;
+        }
         [self setNeedsLayout];
     }
 }
 
 - (void)setDuration:(double)duration{
-    _timeLabel.text = [NSString stringWithFormat:@"%d\"",(int)(ceil(duration))];
+    if (duration >= 0) {
+        _timeLabel.text = [NSString stringWithFormat:@"%d\"",(int)(ceil(duration))];
+    }else{
+        _timeLabel.text = @"";
+    }
+}
+
+- (void)setIsLoading:(BOOL)isLoading{
+    _isLoading = isLoading;
+    if (isLoading) {
+        [_loadingView startAnimating];
+        _loadingView.hidden = NO;
+    }else{
+        [_loadingView stopAnimating];
+        _loadingView.hidden = YES;
+    }
 }
 
 - (void)startAnimating{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (!self.voiceImageView.isAnimating) {
-            if (self.messageForm == KFMessageFromMe) {
-                self.voiceImageView.animationImages = KF5Helper.chat_meWaves;
-            }else{
-                self.voiceImageView.animationImages = KF5Helper.chat_otherWaves;
-            }
-            [self.voiceImageView startAnimating];
-        }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.voiceImageView startAnimating];
     });
 }
 - (void)stopAnimating{
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.voiceImageView stopAnimating];
-        self.voiceImageView.animationImages = nil;
     });
 }
 
 - (void)layoutSubviews{
     
-    CGSize timeSize = [self.timeLabel sizeThatFits:CGSizeMake(150, 20)];
-    timeSize.width += 10;
+    CGSize timeSize = CGSizeMake(35, 20);
     if (_messageForm == KFMessageFromMe) {
         self.voiceImageView.image = KF5Helper.chat_meWaves.lastObject;
         self.timeLabel.textColor = self.meTextColor;
@@ -95,6 +114,7 @@
     
     self.voiceImageView.center = CGPointMake(self.voiceImageView.center.x, self.frame.size.height / 2);
     self.timeLabel.center = CGPointMake(self.timeLabel.center.x, self.frame.size.height / 2);
+    self.loadingView.center = self.timeLabel.center;
 }
 
 

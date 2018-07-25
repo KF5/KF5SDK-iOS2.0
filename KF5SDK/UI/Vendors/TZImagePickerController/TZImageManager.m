@@ -372,7 +372,7 @@ static dispatch_once_t onceToken;
         if (phAsset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
         else if (phAsset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
         else if (phAsset.mediaType == PHAssetMediaTypeImage) {
-            if (iOS9_1Later) {
+            if (@available(iOS 9.1, *)) {
                 // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
             }
             // Gif
@@ -419,6 +419,10 @@ static dispatch_once_t onceToken;
         if ([model.asset isKindOfClass:[PHAsset class]]) {
             PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
             options.resizeMode = PHImageRequestOptionsResizeModeFast;
+            options.networkAccessAllowed = YES;
+            if ([[model.asset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
+                options.version = PHImageRequestOptionsVersionOriginal;
+            }
             [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                 if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
                 assetCount ++;
@@ -473,6 +477,36 @@ static dispatch_once_t onceToken;
     return [self getPhotoWithAsset:asset photoWidth:fullScreenWidth completion:completion progressHandler:progressHandler networkAccessAllowed:networkAccessAllowed];
 }
 
+- (int32_t)requestImageDataForAsset:(id)asset completion:(void (^)(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info))completion progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler {
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
+        options.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (progressHandler) {
+                    progressHandler(progress, error, stop, info);
+                }
+            });
+        };
+        options.networkAccessAllowed = YES;
+        options.resizeMode = PHImageRequestOptionsResizeModeFast;
+        int32_t imageRequestID = [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+            if (completion) completion(imageData,dataUTI,orientation,info);
+        }];
+        return imageRequestID;
+    } else if ([asset isKindOfClass:[ALAsset class]]) {
+        ALAsset *alAsset = (ALAsset *)asset;
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+            ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
+            CGImageRef fullScrennImageRef = [assetRep fullScreenImage];
+            UIImage *fullScrennImage = [UIImage imageWithCGImage:fullScrennImageRef scale:2.0 orientation:UIImageOrientationUp];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) completion(UIImageJPEGRepresentation(fullScrennImage, 0.83), nil, UIImageOrientationUp, nil);
+            });
+        });
+    }
+    return 0;
+}
+
 - (int32_t)getPhotoWithAsset:(id)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler networkAccessAllowed:(BOOL)networkAccessAllowed {
     if ([asset isKindOfClass:[PHAsset class]]) {
         CGSize imageSize;
@@ -522,7 +556,9 @@ static dispatch_once_t onceToken;
                 options.resizeMode = PHImageRequestOptionsResizeModeFast;
                 [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                     UIImage *resultImage = [UIImage imageWithData:imageData scale:0.1];
-                    resultImage = [self scaleImage:resultImage toSize:imageSize];
+                    if (![TZImagePickerConfig sharedInstance].notScaleImage) {
+                        resultImage = [self scaleImage:resultImage toSize:imageSize];
+                    }
                     if (!resultImage) {
                         resultImage = image;
                     }
@@ -612,6 +648,10 @@ static dispatch_once_t onceToken;
 }
 
 - (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
+    [self getOriginalPhotoDataWithAsset:asset progressHandler:nil completion:completion];
+}
+
+- (void)getOriginalPhotoDataWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.networkAccessAllowed = YES;
@@ -619,6 +659,7 @@ static dispatch_once_t onceToken;
             // if version isn't PHImageRequestOptionsVersionOriginal, the gif may cann't play
             option.version = PHImageRequestOptionsVersionOriginal;
         }
+        [option setProgressHandler:progressHandler];
         option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
         [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
@@ -645,7 +686,7 @@ static dispatch_once_t onceToken;
 - (void)savePhotoWithImage:(UIImage *)image location:(CLLocation *)location completion:(void (^)(NSError *error))completion {
     if (iOS8Later) {
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            if (iOS9Later) {
+            if (@available(iOS 9, *)) {
                 NSData *data = UIImageJPEGRepresentation(image, 0.9);
                 PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
                 options.shouldMoveFile = YES;
@@ -702,7 +743,7 @@ static dispatch_once_t onceToken;
 - (void)saveVideoWithUrl:(NSURL *)url location:(CLLocation *)location completion:(void (^)(NSError *error))completion {
     if (iOS8Later) {
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            if (iOS9Later) {
+            if (@available(iOS 9, *)) {
                 PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
                 options.shouldMoveFile = YES;
                 PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];

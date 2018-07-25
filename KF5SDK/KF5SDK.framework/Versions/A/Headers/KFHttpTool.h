@@ -96,7 +96,12 @@ static NSString * _Nonnull const KF5OrganizationId = @"organization_id";
     KF5Email:@"",       // 邮箱,选填
     KF5Phone:@"",       // 手机号,选填
     KF5Name:@""         // 昵称,选填
+    KF5UserFields:@"",      // 用户自定义字段(选填,除非必要,不建议使用),字符串格式如:'[{"name":"field_xxx","value":"value"},{"name":"field_xxx","value":"18"}]',需要将数组转成JSON字符串使用,选填
+    KF5OrganizationId:@"",  // 公司组织字段(选填,除非必要,不建议使用)
  };
+ 
+ @warning   KF5UserFields中,提交的name(field_xxx)需要查看kf5后台用户自定义字段的设置里获取对应的字段参数
+            KF5OrganizationId提交的值,必须是系统中存在的organization_id,如果不存在,则会提交失败
  */
 + (nullable NSURLSessionDataTask *)updateUserWithParams:(nonnull NSDictionary *)params completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
 /**
@@ -246,8 +251,10 @@ static NSString * _Nonnull const KF5OrganizationId = @"organization_id";
     KF5Title:@"",           // 工单的标题,必填
     KF5Content:@"",         // 回复内容,必填
     KF5Uploads:@[],         // 附件token数组,选填
-    KF5CustomFields:@""     // 自定义字段,如@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}],需要将数组转成JSONString使用,选填
+    KF5CustomFields:@""     // 自定义字段,如字符串'[{"name":"field_123","value":"手机端"},{"name":"field_321","value":"IOS"}]',需要将数组转成JSON字符串使用,选填
  };
+ 
+ @warning   KF5CustomFields中,提交的name(field_xxx)需要查看kf5后台工单自定义字段的设置里获取对应的字段参数
  */
 + (nullable NSURLSessionDataTask *)createTicketWithParams:(nonnull NSDictionary *)params completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
 /**

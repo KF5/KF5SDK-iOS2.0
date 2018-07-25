@@ -10,8 +10,9 @@
 
 @class KFMessageModel;
 @class KFChatVoiceManager;
-
+// 下载完成的通知,object:{@"model":KFMessageModel, @"error":NSError}
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceDidDownloadNotification;
+// 播放完成的通知,object:{@"model":KFMessageModel, @"error":NSError}
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
 
 @protocol KFChatVoiceManagerDelegate <NSObject>
@@ -34,15 +35,13 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
 
 
 @interface KFChatVoiceManager : NSObject
-/**
- *  单例
- */
+/**单例*/
 + (nonnull instancetype)sharedChatVoiceManager;
-
-/**
- 代理
- */
+/**代理*/
 @property (nullable, nonatomic, weak) id<KFChatVoiceManagerDelegate> delegate;
+
+/**正在播放的模型*/
+@property (nonatomic,strong) KFMessageModel *currentPlayingMessageModel;
 
 #pragma mark - 音频相关
 /**
@@ -61,11 +60,10 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
  *  播放音频消息
  *
  *  @param messageModel 消息模型
- *  @param completion 成功或失败的回调
  *
  @warning 通过KFChatVoiceDidDownloadNotification获取下载完成通知
  */
-- (void)playVoiceWithMessageModel:(nonnull KFMessageModel *)messageModel  completion:(nullable void (^)(NSError  * _Nullable error))completion;
+- (void)playVoiceWithMessageModel:(nonnull KFMessageModel *)messageModel;
 /**
  *  停止音频播放
  */
@@ -94,5 +92,13 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
  @warning 通过KFChatVoiceDidDownloadNotification获取下载完成通知
  */
 - (void)downloadDataWithMessageModel:(nonnull KFMessageModel *)messageModel;
+
+/**
+ 是否存在local_path
+
+ @param urlString url地址
+ @return 如果为nil,则不存在
+ */
+- (NSString *)voicePathWithURL:(NSString *)urlString;
 
 @end

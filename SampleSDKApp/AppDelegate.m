@@ -17,12 +17,12 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
 #define kHostName   @"https://tianxiang.kf5.com"
 #define kAppId      @"00155bee6f7945ea5aa21c6ffc35f7aa7ed0999d7c6b6029"
+
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {

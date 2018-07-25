@@ -42,7 +42,7 @@
             NSString *title = [docDict kf5_stringForKeyPath:@"title"];
             NSString *url = [docDict kf5_stringForKeyPath:@"url"];
             
-            NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeDucument title:title key:post_id?[NSString stringWithFormat:@"%@",post_id]:@""];
+            NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeDucument title:title key:post_id.integerValue > 0?[NSString stringWithFormat:@"%@",post_id]:@""];
             [userInfo setObject:url?:@"" forKey:KF5LinkURL];
             
             NSMutableAttributedString *docText = [self hightlightBorderWithString:title userInfo: userInfo font:font color:color];
@@ -62,7 +62,7 @@
             NSNumber *question_id = [questionDict kf5_numberForKeyPath:@"id"];
             NSString *title = [questionDict kf5_stringForKeyPath:@"title"];
             
-            NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeQuestion title:title key:question_id?[NSString stringWithFormat:@"%@",question_id]:@""];
+            NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeQuestion title:title key:question_id.integerValue > 0?[NSString stringWithFormat:@"%@",question_id]:@""];
             
             NSMutableAttributedString *questionText = [self hightlightBorderWithString:title userInfo: userInfo font:font color:color];
             
@@ -193,7 +193,7 @@
     static NSRegularExpression *phone;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        phone = [NSRegularExpression regularExpressionWithPattern:@"1[0-9]{10}" options:kNilOptions error:NULL];
+        phone = [NSRegularExpression regularExpressionWithPattern:@"1[0-9]{10}(?!\\d)" options:kNilOptions error:NULL];
     });
     return phone;
 }
@@ -237,7 +237,7 @@
 
 #pragma mark userInfo制作
 + (NSMutableDictionary *)userInfoWithType:(kKFLinkType)linkType title:(NSString *)title key:(NSString *)key{
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity:3];
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
     [userInfo setObject:@(linkType) forKey:KF5LinkType];
     [userInfo setObject:title?:@"" forKey:KF5LinkTitle];
     [userInfo setObject:key?:@"" forKey:KF5LinkKey];

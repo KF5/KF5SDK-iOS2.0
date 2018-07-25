@@ -70,17 +70,6 @@
     }
     return self;
 }
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    [self.tableView reloadData];
-    dispatch_once(&_scrollBTMOnce , ^{
-        if (self.tableView) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                [self.tableView scrollViewBottomWithAnimated:NO];
-            });
-        }
-    });
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -108,10 +97,8 @@
     [self connectServer];
 
     NSMutableArray <KFMessageModel *>*newDatas = [NSMutableArray arrayWithArray:[self.viewModel queryMessageModelsWithLimit:self.limit]];
-    if (newDatas.count < self.limit) {
-        [self.tableView endRefreshingWithNoMoreData];
-    }
-    self.tableView.messageModelArray = newDatas;
+    self.tableView.canRefresh = newDatas.count >= self.limit;
+    self.tableView.messageModels = newDatas;
     [self.tableView reloadData];
 }
 
@@ -295,10 +282,10 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.queueMessageModel) {
-            [self.tableView.messageModelArray removeObject:self.queueMessageModel];
+            [self.tableView.messageModels removeObject:self.queueMessageModel];
         }
         self.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
-        [self.tableView.messageModelArray addObject:self.queueMessageModel];
+        [self.tableView.messageModels addObject:self.queueMessageModel];
         [self.tableView reloadData];
         [self.tableView scrollViewBottomWithAnimated:YES];
     });
@@ -329,20 +316,34 @@
         [self showMessageWithText:KF5Localized(@"kf5_chat_ended")];
     });
 }
-#pragma mark 刷新数据
+#pragma mark 添加数据
 - (void)chat:(KFChatViewModel *)chat addMessageModels:(NSArray <KFMessageModel *>*)messageModels{
     if (messageModels.count == 0) return;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.tableView.messageModelArray addObjectsFromArray:messageModels];
-        [self.tableView reloadData];
-        [self.tableView scrollViewBottomWithAnimated:YES];
-    });
+    [self.tableView.messageModels addObjectsFromArray:messageModels];
+    [self.tableView reloadData];
+    [self.tableView scrollViewBottomWithAnimated:YES];
+}
+#pragma mark 更新数据
+- (void)chat:(KFChatViewModel *)chat reloadMessageModels:(NSArray<KFMessageModel *> *)messageModels{
+    if (messageModels.count == 0) return;
+    BOOL shouldReload = NO;
+    for (KFMessageModel *model in messageModels) {
+        NSInteger index = [self.tableView.messageModels indexOfObject:model];
+        if (index != NSNotFound) {
+            if (model.message.local_path.length == 0) {
+                model.message.local_path = self.tableView.messageModels[index].message.local_path;
+            }
+            self.tableView.messageModels[index] = model;
+            shouldReload = YES;
+        }
+    }
+    if (shouldReload)  [self.tableView reloadData];
 }
 #pragma mark 删除排队消息
 - (void)removeQueueMessage{
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.queueMessageModel) {
-            [self.tableView.messageModelArray removeObject:self.queueMessageModel];
+            [self.tableView.messageModels removeObject:self.queueMessageModel];
             [self.tableView reloadData];
             [self.tableView scrollViewBottomWithAnimated:YES];
         }
@@ -432,7 +433,6 @@
                 [self.tableView scrollViewBottomWithAnimated:NO];
             }
         });
-        
     }
     return canSend;
 }
@@ -441,17 +441,13 @@
 - (void)tableViewWithRefreshData:(KFChatTableView *)tableView{
     NSArray *newDatas = [self.viewModel queryMessageModelsWithLimit:self.limit];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        if (self.tableView.messageModelArray.count > 0 && newDatas.count > 0) {
-            [self.tableView.messageModelArray insertObjects:newDatas atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newDatas.count)]];
+        if (self.tableView.messageModels.count > 0 && newDatas.count > 0) {
+            [self.tableView.messageModels insertObjects:newDatas atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newDatas.count)]];
             [self.tableView reloadData];
             [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:newDatas.count inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
         }
-        
-        if (newDatas.count < self.limit) {
-            [tableView endRefreshingWithNoMoreData];
-        }else{
-            [tableView endRefreshing];
-        }
+        self.tableView.canRefresh = newDatas.count >= self.limit;
+        self.tableView.refreshing = NO;
     });
 }
 - (CGFloat)tableViewWithOffsetTop:(KFChatTableView *)tableView{
@@ -464,11 +460,11 @@
     __weak typeof(self)weakSelf = self;
     [[KFHelper alertWithMessage:KF5Localized(@"kf5_resend_message") confirmHandler:^(UIAlertAction * _Nonnull action) {
         NSIndexPath *indexPath = [weakSelf.tableView indexPathForCell:cell];
-        if (!indexPath || indexPath.row > weakSelf.tableView.messageModelArray.count - 1) return;
+        if (!indexPath || indexPath.row > weakSelf.tableView.messageModels.count - 1) return;
         
         [weakSelf.viewModel resendMessageModel:model];
-        [weakSelf.tableView.messageModelArray removeObject:model];
-        [weakSelf.tableView.messageModelArray addObject:model];
+        [weakSelf.tableView.messageModels removeObject:model];
+        [weakSelf.tableView.messageModels addObject:model];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             NSUInteger rowCount = [weakSelf.tableView numberOfRowsInSection:0];
@@ -597,7 +593,7 @@
             [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
             [self.tableView endUpdates];
         });
-        if (indexPath.row == self.tableView.messageModelArray.count - 1) {
+        if (indexPath.row == self.tableView.messageModels.count - 1) {
             [self.tableView scrollViewBottomWithAfterTime:600];
         }
     }
@@ -666,18 +662,14 @@
         message.content = error ? KF5Localized(@"kf5_rating_failure") : KF5Localized(@"kf5_rating_successfully");
         message.messageType = KFMessageTypeSystem;
         message.created = [NSDate date].timeIntervalSince1970;
-        KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:message];
-        [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf chat:weakSelf.viewModel addMessageModels:@[[[KFMessageModel alloc] initWithMessage:message]]];
+        });
     }];
 }
 
 + (void)getUnReadMessageCountWithCompletion:(void (^)(NSInteger, NSError * _Nullable))completion{
     [KFChatViewModel getUnReadMessageCountWithCompletion:completion];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)dealloc{

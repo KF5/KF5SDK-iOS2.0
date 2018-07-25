@@ -14,7 +14,7 @@
 #import <AudioToolbox/AudioToolbox.h>
 
 //录音停止事件的block回调，作用参考MLAudioRecorderDelegate的recordStopped和recordFailure:
-typedef void (^MLAudioRecorderReceiveStoppedBlock)();
+typedef void (^MLAudioRecorderReceiveStoppedBlock)(void);
 typedef void (^MLAudioRecorderReceiveErrorBlock)(NSError *error);
 
 /**

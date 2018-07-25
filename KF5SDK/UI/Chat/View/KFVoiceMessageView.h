@@ -15,6 +15,10 @@
 - (instancetype)initWithMeTextColor:(UIColor *)meTextColor otherTextColor:(UIColor *)otherTextColor textFont:(UIFont *)textFont;
 
 - (void)setMessageForm:(KFMessageFrom)messageForm;
+/**
+ 是否正在下载
+ */
+@property (nonatomic, assign) BOOL  isLoading;
 
 /**
  *  设置时长Label

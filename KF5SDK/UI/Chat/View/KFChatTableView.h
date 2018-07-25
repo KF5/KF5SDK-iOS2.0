@@ -20,9 +20,7 @@
 
 - (void)tableViewWithRefreshData:(nonnull KFChatTableView *)tableView;
 
-/**
- 返回偏移量高度
- */
+//返回偏移量高度
 - (CGFloat)tableViewWithOffsetTop:(nonnull KFChatTableView *)tableView;
 
 @end
@@ -31,13 +29,15 @@
 
 @property (nullable, nonatomic, weak) id<KFChatViewCellDelegate,KFChatTableViewDelegate> tableDelegate;
 
-@property (nullable, nonatomic, strong) NSMutableArray <KFMessageModel *>*messageModelArray;
+@property (nullable, nonatomic, strong) NSMutableArray <KFMessageModel *>*messageModels;
+
+//是否正在刷新
+@property (nonatomic, assign, getter=isRefreshing) BOOL refreshing;
+@property (nonatomic, assign,getter=isCanRefresh) BOOL canRefresh;
+
 
 - (void)scrollViewBottomWithAnimated:(BOOL)animated;
-
 - (void)scrollViewBottomWithAfterTime:(int16_t)afterTime;
 
-- (void)endRefreshing;
-- (void)endRefreshingWithNoMoreData;
 
 @end

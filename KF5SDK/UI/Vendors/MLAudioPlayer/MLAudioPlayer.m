@@ -110,7 +110,7 @@ void outBufferHandler(void *inUserData,AudioQueueRef inAQ,AudioQueueBufferRef in
     }
     if (data.length>0) {
         memcpy(inCompleteAQBuffer->mAudioData, data.bytes, data.length);
-        inCompleteAQBuffer->mAudioDataByteSize = data.length;
+        inCompleteAQBuffer->mAudioDataByteSize = (UInt32)(data.length);
         inCompleteAQBuffer->mPacketDescriptionCount = 0;
         
         if(AudioQueueEnqueueBuffer(inAQ, inCompleteAQBuffer, 0, NULL)!=noErr){

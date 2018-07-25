@@ -31,8 +31,6 @@
 @property (nullable, nonatomic, strong) NSData *voiceData;
 /**音频长度*/
 @property (nonatomic, assign) CGFloat voiceLength;
-/*是否正在播放*/
-@property (nonatomic, assign) BOOL isPlaying;
 /**是否显示时间*/
 @property (nonatomic, assign,getter=isShowTime) BOOL showTime;
 /**时间的frame*/

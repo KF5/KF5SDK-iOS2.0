@@ -148,7 +148,7 @@ long filesize(FILE *stream)
     //忽略文件头大小
     char magic[8];
     static const char* amrHeader = AMR_MAGIC_NUMBER;
-    int realReadedLength = fread(magic, sizeof(char), strlen(amrHeader), _file);
+    NSInteger realReadedLength = fread(magic, sizeof(char), strlen(amrHeader), _file);
     if (strncmp(magic, amrHeader, strlen(amrHeader)))
     {
         return NO;
@@ -196,7 +196,7 @@ long filesize(FILE *stream)
         memset(amrFrame, 0, sizeof(amrFrame));
         memset(pcmFrame, 0, sizeof(pcmFrame));
         
-        int bytes = 0;
+        NSInteger bytes = 0;
         unsigned char frameHeader; // 帧头
         
         // 读帧头

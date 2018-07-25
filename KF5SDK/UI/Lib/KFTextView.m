@@ -172,6 +172,7 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
     [self removeObserver:self forKeyPath:KF5TextKey];
     [self removeObserver:self forKeyPath:KF5AttributedTextKey];
     [self removeObserver:self forKeyPath:KF5FontKey];
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 
 @end

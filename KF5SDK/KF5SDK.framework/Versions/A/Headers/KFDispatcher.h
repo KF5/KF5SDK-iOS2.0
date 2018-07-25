@@ -17,7 +17,8 @@
 typedef NS_ENUM(NSInteger,KFMessageStatus) {
     KFMessageStatusSending = 0,
     KFMessageStatusSuccess,
-    KFMessageStatusFailure
+    KFMessageStatusFailure,
+    KFMessageStatusRecalling
 };
 /**
  *  消息类型

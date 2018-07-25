@@ -151,7 +151,7 @@
     if (self.chatStatus == KFChatStatusAIAgent && messageType == KFMessageTypeText) {
         message = [[KFChatManager sharedChatManager] sendAIText:data completion:^(KFMessage * _Nonnull me_message, KFMessage * _Nullable ai_message, NSError * _Nullable error) {
             if (ai_message)
-                [weakSelf delegateWithaddMessages:@[ai_message]];
+                [weakSelf delegateWithAddMessages:@[ai_message]];
         }];
     }else{
         switch (messageType) {
@@ -182,7 +182,7 @@
         }
     }
     if (message) {
-        [self delegateWithaddMessages:@[message]];
+        [self delegateWithAddMessages:@[message]];
     }
 }
 #pragma mark 获取问题的答案
@@ -191,10 +191,10 @@
         __weak typeof(self)weakSelf = self;
         KFMessage *message = [[KFChatManager sharedChatManager]sendAIQuestionId:questionId questionTitle:questionTitle completion:^(KFMessage * _Nonnull me_message, KFMessage * _Nullable ai_message, NSError * _Nullable error) {
             if (ai_message)
-                [weakSelf delegateWithaddMessages:@[ai_message]];
+                [weakSelf delegateWithAddMessages:@[ai_message]];
             
         }];
-        [self delegateWithaddMessages:@[message]];
+        [self delegateWithAddMessages:@[message]];
     }else{
         [self sendMessageWithMessageType:KFMessageTypeText data:questionTitle];
     }
@@ -284,7 +284,11 @@ static BOOL isCanSendChecking = NO;
 #pragma mark - KFChatManagerDelegate
 // 接受聊天消息通知
 - (void)chatManager:(KFChatManager *)chatManager receiveMessages:(nonnull NSArray<KFMessage *> *)chatMessages{
-    [self delegateWithaddMessages:chatMessages];
+    [self delegateWithAddMessages:chatMessages];
+}
+// 接收聊天消息撤回通知
+- (void)chatManager:(KFChatManager *)chatManager receiveRecallMessages:(nonnull NSArray<KFMessage *> *)chatMessages{
+    [self delegateWithReloadMessages:chatMessages];
 }
 // 用户排队的当前位置通知
 - (void)chatManager:(KFChatManager *)chatManager queueIndex:(NSInteger)queueIndex{
@@ -368,12 +372,20 @@ static BOOL isCanSendChecking = NO;
         [self.delegate chatWithEndChat:self];
     }
 }
-/**刷新数据*/
-- (void)delegateWithaddMessages:(NSArray <KFMessage *>*)messages{
+/**添加数据*/
+- (void)delegateWithAddMessages:(NSArray <KFMessage *>*)messages{
     if ([self.delegate respondsToSelector:@selector(chat:addMessageModels:)]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate chat:self addMessageModels:[self messageModelsWithMessages:messages]];
         });
+    }
+}
+/**更新数据**/
+- (void)delegateWithReloadMessages:(NSArray <KFMessage *>*)messages{
+    if ([self.delegate respondsToSelector:@selector(chat:reloadMessageModels:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate chat:self reloadMessageModels:[self messageModelsWithMessages:messages]];
+            });
     }
 }
 

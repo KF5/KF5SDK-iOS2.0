@@ -27,8 +27,6 @@ NSString * const KFChatVoiceStopPlayNotification = @"KF5ChatVoiceStopPlayNotific
 
 @property (nonatomic, strong) NSMutableSet <KFMessageModel *>*messageList;
 
-@property (nonatomic,weak) KFMessageModel *currentPlayingMessageModel;
-
 @end
 
 @implementation KFChatVoiceManager
@@ -47,17 +45,20 @@ static KFChatVoiceManager *sharedManager = nil;
     });
     return sharedManager;
 }
-- (instancetype)init{
-    self = [super init];
-    if (self) {
+
+- (NSMutableSet<KFMessageModel *> *)messageList{
+    if (_messageList == nil) {
         _messageList = [NSMutableSet set];
     }
-    return self;
+    return _messageList;
 }
 
 #pragma mark - 音频相关
 #pragma mark 开始录制音频
 -(void)startVoiceRecord{
+    
+    [self stopVoicePlayingMessage];
+    
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"KF5SDK"];
     AmrRecordWriter *amrWriter = [[AmrRecordWriter alloc]init];
     NSString *filePath = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.amr",[KFHelper md5HexDigest:[NSString stringWithFormat:@"%f",[NSDate date].timeIntervalSince1970]]]];
@@ -80,8 +81,24 @@ static KFChatVoiceManager *sharedManager = nil;
     };
     
     MLAudioRecorder *recorder = [[MLAudioRecorder alloc]init];
-    recorder.receiveStoppedBlock = ^{
+    
+    // 录音完成的处理
+    void (^completion)(void) = ^{
+        // 删除文件
+        NSFileManager *fileMgr = [NSFileManager defaultManager];
+        BOOL bRet = [fileMgr fileExistsAtPath:filePath];
+        if (bRet) {
+            NSError *err;
+            [fileMgr removeItemAtPath:filePath error:&err];
+        }
         
+        weakSelf.meterObserver.audioQueue = nil;
+        weakSelf.recorder = nil;
+        weakSelf.meterObserver = nil;
+        weakSelf.amrWriter = nil;
+    };
+    
+    recorder.receiveStoppedBlock = ^{
         if ([AmrPlayerReader durationOfAmrFilePath:filePath] < 1) {
             NSError *error = [[NSError alloc] initWithDomain:KF5Localized(@"录音时间过短") code:KFErrorCodeRecordTimeShort userInfo:@{NSLocalizedDescriptionKey:@"录音时间过短,不能发送"}];
             if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:recordVoice:error:)]) {
@@ -93,42 +110,17 @@ static KFChatVoiceManager *sharedManager = nil;
                 [weakSelf.delegate chatVoiceManager:weakSelf recordVoice:data error:nil];
             }
         }
-        // 删除文件
-        NSFileManager *fileMgr = [NSFileManager defaultManager];
-        BOOL bRet = [fileMgr fileExistsAtPath:filePath];
-        if (bRet) {
-            NSError *err;
-            [fileMgr removeItemAtPath:filePath error:&err];
-        }
-        
-        meterObserver.audioQueue = nil;
+        completion();
     };
     recorder.receiveCancleBlock = ^{
-        meterObserver.audioQueue = nil;
-        // 删除文件
-        NSFileManager *fileMgr = [NSFileManager defaultManager];
-        BOOL bRet = [fileMgr fileExistsAtPath:filePath];
-        if (bRet) {
-            NSError *err;
-            [fileMgr removeItemAtPath:filePath error:&err];
-        }
+        completion();
     };
     recorder.receiveErrorBlock = ^(NSError *error){
-        
-        meterObserver.audioQueue = nil;
         
         if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:recordVoice:error:)]) {
             [weakSelf.delegate chatVoiceManager:weakSelf recordVoice:nil error:error];
         }
-        
-        // 删除文件
-        NSFileManager *fileMgr = [NSFileManager defaultManager];
-        BOOL bRet = [fileMgr fileExistsAtPath:filePath];
-        if (bRet) {
-            NSError *err;
-            [fileMgr removeItemAtPath:filePath error:&err];
-        }
-        
+        completion();
     };
     
     recorder.bufferDurationSeconds = 0.25;
@@ -154,34 +146,34 @@ static KFChatVoiceManager *sharedManager = nil;
 }
 
 #pragma mark 播放音频消息
-- (void)playVoiceWithMessageModel:(KFMessageModel *)messageModel completion:(nullable void (^)(NSError * _Nullable))completion{
+- (void)playVoiceWithMessageModel:(KFMessageModel *)messageModel{
+    
+    // 播放完成的处理
+    __weak typeof(self) weakself = self;
+    void (^playCompletion)(NSError *error) = ^(NSError *error){
+        weakself.player = nil;
+        weakself.amrReader = nil;
+        [weakself notificationWithName:KFChatVoiceStopPlayNotification model:weakself.currentPlayingMessageModel error:error];
+       weakself.currentPlayingMessageModel = nil;
+    };
+    
     if ([self.player isPlaying]) [self.player stopPlaying];
-    
-    messageModel.isPlaying = YES;
-    
+    self.currentPlayingMessageModel = messageModel;
     if (messageModel.message.local_path.length == 0) {
-        messageModel.isPlaying = NO;
-        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceStopPlayNotification object:messageModel];
-        if (completion)completion(nil);
+        playCompletion(nil);
         return;
     }
-    
-    self.currentPlayingMessageModel = messageModel;
     
     MLAudioPlayer *player = [[MLAudioPlayer alloc]init];
     AmrPlayerReader *amrReader = [[AmrPlayerReader alloc]init];
     amrReader.filePath = messageModel.message.local_path;
     player.fileReaderDelegate = amrReader;
-    __weak KFMessageModel *weakMessageModel = messageModel;
+    
     player.receiveErrorBlock = ^(NSError *error){
-        weakMessageModel.isPlaying = NO;
-        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceStopPlayNotification object:weakMessageModel];
-        if (completion)completion(error);
+        playCompletion(error);
     };
     player.receiveStoppedBlock = ^{
-        weakMessageModel.isPlaying = NO;
-        [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceStopPlayNotification object:weakMessageModel];
-        if (completion)completion(nil);
+        playCompletion(nil);
     };
     self.player = player;
     self.amrReader = amrReader;
@@ -190,7 +182,7 @@ static KFChatVoiceManager *sharedManager = nil;
 
 #pragma mark  停止音频播放
 -(void)stopVoicePlayingMessage{
-    [self.player stopPlaying];
+    if ([self.player isPlaying]) [self.player stopPlaying];
 }
 #pragma mark 获取音频时长
 + (double)voiceDurationWithlocalPath:(NSString *)localPath{
@@ -198,7 +190,7 @@ static KFChatVoiceManager *sharedManager = nil;
 }
 
 - (BOOL)isPlayingWithMessageModel:(KFMessageModel *)messageModel{
-    return self.currentPlayingMessageModel == messageModel  && self.player.isPlaying;
+    return [messageModel isEqual:self.currentPlayingMessageModel] && self.player.isPlaying;
 }
 
 #pragma mark - 下载相关
@@ -207,49 +199,58 @@ static KFChatVoiceManager *sharedManager = nil;
         return;
     }
     
-    NSString *local_path = [self voicePathWithURL:messageModel.message.url];
-    if (local_path.length > 0) {
+    NSString *local_path = [self filePathWithString:messageModel.message.url];
+    if ([ [NSFileManager defaultManager] fileExistsAtPath:local_path]) {
         messageModel.message.local_path = local_path;
         messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:local_path];
         dispatch_async(dispatch_get_main_queue(), ^{
             [messageModel updateFrame];
-            [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
+            [self  notificationWithName:KFChatVoiceDidDownloadNotification model:messageModel error:nil];
         });
         return;
     }
     [self.messageList addObject:messageModel];
     
     __weak typeof(self)weakSelf = self;
-    NSURLSessionDownloadTask *downloadTask = [[NSURLSession sharedSession] downloadTaskWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:messageModel.message.url]] completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (!error) {
-            NSURL *localURL= [[[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil] URLByAppendingPathComponent:[NSString stringWithFormat:@"KF5SDK/%@",[KFHelper md5HexDigest:messageModel.message.url]]];
-            [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
-            messageModel.message.local_path = localURL.path;
-            messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:messageModel.message.local_path];
+    [[[NSURLSession sharedSession] downloadTaskWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:messageModel.message.url]] completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            [weakSelf.messageList removeObject:messageModel];
+            if (!error) {
+                NSURL *localURL= [[[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil] URLByAppendingPathComponent:[NSString stringWithFormat:@"KF5SDK/%@",[KFHelper md5HexDigest:messageModel.message.url]]];
+                localURL = [NSURL fileURLWithPath:local_path];
+                [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
+                messageModel.message.local_path = localURL.path;
+                messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:messageModel.message.local_path];
+            }else{
+                messageModel.voiceLength = 0;
+            }
             dispatch_async(dispatch_get_main_queue(), ^{
                 [messageModel updateFrame];
-                [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVoiceDidDownloadNotification object:messageModel];
+                [weakSelf  notificationWithName:KFChatVoiceDidDownloadNotification model:messageModel error:error];
             });
-
-        }
-        [weakSelf.messageList removeObject:messageModel];
-    }];
-    [downloadTask resume];
+    }] resume];
 }
 
 - (NSString *)voicePathWithURL:(NSString *)urlString{
     if (urlString.length == 0) return nil;
     
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *md5 = [KFHelper md5HexDigest:urlString];
-    NSString *filePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"KF5SDK"] stringByAppendingPathComponent:md5];
+    NSString *filePath = [self filePathWithString:urlString];
     //判断沙盒下是否存在
-    if ([fm fileExistsAtPath:filePath]) {
+    if ([ [NSFileManager defaultManager] fileExistsAtPath:filePath]) {
         return filePath;
     }else{
         return nil;
     }
 }
+#pragma mark 其他
+- (NSString *)filePathWithString:(NSString *)string {
+    return  [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"KF5SDK"] stringByAppendingPathComponent:[KFHelper md5HexDigest:string]];
+}
 
+- (void)notificationWithName:(NSString *)name model:(KFMessageModel *)model error:(NSError *)error {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:2];
+    if (model) dict[@"model"] = model;
+    if (error) dict[@"error"] = error;
+    [[NSNotificationCenter defaultCenter]postNotificationName:name object: dict];
+}
 
 @end

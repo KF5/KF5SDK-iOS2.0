@@ -31,15 +31,9 @@
 - (void)tapVoice:(UITapGestureRecognizer *)tap{
     if (![[KFChatVoiceManager sharedChatVoiceManager]isPlayingWithMessageModel:self.messageModel]) {
         [self.voiceMessageView startAnimating];
-        [[KFChatVoiceManager sharedChatVoiceManager]playVoiceWithMessageModel:self.messageModel completion:^(NSError * _Nullable error) {
-            if (error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [KFProgressHUD showLoadingTo:[UIApplication sharedApplication].keyWindow title:KF5Localized(@"kf5_play_error") hideAfter:0.7f];
-                });
-            }
-        }];
+        [[KFChatVoiceManager sharedChatVoiceManager]playVoiceWithMessageModel:self.messageModel];
     }else{
-        [self.voiceMessageView stopAnimating];
+        // 会使用通知中心暂停播放
         [[KFChatVoiceManager sharedChatVoiceManager]stopVoicePlayingMessage];
     }
 }
@@ -49,9 +43,11 @@
     
     _voiceMessageView.frame = messageModel.messageViewFrame;
     [_voiceMessageView setMessageForm:messageModel.message.messageFrom];
+    // 如果还未下载完成,voiceLength = -1
+    _voiceMessageView.isLoading = messageModel.voiceLength  < 0;
     [_voiceMessageView setDuration:messageModel.voiceLength];
     
-    if (messageModel.isPlaying) {
+    if ([[KFChatVoiceManager sharedChatVoiceManager] isPlayingWithMessageModel:messageModel]) {
         [_voiceMessageView startAnimating];
     }else{
         [_voiceMessageView stopAnimating];
@@ -59,9 +55,22 @@
 }
 
 - (void)updateMessageModel:(NSNotification *)note{
-    if (self.messageModel == note.object) {
+    NSDictionary *dict = note.object;
+    if (![dict isKindOfClass:[NSDictionary class]]) {
+        return;
+    }
+    KFMessageModel *model = dict[@"model"];
+    NSError *error = dict[@"error"];
+    if ([self.messageModel isEqual:model]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.messageModel = note.object;
+            if (note.name == KFChatVoiceDidDownloadNotification) {
+                self.messageModel = model;
+            }else if (note.name == KFChatVoiceStopPlayNotification){
+                if (error) {
+                    [KFProgressHUD showLoadingTo:[UIApplication sharedApplication].keyWindow title:KF5Localized(@"kf5_play_error") hideAfter:0.7f];
+                }
+                [self.voiceMessageView stopAnimating];
+            }
         });
     }
 }

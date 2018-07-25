@@ -140,7 +140,7 @@ void inputBufferHandler(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRe
     if (self.fileWriterDelegate&&[self.fileWriterDelegate respondsToSelector:@selector(customAudioFormatBeforeCreateFile)]) {
         dispatch_sync(self.writeFileQueue, ^{
             AudioStreamBasicDescription format = [self.fileWriterDelegate customAudioFormatBeforeCreateFile];
-            memcpy(&_recordFormat, &format,sizeof(_recordFormat));
+            memcpy(&self->_recordFormat, &format,sizeof(self->_recordFormat));
         });
     }else{
         [self setupAudioFormat:kAudioFormatLinearPCM SampleRate:self.sampleRate];
@@ -253,7 +253,7 @@ void inputBufferHandler(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRe
 
 
 // 设置录音格式
-- (void)setupAudioFormat:(UInt32) inFormatID SampleRate:(int)sampeleRate
+- (void)setupAudioFormat:(UInt32) inFormatID SampleRate:(NSInteger)sampeleRate
 {
     //重置下
     memset(&_recordFormat, 0, sizeof(_recordFormat));
