@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
         ss.dependency 'KF5SDK/Base'
         ss.dependency 'MJRefresh', '~> 3.1.15'
         ss.dependency 'SDWebImage/Core', '~> 4.2.2'
-        ss.dependency 'TZImagePickerController', '~> 1.9.6'
+        ss.dependency 'TZImagePickerController', '~> 2.2.2'
     end
 
     s.subspec 'Chat' do |ss|
@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
         ss.dependency 'KF5SDK/Doc'
         ss.dependency 'KF5SDK/Ticket'
         ss.dependency 'SDWebImage/Core', '~> 4.2.2'
-        ss.dependency 'TZImagePickerController', '~> 1.9.6'
+        ss.dependency 'TZImagePickerController', '~> 2.2.2'
     end
 
 end
