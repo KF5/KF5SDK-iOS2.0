@@ -8,9 +8,7 @@
 
 #import "KFHomeViewController.h"
 #import "KFPersonTableViewController.h"
-#import <KF5SDK/KF5SDK.h>
-#import "KFUserManager.h"
-#import "KF5SDKTicket.h"
+#import "KF5SDK.h"
 
 @interface KFHomeViewController ()
 
@@ -60,11 +58,7 @@
     
     NSString *deviceToken = [[NSUserDefaults standardUserDefaults]valueForKey:@"deviceToken"];
     if (deviceToken.length > 0) {
-        NSDictionary *params = @{
-                                 KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
-                                 KF5DeviceToken:deviceToken
-                                 };
-        [KFHttpTool deleteTokenWithParams:params completion:nil];
+        [[KFUserManager shareUserManager]deleteDeviceToken:deviceToken completion:nil];
     }
     
     [KFUserManager deleteUser];

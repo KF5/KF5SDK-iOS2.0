@@ -7,9 +7,8 @@
 //
 
 #import "KFVoiceMessageCell.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFChatVoiceManager.h"
-#import "KFProgressHUD.h"
 
 @implementation KFVoiceMessageCell
 

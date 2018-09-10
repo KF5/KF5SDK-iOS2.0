@@ -8,7 +8,7 @@
 
 #import "KFProgressHUD.h"
 #import "MBProgressHUD.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static CGFloat FONTSIZE = 14.f;
 static CGFloat OPACITY = 0.95;

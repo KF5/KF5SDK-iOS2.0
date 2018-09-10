@@ -7,9 +7,7 @@
 //
 
 #import "KFTextView.h"
-#import "KFHelper.h"
-
-#import "KFAutoLayout.h"
+#import "KFCategory.h"
 
 static NSString *KF5AttributedTextKey = @"attributedText";
 static NSString *KF5TextKey = @"text";
@@ -84,9 +82,9 @@ static CGFloat KF5PlaceHolderLeft = 8.0;
     
     [self reloadPlaceholder];
     
-    if (self.text.length > 0 && !self.canEmoji) {
+    if (self.text.length > 0 && !self.canEmoji && !self.markedTextRange) {
         // 禁止系统表情的输入
-        NSString *text = [KFHelper disable_emoji:[self text]];
+        NSString *text = [KFHelper disable_emoji:self.text];
         if (![text isEqualToString:self.text]) {
             NSRange textRange = [self selectedRange];
             self.text = text;

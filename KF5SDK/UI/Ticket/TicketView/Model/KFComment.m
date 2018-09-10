@@ -7,7 +7,7 @@
 //
 
 #import "KFComment.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFUserManager.h"
 
 @implementation KFComment

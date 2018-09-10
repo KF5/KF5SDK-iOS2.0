@@ -7,7 +7,7 @@
 //
 
 #import "KFUserManager.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static NSString * const KF5UserInfo = @"KF5USERINFO";
 
@@ -89,6 +89,14 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
     [self updateUserWithParams:params completion:completion];
 }
 
+- (void)saveDeviceToken:(NSString *)deviceToken completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion{
+    [KFHttpTool saveTokenWithParams:@{KF5UserToken:self.user.userToken?:@"",  KF5DeviceToken:deviceToken?:@""} completion:completion];
+}
+
+- (void)deleteDeviceToken:(NSString *)deviceToken completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion{
+    [KFHttpTool deleteTokenWithParams:@{KF5UserToken:self.user.userToken?:@"",  KF5DeviceToken:deviceToken?:@""} completion:completion];
+}
+
 - (void)setUser:(KFUser *)user{
     _user = user;
     if (user) {
@@ -115,6 +123,18 @@ static NSString * const KF5UserInfo = @"KF5USERINFO";
         user = [NSKeyedUnarchiver unarchiveObjectWithData:userData];
     }
     return user;
+}
+
++ (void)initializeWithHostName:(NSString *)hostName appId:(NSString *)appId{
+    [[KFConfig shareConfig]initializeWithHostName:hostName appId:appId];
+}
+
++ (void)loggerEnabled:(BOOL)enabled{
+    [KFLogger enable:enabled];
+}
+
++ (NSString *)version{
+    return [[KFConfig shareConfig]version];
 }
 
 @end

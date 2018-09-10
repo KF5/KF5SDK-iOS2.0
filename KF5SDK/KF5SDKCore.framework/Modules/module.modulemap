@@ -1,0 +1,6 @@
+framework module KF5SDKCore {
+  umbrella header "KF5SDKCore.h"
+
+  export *
+  module * { export * }
+}

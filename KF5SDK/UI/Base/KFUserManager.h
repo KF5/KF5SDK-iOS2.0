@@ -24,6 +24,25 @@
  */
 + (void)deleteUser;
 /**
+ 初始化信息
+ 
+ @param hostName  云客服域名
+ @param appId     公司密钥
+ */
++ (void)initializeWithHostName:(nonnull NSString *)hostName appId:(nonnull NSString *)appId;
+/**
+ 是否输出日志
+ */
++ (void)loggerEnabled:(BOOL)enabled;
+/**
+ 获取当前SDK的版本(当前SDK版本为2.7.0)
+ 
+ @return 版本号
+ */
++ (nonnull NSString *)version;
+
+
+/**
  邮箱初始化用户
 
  @param email       用户邮箱
@@ -43,7 +62,23 @@
  @param name  更新昵称,为空不更新
  @warning   必须初始化完成后,才能使用
  */
-- (void)updateUserWithEmail:(nullable NSString *)email phone:(nullable NSString *)phone name:(nullable NSString *)name completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
+- (void)updateUserWithEmail:(nullable NSString *)email phone:(nullable NSString *)phone name:(nullable NSString *)name completion:(nullable void (^)(KFUser * _Nullable user, NSError * _Nullable error))completion;
+
+/**
+ 保存deviceToken
+
+ @param deviceToken 用户deviceToken,不能为空
+ @warning   必须初始化完成后,才能使用
+ */
+- (void)saveDeviceToken:(nonnull NSString *)deviceToken completion:(nullable void (^)(NSDictionary * _Nullable result, NSError * _Nullable error))completion;
+/**
+ 删除deviceToken
+ 
+ @param deviceToken 用户deviceToken,不能为空
+ @warning   必须初始化完成后,才能使用
+ */
+- (void)deleteDeviceToken:(nonnull NSString *)deviceToken completion:(nullable void (^)(NSDictionary * _Nullable result, NSError * _Nullable error))completion;
+
 /**
  初始化用户
 
@@ -54,7 +89,7 @@
  };
  @warning   email和phone只能选其一,两者都填默认优先验证手机号
  */
-- (void)initializeWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
+- (void)initializeWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(KFUser * _Nullable user, NSError * _Nullable error))completion;
 /**
  更新用户信息
  @param params 参数,如下
@@ -65,6 +100,6 @@
  };
  @warning   必须初始化完成后,才能使用
  */
-- (void)updateUserWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(KFUser * _Nullable, NSError * _Nullable))completion;
+- (void)updateUserWithParams:(nonnull NSDictionary *)params completion:(nullable void (^)(KFUser * _Nullable user, NSError * _Nullable error))completion;
 
 @end

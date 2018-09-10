@@ -7,7 +7,7 @@
 //
 
 #import "KFTicket.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 @implementation KFTicket
 

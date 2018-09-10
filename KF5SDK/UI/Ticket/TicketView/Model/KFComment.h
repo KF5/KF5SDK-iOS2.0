@@ -7,8 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "KFHelper.h"
 #import "KFAttachment.h"
+#if __has_include("KFDispatcher.h")
+#import "KFDispatcher.h"
+#else
+#import <KF5SDKCore/KFDispatcher.h>
+#endif
 
 @interface KFComment : NSObject
 

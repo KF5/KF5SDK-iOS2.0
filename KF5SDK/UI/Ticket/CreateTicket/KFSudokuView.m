@@ -7,10 +7,9 @@
 //
 
 #import "KFSudokuView.h"
-#import "KFAutoLayout.h"
 #import "KFAttachment.h"
 #import "UIImageView+WebCache.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static NSString *cellID = @"KFSudokuViewCell";
 

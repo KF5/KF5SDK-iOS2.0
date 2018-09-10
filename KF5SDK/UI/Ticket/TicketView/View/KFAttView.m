@@ -7,7 +7,7 @@
 //
 
 #import "KFAttView.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static NSString *cellID = @"KFAttViewCell";
 

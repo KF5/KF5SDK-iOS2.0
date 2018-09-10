@@ -7,7 +7,7 @@
 //
 
 #import "KFChatTableView.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static NSString *kChatMessageVoiceCellID = @"chatMessageVoiceCellID";
 static NSString *kChatMessageTextCellID = @"chatMessageTextCellID";
@@ -144,12 +144,8 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
 }
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
     [[UIMenuController sharedMenuController] setMenuVisible:NO];
-    if (scrollView.isDragging && !self.refreshing) {
-        CGFloat offSetTop = 0;
-        if ([self.tableDelegate respondsToSelector:@selector(tableViewWithOffsetTop:)]) {
-            offSetTop = [self.tableDelegate tableViewWithOffsetTop:self];
-        }
-        if (scrollView.contentOffset.y <= -(KFContentInsetTop + offSetTop)) {
+    if (self.canRefresh && scrollView.isDragging && !self.refreshing) {
+        if (scrollView.contentOffset.y <= -scrollView.contentInset.top) {
             self.refreshing = YES;
             self.contentOffset = CGPointZero;
             if ([self.tableDelegate respondsToSelector:@selector(tableViewWithRefreshData:)]) {

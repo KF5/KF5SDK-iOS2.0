@@ -10,9 +10,8 @@
 #import "KFChatTableView.h"
 #import "KFChatToolView.h"
 #import "KFChatViewModel.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFAlertMessage.h"
-#import "KFProgressHUD.h"
 #import "KFRecordView.h"
 #import "KFChatVoiceManager.h"
 #import "KFPreviewController.h"
@@ -449,9 +448,6 @@
         self.tableView.canRefresh = newDatas.count >= self.limit;
         self.tableView.refreshing = NO;
     });
-}
-- (CGFloat)tableViewWithOffsetTop:(KFChatTableView *)tableView{
-    return self.navigationController.navigationBar.frame.size.height + [UIApplication sharedApplication].statusBarFrame.size.height;
 }
 #pragma mark - KFChatViewCellDelegate
 #pragma mark - 失败消息重发

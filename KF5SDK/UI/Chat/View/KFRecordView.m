@@ -7,7 +7,7 @@
 //
 
 #import "KFRecordView.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 @interface KFRecordView()
 

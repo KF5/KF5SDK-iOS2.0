@@ -7,10 +7,8 @@
 //
 
 #import "KFTicketListViewCell.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFTicketManager.h"
-
-#import "KFAutoLayout.h"
 
 @implementation KFTicketListViewCell
 

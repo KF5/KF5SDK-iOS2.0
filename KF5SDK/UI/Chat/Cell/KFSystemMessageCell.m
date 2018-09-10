@@ -7,7 +7,7 @@
 //
 
 #import "KFSystemMessageCell.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFLabel.h"
 
 @interface KFSystemMessageCell()

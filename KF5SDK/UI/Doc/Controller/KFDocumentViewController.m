@@ -7,9 +7,8 @@
 //
 
 #import "KFDocumentViewController.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFDocument.h"
-#import "KFProgressHUD.h"
 #import "KFUserManager.h"
 
 @interface KFDocumentViewController ()<UIWebViewDelegate>

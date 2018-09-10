@@ -7,7 +7,7 @@
 //
 
 #import "KFTicketManager.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFTicket.h"
 
 static NSString * const TicketIdentifier = @"KFTicketManagerIdentifier";

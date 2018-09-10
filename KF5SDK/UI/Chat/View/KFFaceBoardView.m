@@ -7,7 +7,7 @@
 //
 
 #import "KFFaceBoardView.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static const NSInteger  kPageControlHeight = 40;
 static const NSInteger  kNumFaceForRow = 4;

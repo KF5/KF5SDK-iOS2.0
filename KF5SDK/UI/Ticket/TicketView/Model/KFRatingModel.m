@@ -7,7 +7,7 @@
 //
 
 #import "KFRatingModel.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 @interface KFRatingModel()
 

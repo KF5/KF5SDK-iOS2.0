@@ -7,10 +7,8 @@
 //
 
 #import "KFContentLabelHelp.h"
-
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFLabel.h"
-
 
 @implementation KFContentLabelHelp
 

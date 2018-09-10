@@ -20,9 +20,6 @@
 
 - (void)tableViewWithRefreshData:(nonnull KFChatTableView *)tableView;
 
-//返回偏移量高度
-- (CGFloat)tableViewWithOffsetTop:(nonnull KFChatTableView *)tableView;
-
 @end
 
 @interface KFChatTableView : UITableView

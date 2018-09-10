@@ -9,7 +9,7 @@
 #import "KFPersonTableViewController.h"
 #import "KFUserManager.h"
 #import "KFProgressHUD.h"
-#import <KF5SDK/KF5SDK.h>
+#import "KFUserManager.h"
 
 @interface KFPersonTableViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
@@ -72,12 +72,7 @@
     
     NSString *deviceToken = [[NSUserDefaults standardUserDefaults]objectForKey:@"deviceToken"];
     if (deviceToken.length > 0) {
-        NSDictionary *params = @{
-                                KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
-                                KF5DeviceToken:deviceToken
-                                };
-        [KFHttpTool saveTokenWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {
-        }];  
+        [[KFUserManager shareUserManager]saveDeviceToken:deviceToken completion:nil];
     }
     // 使用邮箱为主的登录方式,可以更新用户的昵称和手机号
     __weak typeof(self)weakSelf = self;

@@ -30,7 +30,7 @@ _##property = [[UIImage kf5_imageWithBundleImageName:imageName]kf5_imageResize];
 return _##property;\
 }
 
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "AFNetworkReachabilityManager.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "KFUserManager.h"
@@ -310,6 +310,7 @@ static NSBundle *bundle = nil;
     }
     imagePickerVC.allowPickingOriginalPhoto = NO;
     imagePickerVC.allowPickingVideo = NO;
+    imagePickerVC.allowTakeVideo = NO;
     imagePickerVC.barItemTextFont = [UIFont boldSystemFontOfSize:17];
     imagePickerVC.preferredLanguage = [self localLanguage];    
     [imagePickerVC setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {

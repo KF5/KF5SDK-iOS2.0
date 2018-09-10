@@ -10,11 +10,7 @@
 #import "KFSetTableViewCell.h"
 #import "KFPersonTableViewController.h"
 
-#import "KF5SDKTicket.h"
-#import "KF5SDKDoc.h"
-#import "KF5SDKChat.h"
-#import "KFUserManager.h"
-#import <KF5SDK/KF5SDK.h>
+#import "KF5SDK.h"
 
 #define KFColorFromRGB(rgbValue) [UIColor \
 colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
@@ -185,7 +181,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 - (void)chat{
     self.hidesBottomBarWhenPushed = YES;
     
-    KFChatViewController *chat = [[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"iOS"},@{@"name":@"SDK版本",@"value":[[KFConfig shareConfig] version]}]];
+    KFChatViewController *chat = [[KFChatViewController alloc]initWithMetadata:@[@{@"name":@"系统",@"value":@"iOS"},@{@"name":@"SDK版本",@"value":[KFUserManager version]}]];
 //    [chat setCardDict:@{@"img_url":@"https://www.kf5.com/image.png", @"title":@"标题",@"price":@"¥200",@"link_title":@"发送链接",@"link_url":@"https://www.kf5.com"}];
     [self.navigationController pushViewController:chat animated:YES];
     

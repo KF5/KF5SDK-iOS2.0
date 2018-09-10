@@ -8,7 +8,7 @@
 
 #import "KFChatViewModel.h"
 #import "KFUserManager.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFMessageModel.h"
 
 @interface KFChatViewModel()<KFChatManagerDelegate>

@@ -389,7 +389,7 @@ static NSString *cellID = @"KFPreviewCell";
 }
 
 - (void)longTap:(UILongPressGestureRecognizer *)tap{
-    if (tap.state == UIGestureRecognizerStateBegan && self.longTapGestureBlock && self.imageView.image != self.model.placeholder && self.imageView.image != placeHolderErrorImage) {
+    if (tap.state == UIGestureRecognizerStateBegan && self.longTapGestureBlock && self.imageView.image != placeHolderErrorImage) {
         self.longTapGestureBlock(self.imageView.image);
     }
 }

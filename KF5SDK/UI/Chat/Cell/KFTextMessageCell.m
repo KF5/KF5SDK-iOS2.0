@@ -7,7 +7,7 @@
 //
 
 #import "KFTextMessageCell.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFChatToolView.h"
 #import "KFTextView.h"
 

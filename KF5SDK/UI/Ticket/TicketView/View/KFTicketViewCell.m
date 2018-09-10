@@ -7,9 +7,8 @@
 //
 
 #import "KFTicketViewCell.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFTicketToolView.h"
-#import "KFProgressHUD.h"
 #import "KFContentLabelHelp.h"
 
 @interface KFTicketViewCell()

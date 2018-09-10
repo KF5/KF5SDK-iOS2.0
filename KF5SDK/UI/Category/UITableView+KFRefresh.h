@@ -19,5 +19,4 @@
 - (void)kf5_endHeaderRefreshing;
 - (void)kf5_endFooterRefreshing;
 
-
 @end

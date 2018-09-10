@@ -8,6 +8,7 @@
 
 #import "KFCardMessageCell.h"
 #import "UIImageView+WebCache.h"
+#import "KFCategory.h"
 
 @interface KFCardMessageCell()
 

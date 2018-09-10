@@ -7,6 +7,7 @@
 //
 
 #import "KFTicketTableView.h"
+#import "KFCategory.h"
 
 @interface KFTicketHeaderView : UIView
 - (instancetype)initWithTitle:(NSString *)title ratingText:(NSString *)ratingText;

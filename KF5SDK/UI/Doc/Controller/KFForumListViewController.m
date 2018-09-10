@@ -7,9 +7,8 @@
 //
 
 #import "KFForumListViewController.h"
-
 #import "KFPostListViewController.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFUserManager.h"
 
 @interface KFForumListViewController ()
@@ -30,10 +29,11 @@
     [super viewDidLoad];
     
     if (self.title.length == 0) {
-        if (self.category.title.length == 0)
+        if (self.category.title.length == 0){
             self.title = KF5Localized(@"kf5_section_list");
-        else
+        }else{
             self.title = self.category.title;
+        }
     }
 }
 

@@ -7,8 +7,7 @@
 //
 
 #import "KFAlertMessage.h"
-#import "KFHelper.h"
-#import "KFAutoLayout.h"
+#import "KFCategory.h"
 
 @interface KFAlertMessage ()
 

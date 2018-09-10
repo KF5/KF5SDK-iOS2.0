@@ -7,10 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "KFHelper.h"
-
+#if __has_include("KFDispatcher.h")
+#import "KFDispatcher.h"
+#else
+#import <KF5SDKCore/KFDispatcher.h>
+#endif
 @class KFChatViewModel;
 @class KFMessageModel;
+@class KFAgent;
 
 typedef NS_ENUM(NSInteger,KFChatRatingScore) {
     KFChatRatingScoreNone = -1, // 未评价

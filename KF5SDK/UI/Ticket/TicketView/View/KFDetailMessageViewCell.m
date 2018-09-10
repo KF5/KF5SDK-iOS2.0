@@ -7,8 +7,7 @@
 //
 
 #import "KFDetailMessageViewCell.h"
-
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 @interface KFDetailMessageViewCell()
 

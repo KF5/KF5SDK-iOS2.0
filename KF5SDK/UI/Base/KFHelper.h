@@ -8,46 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NSDictionary+KF5.h"
-#import "UIImage+KF5.h"
-#import "NSDate+KF5.h"
-#import "KFAutoLayout.h"
-
-#if __has_include("KF5SDK.h")
-#import "KF5SDK.h"
-#else
-#import <KF5SDK/KF5SDK.h>
-#endif
-
-#ifndef KF_CLAMP // return the clamped value
-#define KF_CLAMP(_x_, _low_, _high_)  (((_x_) > (_high_)) ? (_high_) : (((_x_) < (_low_)) ? (_low_) : (_x_)))
-#endif
-
-// 国际化
-#define KF5Localized(string)  [KFHelper localizedStringForKey:string]
-// KF5SDK.bundle文件路径
-#define KF5SrcName(file) [[KFHelper shareBundle].bundlePath stringByAppendingPathComponent:file]
-// iOS版本号
-#define KF5SystemVersion  [[[UIDevice currentDevice] systemVersion] doubleValue]
-
-#define KF5Helper   [KFHelper shareHelper]
-
-/**横屏*/
-#define KF5ViewLandscape UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation)
-
-/** 竖屏*/
-#define KF5ViewVertical UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)
-
-static NSString * _Nonnull const KF5SDKBundle            = @"KF5SDK.bundle";
-static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.framework/KF5SDK.bundle";
-static NSString * _Nonnull const KF5LocalLanguage        = @"KF5LocalLanguage";
-
-static NSString * _Nonnull const KF5LinkTitle           = @"KF5LinkTitle";//title
-static NSString * _Nonnull const KF5LinkType            = @"KF5LinkType";//类型
-static NSString * _Nonnull const KF5LinkKey             = @"KF5LinkKey";//key
-static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
-
-
 @interface KFHelper : NSObject
 
 + (nonnull instancetype)shareHelper;
@@ -190,8 +150,36 @@ static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
 @end
 
 
-#pragma mark - ViewTag
+#ifndef KFHelper_h
+#define KFHelper_h
 
+#define KF_CLAMP(_x_, _low_, _high_)  (((_x_) > (_high_)) ? (_high_) : (((_x_) < (_low_)) ? (_low_) : (_x_)))
+
+// 国际化
+#define KF5Localized(string)  [KFHelper localizedStringForKey:string]
+// KF5SDK.bundle文件路径
+#define KF5SrcName(file) [[KFHelper shareBundle].bundlePath stringByAppendingPathComponent:file]
+// iOS版本号
+#define KF5SystemVersion  [[[UIDevice currentDevice] systemVersion] doubleValue]
+
+#define KF5Helper   [KFHelper shareHelper]
+
+/**横屏*/
+#define KF5ViewLandscape UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation)
+
+/** 竖屏*/
+#define KF5ViewVertical UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)
+
+static NSString * _Nonnull const KF5SDKBundle            = @"KF5SDK.bundle";
+static NSString * _Nonnull const KF5SDKFrameworkBundle   = @"Frameworks/KF5SDK.framework/KF5SDK.bundle";
+static NSString * _Nonnull const KF5LocalLanguage        = @"KF5LocalLanguage";
+
+static NSString * _Nonnull const KF5LinkTitle           = @"KF5LinkTitle";//title
+static NSString * _Nonnull const KF5LinkType            = @"KF5LinkType";//类型
+static NSString * _Nonnull const KF5LinkKey             = @"KF5LinkKey";//key
+static NSString * _Nonnull const KF5LinkURL             = @"KF5LinkURL";//url
+
+#pragma mark - ViewTag
 static const NSInteger kKF5ChatToolViewTag              = 1000011;
 static const NSInteger kKF5TicketToolViewTag            = 1000022;
 static const NSInteger kKF5RecordViewTag                = 1000044;
@@ -205,3 +193,4 @@ static NSString * _Nonnull const KKF5NoteLeaveMessage      = @"KKF5NoteLeaveMess
 #pragma mark - 存储
 static NSString * _Nonnull const kKF5UserDefaultUserMessage  = @"kKF5UserDefaultUserMessage";//用户信息
 
+#endif

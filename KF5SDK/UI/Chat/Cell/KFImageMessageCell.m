@@ -8,7 +8,7 @@
 
 #import "KFImageMessageCell.h"
 #import "UIImageView+WebCache.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 @implementation KFImageMessageCell
 

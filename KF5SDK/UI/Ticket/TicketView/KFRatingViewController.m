@@ -7,10 +7,9 @@
 //
 
 #import "KFRatingViewController.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFTextView.h"
 #import "KFUserManager.h"
-#import "KFProgressHUD.h"
 
 @interface KFRatingViewController ()<UITableViewDelegate,UITableViewDataSource>
 

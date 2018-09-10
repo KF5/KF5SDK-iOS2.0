@@ -7,15 +7,10 @@
 //
 
 #import "KFTicketListViewController.h"
-
 #import "KFTicketViewController.h"
 #import "KFCreateTicketViewController.h"
 #import "KFTicketListViewCell.h"
-
-#import "UITableView+KFRefresh.h"
-#import "KFProgressHUD.h"
-#import "KFHelper.h"
-
+#import "KFCategory.h"
 #import "KFUserManager.h"
 #import "KFTicket.h"
 #import "KFTicketManager.h"

@@ -7,21 +7,15 @@
 //
 
 #import "KFTicketViewController.h"
-
 #import "KFDetailMessageViewController.h"
-
-#import "UITableView+KFRefresh.h"
 #import "KFTicketTableView.h"
 #import "KFTicketToolView.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFUserManager.h"
-#import "KFProgressHUD.h"
 #import "KFTicketManager.h"
-
 #import "SDImageCache.h"
 #import "KFPreviewController.h"
 #import "KFContentLabelHelp.h"
-
 #import "KFRatingViewController.h"
 
 @interface KFTicketViewController ()<KFTicketViewCellDelegate,UIWebViewDelegate,KFTicketToolViewDelegate,KFTicketTableViewDelegate>

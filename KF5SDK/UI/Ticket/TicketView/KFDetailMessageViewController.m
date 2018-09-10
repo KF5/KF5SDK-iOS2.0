@@ -7,11 +7,8 @@
 //
 
 #import "KFDetailMessageViewController.h"
-
 #import "KFDetailMessageViewCell.h"
-
-#import "KFHelper.h"
-#import "KFProgressHUD.h"
+#import "KFCategory.h"
 #import "KFUserManager.h"
 
 @interface KFDetailMessageViewController ()

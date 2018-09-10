@@ -7,7 +7,7 @@
 //
 
 #import "KFSelectQuestionController.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static NSString *cellID = @"selectQuestionCell";
 

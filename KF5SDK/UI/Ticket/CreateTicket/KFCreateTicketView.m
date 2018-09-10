@@ -7,8 +7,8 @@
 //
 
 #import "KFCreateTicketView.h"
-#import "KFHelper.h"
-#import "KFAutoLayout.h"
+#import "KFCategory.h"
+#import "KFTextView.h"
 
 static CGFloat kAttBtnLength = 30;
 

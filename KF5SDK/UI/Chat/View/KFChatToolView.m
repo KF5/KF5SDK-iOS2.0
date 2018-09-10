@@ -7,7 +7,7 @@
 //
 
 #import "KFChatToolView.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFTextView.h"
 #import "KFFaceBoardView.h"
 #import "KFRecordView.h"

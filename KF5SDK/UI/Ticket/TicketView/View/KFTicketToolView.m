@@ -7,7 +7,7 @@
 //
 
 #import "KFTicketToolView.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 
 static const CGFloat kKF5MaxHeight = 130;
 

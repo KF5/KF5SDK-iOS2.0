@@ -9,6 +9,7 @@
 #import "KFMessageModel.h"
 #import "KFContentLabelHelp.h"
 #import "KFChatVoiceManager.h"
+#import "KFCategory.h"
 
 // 时间标记,用于计算是否显示cell时间
 static double KF5TimeStamp = 0;
@@ -139,6 +140,7 @@ BOOL isShowTime(double time){
         }
     }
 }
+
 #pragma mark 卡片消息的frame
 - (void)updateCardFrame:(CGFloat)screenWidth{
     _cardImageFrame = CGRectMake(KF5Helper.KF5MiddleSpacing, KF5Helper.KF5MiddleSpacing, 60, 60);

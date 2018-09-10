@@ -13,13 +13,12 @@
 #import "KFTicketListViewController.h"      //工单列表控制器
 #import "KFTicketViewController.h"          //工单内容控制器
 #import "KFDetailMessageViewController.h"   //详细信息控制器
-
-#import "KFTicketListViewCell.h"
-#import "KFTicketViewCell.h"
-#import "KFTicketTableView.h"
+#import "KFRatingViewController.h"
 
 #import "KFComment.h"
 #import "KFTicket.h"
 #import "KFAttachment.h"
+#import "KFRatingModel.h"
+#import "KFTicketManager.h"
 
 #endif /* KF5SDKTicket_h */

@@ -7,11 +7,8 @@
 //
 
 #import "KFDocBaseViewController.h"
-
 #import "KFDocumentViewController.h"
-#import "UITableView+KFRefresh.h"
-#import "KFHelper.h"
-#import "KFProgressHUD.h"
+#import "KFCategory.h"
 #import "KFUserManager.h"
 
 #if __has_include("KF5SDKTicket.h")

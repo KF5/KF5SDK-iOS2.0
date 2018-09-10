@@ -7,8 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-
-#import "KFHelper.h"
+#if __has_include("KFDispatcher.h")
+#import "KFDispatcher.h"
+#else
+#import <KF5SDKCore/KFDispatcher.h>
+#endif
 
 @interface KFLoadView : UIView
 /**

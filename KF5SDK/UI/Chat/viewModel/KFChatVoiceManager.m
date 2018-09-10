@@ -7,7 +7,7 @@
 //
 
 #import "KFChatVoiceManager.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "MLAudioMeterObserver.h"
 #import "MLAudioPlayer.h"
 #import "AmrPlayerReader.h"

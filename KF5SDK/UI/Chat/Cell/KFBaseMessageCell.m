@@ -7,7 +7,7 @@
 //
 
 #import "KFBaseMessageCell.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFLoadView.h"
 #import "UIImageView+WebCache.h"
 

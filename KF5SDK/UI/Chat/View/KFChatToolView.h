@@ -7,10 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "KFHelper.h"
 
 @class KFTextView;
 @class KFChatToolView;
+#if __has_include("KFDispatcher.h")
+#import "KFDispatcher.h"
+#else
+#import <KF5SDKCore/KFDispatcher.h>
+#endif
 
 @protocol KFChatTooViewDelegate <NSObject>
 

@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "KFHelper.h"
+@class KFMessage;
 
 @interface KFMessageModel : NSObject
 

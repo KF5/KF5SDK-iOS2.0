@@ -7,8 +7,8 @@
 //
 
 #import "AppDelegate.h"
-#import <KF5SDK/KF5SDK.h>
-#import "KFHelper.h"
+#import "KF5SDK.h"
+#import <KF5SDKCore/KF5SDKCore.h>
 
 #define KFColorFromRGB(rgbValue) [UIColor \
 colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
@@ -28,13 +28,13 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 {
     // 设置日志状态
 #ifdef DEBUG
-    [KFLogger enable:YES];
+    [KFUserManager loggerEnabled:YES];
 #else
-    [KFLogger enable:NO];
+    [KFUserManager loggerEnabled:NO];
 #endif
 
-    [[KFConfig shareConfig]initializeWithHostName:kHostName appId:kAppId];
-    NSLog(@"当前版本%@",[KFConfig shareConfig].version);
+    [KFUserManager  initializeWithHostName:kHostName appId:kAppId];
+    NSLog(@"当前版本%@",[KFUserManager version]);
 
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 

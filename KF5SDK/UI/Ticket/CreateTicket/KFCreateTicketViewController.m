@@ -7,15 +7,17 @@
 //
 
 #import "KFCreateTicketViewController.h"
-#import "KFHelper.h"
-#import "KFProgressHUD.h"
+#import "KFCategory.h"
 #import "KFUserManager.h"
 #import "KFTicketManager.h"
 #import "SDImageCache.h"
-
-#import "KFAutoLayout.h"
+#import "KFCreateTicketView.h"
 
 @interface KFCreateTicketViewController ()
+/**
+ 创建工单视图
+ */
+@property (nullable, nonatomic, weak) KFCreateTicketView *createView;
 
 @property (nonatomic,strong) NSLayoutConstraint *scrollBottomLayout;
 
@@ -148,7 +150,6 @@ static NSArray *CustomFields = nil;
         }];
     }
     
-   
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         if (failure) {
             [KFProgressHUD hideHUDForView:weakSelf.view];
@@ -159,13 +160,7 @@ static NSArray *CustomFields = nil;
         NSString *title = [NSString stringWithFormat:@"来自%@的工单请求",[KFConfig shareConfig].appName];
         NSString *content = weakSelf.createView.textView.text;
         
-        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:
-                                        @{
-                                          KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"",
-                                          KF5Title:title?:@"",
-                                          KF5Content:content,
-                                          KF5Uploads:imageTokens?:@[]
-                                        }];
+        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary: @{ KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"", KF5Title:title?:@"", KF5Content:content, KF5Uploads:imageTokens?:@[]}];
         if (CustomFields) {
             [params setObject:[KFHelper JSONStringWithObject:CustomFields] forKey:KF5CustomFields];
         }

@@ -7,9 +7,8 @@
 //
 
 #import "KFCategorieListViewController.h"
-
 #import "KFForumListViewController.h"
-#import "KFHelper.h"
+#import "KFCategory.h"
 #import "KFUserManager.h"
 
 @interface KFCategorieListViewController ()

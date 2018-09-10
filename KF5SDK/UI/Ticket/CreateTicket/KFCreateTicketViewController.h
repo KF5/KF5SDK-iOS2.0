@@ -7,13 +7,8 @@
 //
 
 #import "KFBaseViewController.h"
-#import "KFCreateTicketView.h"
 
 @interface KFCreateTicketViewController : KFBaseViewController
-/**
- 创建工单视图
- */
-@property (nullable, nonatomic, weak) KFCreateTicketView *createView;
 /**
  当视图出现时,是否直接显示键盘,默认为NO
  */
