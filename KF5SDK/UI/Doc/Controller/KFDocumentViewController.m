@@ -10,6 +10,7 @@
 #import "KFCategory.h"
 #import "KFDocument.h"
 #import "KFUserManager.h"
+#import "KFCategory.h"
 
 @interface KFDocumentViewController ()<UIWebViewDelegate>
 
@@ -98,9 +99,9 @@
         }
         [attachmentStr appendString:@"</ul>"];
     }
-    
-    NSString *html = [NSString stringWithFormat:[NSString stringWithContentsOfFile:KF5SrcName(@"kf5_document.html") encoding:NSUTF8StringEncoding error:nil],KF5SrcName(@"KFUserDocument.css"),document.title,document.content,attachmentStr?:@"",[[NSDate dateWithTimeIntervalSince1970:document.created_at] kf5_string]];
-    [self.webView loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle]  bundlePath]]];
+
+    NSString *html = [NSString stringWithFormat:[NSString stringWithContentsOfFile:KF5SrcName(@"kf5_document.html") encoding:NSUTF8StringEncoding error:nil],document.title,document.content,attachmentStr?:@"",[[NSDate dateWithTimeIntervalSince1970:document.created_at] kf5_string]];
+    [self.webView loadHTMLString:html baseURL:[NSURL URLWithString:[KFConfig shareConfig].hostName ?: @""]];
 }
 
 - (void)endLoading{

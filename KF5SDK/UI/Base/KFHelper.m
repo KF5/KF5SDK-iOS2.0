@@ -243,7 +243,9 @@ KF5LazyImage(chat_record_cancel, @"kf5_chat_record_cancel");
         if (!path) {
             path = [[NSBundle mainBundle]pathForResource:KF5SDKFrameworkBundle ofType:nil];
         }
-        bundle = [NSBundle bundleWithPath:path];
+        if (path) {
+            bundle = [NSBundle bundleWithPath:path];
+        }
     }
     return bundle;
 }
@@ -338,6 +340,13 @@ static NSBundle *bundle = nil;
         return NO;
     }
     return YES;
+}
+
++ (NSString*)fullURL:(NSString*)url {
+    if (url == nil || [KFConfig shareConfig].hostName.length == 0) {
+        return url;
+    }
+    return [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:[KFConfig shareConfig].hostName]].absoluteString;
 }
 
 /**

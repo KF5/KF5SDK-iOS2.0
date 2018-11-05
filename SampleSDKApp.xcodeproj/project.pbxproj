@@ -100,8 +100,6 @@
 		841D3CE2213F7D8100DDDC01 /* UIScrollView+MJExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA2C1FDE1C61004B4852 /* UIScrollView+MJExtension.h */; };
 		841D3CE3213F7D8100DDDC01 /* UIScrollView+MJRefresh.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA331FDE1C61004B4852 /* UIScrollView+MJRefresh.h */; };
 		841D3CE4213F7D8100DDDC01 /* UIView+MJExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA301FDE1C61004B4852 /* UIView+MJExtension.h */; };
-		841D3CE5213F7D8100DDDC01 /* AmrPlayerReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA5B1FDE1C61004B4852 /* AmrPlayerReader.h */; };
-		841D3CE6213F7D8100DDDC01 /* MLAudioPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA5A1FDE1C61004B4852 /* MLAudioPlayer.h */; };
 		841D3CE7213F7D8100DDDC01 /* AmrRecordWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA831FDE1C61004B4852 /* AmrRecordWriter.h */; };
 		841D3CE8213F7D8100DDDC01 /* interf_dec.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA7C1FDE1C61004B4852 /* interf_dec.h */; };
 		841D3CE9213F7D8100DDDC01 /* interf_enc.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FA811FDE1C61004B4852 /* interf_enc.h */; };
@@ -168,8 +166,6 @@
 		8455FB571FDE1C61004B4852 /* MJRefreshBackFooter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA521FDE1C61004B4852 /* MJRefreshBackFooter.m */; };
 		8455FB581FDE1C61004B4852 /* MJRefreshAutoFooter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA531FDE1C61004B4852 /* MJRefreshAutoFooter.m */; };
 		8455FB591FDE1C61004B4852 /* MJRefreshComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA551FDE1C61004B4852 /* MJRefreshComponent.m */; };
-		8455FB5A1FDE1C61004B4852 /* AmrPlayerReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA591FDE1C61004B4852 /* AmrPlayerReader.m */; };
-		8455FB5B1FDE1C61004B4852 /* MLAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA5C1FDE1C61004B4852 /* MLAudioPlayer.m */; };
 		8455FB5C1FDE1C61004B4852 /* TZImageCropManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA601FDE1C61004B4852 /* TZImageCropManager.m */; };
 		8455FB5D1FDE1C61004B4852 /* TZAssetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA621FDE1C61004B4852 /* TZAssetCell.m */; };
 		8455FB5E1FDE1C61004B4852 /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA631FDE1C61004B4852 /* TZVideoPlayerController.m */; };
@@ -353,8 +349,6 @@
 		8474187F213E2C6E0079EE9D /* UIScrollView+MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA311FDE1C61004B4852 /* UIScrollView+MJExtension.m */; };
 		84741880213E2C6E0079EE9D /* UIScrollView+MJRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA2A1FDE1C61004B4852 /* UIScrollView+MJRefresh.m */; };
 		84741881213E2C6E0079EE9D /* UIView+MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA351FDE1C61004B4852 /* UIView+MJExtension.m */; };
-		84741882213E2C6E0079EE9D /* AmrPlayerReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA591FDE1C61004B4852 /* AmrPlayerReader.m */; };
-		84741883213E2C6E0079EE9D /* MLAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA5C1FDE1C61004B4852 /* MLAudioPlayer.m */; };
 		84741884213E2C6E0079EE9D /* AmrRecordWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA7D1FDE1C61004B4852 /* AmrRecordWriter.m */; };
 		84741885213E2C6E0079EE9D /* MLAudioMeterObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA821FDE1C61004B4852 /* MLAudioMeterObserver.m */; };
 		84741886213E2C6E0079EE9D /* MLAudioRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA7F1FDE1C61004B4852 /* MLAudioRecorder.m */; };
@@ -410,6 +404,12 @@
 		84E2C1D21E2348F3006BD73E /* KFSetTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E2C1CD1E2348F3006BD73E /* KFSetTableViewCell.m */; };
 		84E2C1D31E2348F3006BD73E /* KFSetTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E2C1CF1E2348F3006BD73E /* KFSetTableViewController.m */; };
 		84E2C1DB1E236A30006BD73E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84E2C1DD1E236A30006BD73E /* Localizable.strings */; };
+		84ED4604215E37CF008536D3 /* AmrPlayerReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 84ED4600215E37CE008536D3 /* AmrPlayerReader.m */; };
+		84ED4605215E37CF008536D3 /* AmrPlayerReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 84ED4600215E37CE008536D3 /* AmrPlayerReader.m */; };
+		84ED4606215E37CF008536D3 /* MLAudioPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 84ED4601215E37CE008536D3 /* MLAudioPlayer.h */; };
+		84ED4607215E37CF008536D3 /* AmrPlayerReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 84ED4602215E37CE008536D3 /* AmrPlayerReader.h */; };
+		84ED4608215E37CF008536D3 /* MLAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 84ED4603215E37CF008536D3 /* MLAudioPlayer.m */; };
+		84ED4609215E37CF008536D3 /* MLAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 84ED4603215E37CF008536D3 /* MLAudioPlayer.m */; };
 		84EE5A64202312ED00973027 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84E2BFDE1E234824006BD73E /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -482,10 +482,6 @@
 		8455FA551FDE1C61004B4852 /* MJRefreshComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJRefreshComponent.m; sourceTree = "<group>"; };
 		8455FA561FDE1C61004B4852 /* MJRefreshFooter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJRefreshFooter.h; sourceTree = "<group>"; };
 		8455FA571FDE1C61004B4852 /* MJRefreshBackFooter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJRefreshBackFooter.h; sourceTree = "<group>"; };
-		8455FA591FDE1C61004B4852 /* AmrPlayerReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AmrPlayerReader.m; sourceTree = "<group>"; };
-		8455FA5A1FDE1C61004B4852 /* MLAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLAudioPlayer.h; sourceTree = "<group>"; };
-		8455FA5B1FDE1C61004B4852 /* AmrPlayerReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmrPlayerReader.h; sourceTree = "<group>"; };
-		8455FA5C1FDE1C61004B4852 /* MLAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLAudioPlayer.m; sourceTree = "<group>"; };
 		8455FA5E1FDE1C61004B4852 /* TZPhotoPreviewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZPhotoPreviewCell.h; sourceTree = "<group>"; };
 		8455FA5F1FDE1C61004B4852 /* TZPhotoPickerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZPhotoPickerController.h; sourceTree = "<group>"; };
 		8455FA601FDE1C61004B4852 /* TZImageCropManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZImageCropManager.m; sourceTree = "<group>"; };
@@ -724,6 +720,10 @@
 		84E2C1D81E236928006BD73E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		84E2C1DE1E236A36006BD73E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		84E2C1DF1E236A3C006BD73E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		84ED4600215E37CE008536D3 /* AmrPlayerReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AmrPlayerReader.m; sourceTree = "<group>"; };
+		84ED4601215E37CE008536D3 /* MLAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLAudioPlayer.h; sourceTree = "<group>"; };
+		84ED4602215E37CE008536D3 /* AmrPlayerReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmrPlayerReader.h; sourceTree = "<group>"; };
+		84ED4603215E37CF008536D3 /* MLAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLAudioPlayer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -798,7 +798,6 @@
 				8455FA851FDE1C61004B4852 /* AFNetworking */,
 				8455FA881FDE1C61004B4852 /* MBProgressHUD */,
 				8455FA291FDE1C61004B4852 /* MJRefresh */,
-				8455FA581FDE1C61004B4852 /* MLAudioPlayer */,
 				8455FA7B1FDE1C61004B4852 /* MLRecorder */,
 				8455FA8B1FDE1C61004B4852 /* SDWebImage */,
 				8455FA5D1FDE1C61004B4852 /* TZImagePickerController */,
@@ -901,17 +900,6 @@
 			path = Base;
 			sourceTree = "<group>";
 		};
-		8455FA581FDE1C61004B4852 /* MLAudioPlayer */ = {
-			isa = PBXGroup;
-			children = (
-				8455FA5B1FDE1C61004B4852 /* AmrPlayerReader.h */,
-				8455FA591FDE1C61004B4852 /* AmrPlayerReader.m */,
-				8455FA5A1FDE1C61004B4852 /* MLAudioPlayer.h */,
-				8455FA5C1FDE1C61004B4852 /* MLAudioPlayer.m */,
-			);
-			path = MLAudioPlayer;
-			sourceTree = "<group>";
-		};
 		8455FA5D1FDE1C61004B4852 /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
@@ -951,6 +939,10 @@
 		8455FA7B1FDE1C61004B4852 /* MLRecorder */ = {
 			isa = PBXGroup;
 			children = (
+				84ED4602215E37CE008536D3 /* AmrPlayerReader.h */,
+				84ED4600215E37CE008536D3 /* AmrPlayerReader.m */,
+				84ED4601215E37CE008536D3 /* MLAudioPlayer.h */,
+				84ED4603215E37CF008536D3 /* MLAudioPlayer.m */,
 				8455FA831FDE1C61004B4852 /* AmrRecordWriter.h */,
 				8455FA7D1FDE1C61004B4852 /* AmrRecordWriter.m */,
 				8455FA7C1FDE1C61004B4852 /* interf_dec.h */,
@@ -1416,8 +1408,10 @@
 				841D3C05213F7ADE00DDDC01 /* KF5SDKChat.h in Headers */,
 				841D3C06213F7ADE00DDDC01 /* KFMessageModel.h in Headers */,
 				841D3C09213F7ADE00DDDC01 /* KFChatViewModel.h in Headers */,
+				84ED4607215E37CF008536D3 /* AmrPlayerReader.h in Headers */,
 				841D3C0A213F7ADE00DDDC01 /* KFChatVoiceManager.h in Headers */,
 				841D3C1E213F7C6600DDDC01 /* KF5SDK.h in Headers */,
+				84ED4606215E37CF008536D3 /* MLAudioPlayer.h in Headers */,
 				841D3C1F213F7C6600DDDC01 /* KFBaseViewController.h in Headers */,
 				841D3C20213F7C6600DDDC01 /* KFHelper.h in Headers */,
 				841D3C21213F7C6600DDDC01 /* KFUser.h in Headers */,
@@ -1486,8 +1480,6 @@
 				841D3CE2213F7D8100DDDC01 /* UIScrollView+MJExtension.h in Headers */,
 				841D3CE3213F7D8100DDDC01 /* UIScrollView+MJRefresh.h in Headers */,
 				841D3CE4213F7D8100DDDC01 /* UIView+MJExtension.h in Headers */,
-				841D3CE5213F7D8100DDDC01 /* AmrPlayerReader.h in Headers */,
-				841D3CE6213F7D8100DDDC01 /* MLAudioPlayer.h in Headers */,
 				841D3CE7213F7D8100DDDC01 /* AmrRecordWriter.h in Headers */,
 				841D3CE8213F7D8100DDDC01 /* interf_dec.h in Headers */,
 				841D3CE9213F7D8100DDDC01 /* interf_enc.h in Headers */,
@@ -1614,7 +1606,7 @@
 		84E2BDB91E2347C0006BD73E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = kf5;
 				TargetAttributes = {
 					847417E4213E28240079EE9D = {
@@ -1710,6 +1702,7 @@
 				8426B240213E649300F5A7F2 /* KF5SDKCore.framework in Sources */,
 				847418AC213E31E30079EE9D /* libopencore-amrnb.a in Sources */,
 				84741833213E2C6D0079EE9D /* KFBaseViewController.m in Sources */,
+				84ED4609215E37CF008536D3 /* MLAudioPlayer.m in Sources */,
 				84741834213E2C6D0079EE9D /* KFContentLabelHelp.m in Sources */,
 				84741835213E2C6D0079EE9D /* KFHelper.m in Sources */,
 				84741836213E2C6D0079EE9D /* KFUser.m in Sources */,
@@ -1771,6 +1764,7 @@
 				8474186F213E2C6D0079EE9D /* MJRefreshAutoFooter.m in Sources */,
 				84741870213E2C6D0079EE9D /* MJRefreshBackFooter.m in Sources */,
 				84741871213E2C6D0079EE9D /* MJRefreshComponent.m in Sources */,
+				84ED4605215E37CF008536D3 /* AmrPlayerReader.m in Sources */,
 				84741872213E2C6D0079EE9D /* MJRefreshFooter.m in Sources */,
 				84741873213E2C6D0079EE9D /* MJRefreshHeader.m in Sources */,
 				84741874213E2C6D0079EE9D /* MJRefreshBackGifFooter.m in Sources */,
@@ -1787,8 +1781,6 @@
 				8474187F213E2C6E0079EE9D /* UIScrollView+MJExtension.m in Sources */,
 				84741880213E2C6E0079EE9D /* UIScrollView+MJRefresh.m in Sources */,
 				84741881213E2C6E0079EE9D /* UIView+MJExtension.m in Sources */,
-				84741882213E2C6E0079EE9D /* AmrPlayerReader.m in Sources */,
-				84741883213E2C6E0079EE9D /* MLAudioPlayer.m in Sources */,
 				8426B247213E657D00F5A7F2 /* KFAutoLayout.m in Sources */,
 				84741884213E2C6E0079EE9D /* AmrRecordWriter.m in Sources */,
 				84741885213E2C6E0079EE9D /* MLAudioMeterObserver.m in Sources */,
@@ -1838,6 +1830,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8455FB521FDE1C61004B4852 /* MJRefreshNormalHeader.m in Sources */,
+				84ED4608215E37CF008536D3 /* MLAudioPlayer.m in Sources */,
 				8455FB531FDE1C61004B4852 /* MJRefreshStateHeader.m in Sources */,
 				8455FB901FDE1C62004B4852 /* KFChatViewController.m in Sources */,
 				8455FB9F1FDE1C62004B4852 /* KFFaceBoardView.m in Sources */,
@@ -1858,7 +1851,6 @@
 				8455FB9E1FDE1C62004B4852 /* KFVoiceMessageView.m in Sources */,
 				8455FB811FDE1C61004B4852 /* NSImage+WebCache.m in Sources */,
 				8455FBC11FDE1C62004B4852 /* KFBaseViewController.m in Sources */,
-				8455FB5B1FDE1C61004B4852 /* MLAudioPlayer.m in Sources */,
 				8455FB821FDE1C61004B4852 /* SDWebImageGIFCoder.m in Sources */,
 				8455FB4E1FDE1C61004B4852 /* MJRefreshBackNormalFooter.m in Sources */,
 				8455FBA81FDE1C62004B4852 /* KFTicketListViewCell.m in Sources */,
@@ -1894,6 +1886,7 @@
 				8455FB851FDE1C61004B4852 /* UIView+WebCache.m in Sources */,
 				8455FB501FDE1C61004B4852 /* MJRefreshAutoGifFooter.m in Sources */,
 				8455FB5E1FDE1C61004B4852 /* TZVideoPlayerController.m in Sources */,
+				84ED4604215E37CF008536D3 /* AmrPlayerReader.m in Sources */,
 				8455FB991FDE1C62004B4852 /* KFMessageModel.m in Sources */,
 				8455FBB61FDE1C62004B4852 /* KFTicketTableView.m in Sources */,
 				8455FB591FDE1C61004B4852 /* MJRefreshComponent.m in Sources */,
@@ -1925,7 +1918,6 @@
 				8455FB661FDE1C61004B4852 /* TZPhotoPickerController.m in Sources */,
 				8455FB5F1FDE1C61004B4852 /* TZAssetModel.m in Sources */,
 				8455FBAE1FDE1C62004B4852 /* KFComment.m in Sources */,
-				8455FB5A1FDE1C61004B4852 /* AmrPlayerReader.m in Sources */,
 				8455FB861FDE1C61004B4852 /* SDWebImageImageIOCoder.m in Sources */,
 				8455FBBB1FDE1C62004B4852 /* KFPostListViewController.m in Sources */,
 				8455FB6B1FDE1C61004B4852 /* AmrRecordWriter.m in Sources */,
@@ -2036,7 +2028,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -2091,7 +2083,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;

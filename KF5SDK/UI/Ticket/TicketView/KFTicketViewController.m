@@ -210,13 +210,19 @@
         }
             break;
         case kKFLinkTypeURL:{
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
+            NSURL *url = [NSURL URLWithString:[KFHelper fullURL:info[KF5LinkKey]] ?: @""];
+            if (url) {
+                [[UIApplication sharedApplication] openURL:url];
+            }
         }
             break;
         case kKFLinkTypeImg:{
             [self.view endEditing:YES];
-            [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
-            [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:[NSURL URLWithString:info[KF5LinkKey]] placeholder:KF5Helper.placeholderImage]] selectIndex:0];
+            NSURL *url = [NSURL URLWithString:[KFHelper fullURL:info[KF5LinkKey]] ?: @""];
+            if (url) {
+                [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
+                [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:url placeholder:KF5Helper.placeholderImage]] selectIndex:0];
+            }
         }
             break;
         default:

@@ -136,6 +136,8 @@
 
 + (BOOL)canRecordVoice;
 
++ (nullable NSString *)fullURL:(nullable NSString*)url;
+
 + (nullable NSString *)disable_emoji:(nonnull NSString *)text;
 + (nonnull UILabel *)labelWithFont:(nonnull UIFont *)font textColor:(nullable UIColor *)textColor;
 ///单行计算尺寸

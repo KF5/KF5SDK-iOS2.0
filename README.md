@@ -179,14 +179,16 @@ Accept: application/json
 - (void)deleteDeviceToken:(nonnull NSString *)deviceToken completion:(nullable void (^)(NSDictionary * _Nullable result, NSError * _Nullable error))completion;
 ```
 ## 六、其他
-1、KF5SDK分为两个部分,KF5SDKCore.framework和UI两个部分,具体的使用方式可以参考demo,也可以具体看类的.h文件,里面提供详细的注释供参考。
-2、所有的UI样式被封装在KFHelper中，开发者可根据需求直接修改View的属性或修改KFHelper中的样式。
-3、KF5SDK/UI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。     
+1、KF5SDK分为两个部分,KF5SDKCore.framework和UI两个部分,具体的使用方式可以参考demo,也可以具体看类的.h文件,里面提供详细的注释供参考。       
+2、所有的UI样式被封装在KFHelper中，开发者可根据需求直接修改View的属性或修改KFHelper中的样式。       
+3、KF5SDK/UI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。      
 4、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 ## 七、最新版本            
+#### V2.7.2 最后更新于 2018-11-05            
+支持工单和文档的相对路径            
+### 历史版本        
 #### V2.7.1 最后更新于 2018-09-14            
 调整文件结构,支持Cocoapods,支持Carthage            
-### 历史版本       
 #### V2.7.0 最后更新于 2018-07-25            
 新增支持客服撤回操作            
 #### V2.6.5 最后更新于 2018-05-25            
