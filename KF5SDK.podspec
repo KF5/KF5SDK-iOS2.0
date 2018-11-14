@@ -25,10 +25,10 @@ Pod::Spec.new do |s|
         ss.public_header_files = 'KF5SDK/UI/Base/**/*.h','KF5SDK/UI/Lib/**/*.h'
         ss.dependency 'KF5SDK/Core'
         ss.resources    = 'KF5SDK/UI/KF5SDK.bundle'
-        ss.dependency 'MBProgressHUD', '~> 1.1.0'
-        ss.dependency 'AFNetworking/Reachability', '~> 3.1.0'
-        ss.dependency 'MJRefresh', '~> 3.1.15'
-        ss.dependency 'SDWebImage/Core', '~> 4.2.2'
+        ss.dependency 'MBProgressHUD', '~> 1'
+        ss.dependency 'AFNetworking/Reachability', '~> 3'
+        ss.dependency 'MJRefresh', '~> 3'
+        ss.dependency 'SDWebImage/Core', '~> 4'
     end
 
     s.subspec 'Doc' do |ss|
@@ -41,7 +41,7 @@ Pod::Spec.new do |s|
         ss.source_files = 'KF5SDK/UI/Ticket/**/*'
         ss.public_header_files = 'KF5SDK/UI/Ticket/**/*.h'
         ss.dependency 'KF5SDK/Base'
-        ss.dependency 'TZImagePickerController', '~> 2.2.2'
+        ss.dependency 'TZImagePickerController', '~> 2'
     end
 
     s.subspec 'Chat' do |ss|
@@ -51,7 +51,7 @@ Pod::Spec.new do |s|
         ss.preserve_path = 'KF5SDK/UI/**/libopencore-amrnb.a'
         ss.dependency 'KF5SDK/Doc'
         ss.dependency 'KF5SDK/Ticket'
-        ss.dependency 'TZImagePickerController', '~> 2.2.2'
+        ss.dependency 'TZImagePickerController', '~> 2'
     end
 
 end
