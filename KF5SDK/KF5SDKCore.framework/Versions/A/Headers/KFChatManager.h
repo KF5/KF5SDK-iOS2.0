@@ -103,7 +103,8 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
 /// 当前对话状态,socket连接成功后有效
 @property (nonatomic, assign,readonly) KFChatStatus chatStatus;
 
-/// 满意度评价等级@warning 三种级别可选:两级、三级、五级,socket连接成功后有效.
+/// 满意度评价等级
+/// @warning 三种级别可选:两级、三级、五级,socket连接成功后有效.
 @property (nonatomic, assign,readonly) NSInteger rateLevelCount;
 
 /// 是否强制分配给受理客服,socket连接成功后有效

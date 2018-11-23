@@ -553,34 +553,34 @@
         }
             break;
         case kKFLinkTypeBracket:
-            [self chatToolViewWithTransferAction:self.chatToolView];
-            break;
-        case kKFLinkTypeLeaveMessage:{
-            __weak typeof(self)weakSelf = self;
-            [[KFHelper alertWithMessage:KF5Localized(@"kf5_cancel_queue_to_feedback") confirmHandler:^(UIAlertAction * _Nonnull action) {
-                [weakSelf.viewModel cancleWithCompletion:^(NSError *error) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (!error) {
-                            [weakSelf removeQueueMessage];
-                            [weakSelf showMessageWithText:KF5Localized(@"kf5_cancel_queued")];
-                        }else{
-                            [weakSelf showMessageWithText:KF5Localized(@"kf5_cancel_queue_failed")];
-                        }
-                    });
-                }];
-                [weakSelf.view endEditing:YES];
-                
-                if (weakSelf.noAgentAlertActionBlock) {
-                    weakSelf.noAgentAlertActionBlock();
-                }else{
+            if (cell.messageModel.message.messageType == KFMessageTypeSystem) {// 去留言
+                __weak typeof(self)weakSelf = self;
+                [[KFHelper alertWithMessage:KF5Localized(@"kf5_cancel_queue_to_feedback") confirmHandler:^(UIAlertAction * _Nonnull action) {
+                    [weakSelf.viewModel cancleWithCompletion:^(NSError *error) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if (!error) {
+                                [weakSelf removeQueueMessage];
+                                [weakSelf showMessageWithText:KF5Localized(@"kf5_cancel_queued")];
+                            }else{
+                                [weakSelf showMessageWithText:KF5Localized(@"kf5_cancel_queue_failed")];
+                            }
+                        });
+                    }];
+                    [weakSelf.view endEditing:YES];
+                    
+                    if (weakSelf.noAgentAlertActionBlock) {
+                        weakSelf.noAgentAlertActionBlock();
+                    }else{
 #if KFHasTicket
-                    [weakSelf presentViewController:[[UINavigationController alloc] initWithRootViewController:[KFCreateTicketViewController new]] animated:YES completion:nil];
+                        [weakSelf presentViewController:[[UINavigationController alloc] initWithRootViewController:[KFCreateTicketViewController new]] animated:YES completion:nil];
 #else
 #warning 没有添加KF5SDKUI/Ticket
 #endif
-                }
-            }]showToVC:self];
-        }
+                    }
+                }]showToVC:self];
+            }else{// 转人工
+                [self chatToolViewWithTransferAction:self.chatToolView];
+            }
             break;
         default:
             break;

@@ -23,7 +23,6 @@ typedef enum : NSUInteger {
     kKFLinkTypeImg,          // 图片
     kKFLinkTypeDucument,     // IM知识库文档
     kKFLinkTypeBracket,      // IM转接客服
-    kKFLinkTypeLeaveMessage, // IM留言
     kKFLinkTypeVideo,        // 视频
     kKFLinkTypeQuestion,     // IM问题
 } kKFLinkType;
