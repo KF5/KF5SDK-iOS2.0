@@ -21,7 +21,7 @@ end
 ```
 #### 2、Carthage
 ```ogdl
-github "KF5SDK/KF5SDK-iOS2.0" ~>2.7.1
+github "KF5SDK/KF5SDK-iOS2.0" ~>2.7.4
 ```
 #### 3、手动集成
 1、先下载[KF5SDK](https://codeload.github.com/KF5/KF5SDK-iOS2.0/zip/master)的官方demo。将KF5SDK下的文件拖拽到自己的工程中。      
@@ -184,9 +184,11 @@ Accept: application/json
 3、KF5SDK/UI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。      
 4、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 ## 七、最新版本            
+#### V2.7.4 最后更新于 2018-12-14            
+新增工单催单接口            
+### 历史版本             
 #### V2.7.3 最后更新于 2018-11-23            
 修复IM去留言点击事件错误的问题            
-### 历史版本        
 #### V2.7.2 最后更新于 2018-11-05            
 支持工单和文档的相对路径            
 #### V2.7.1 最后更新于 2018-09-14            

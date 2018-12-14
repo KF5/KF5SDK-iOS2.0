@@ -250,7 +250,6 @@ static NSString *cellID = @"KFPreviewCell";
     [super layoutSubviews];
     self.previewView.frame = self.bounds;
 }
-
 @end
 
 

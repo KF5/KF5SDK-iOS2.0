@@ -60,9 +60,7 @@
 #pragma mark - 公共方法
 - (void)endRefreshingWithNoMoreData
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.state = MJRefreshStateNoMoreData;
-    });
+    MJRefreshDispatchAsyncOnMainQueue(self.state = MJRefreshStateNoMoreData;)
 }
 
 - (void)noticeNoMoreData
@@ -72,24 +70,11 @@
 
 - (void)resetNoMoreData
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.state = MJRefreshStateIdle;
-    });
+    MJRefreshDispatchAsyncOnMainQueue(self.state = MJRefreshStateIdle;)
 }
 
 - (void)setAutomaticallyHidden:(BOOL)automaticallyHidden
 {
     _automaticallyHidden = automaticallyHidden;
-    
-    if (automaticallyHidden) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            [UITableView exchangeInstanceMethod1:@selector(reloadData) method2:@selector(mj_reloadData)];
-            [UICollectionView exchangeInstanceMethod1:@selector(reloadData) method2:@selector(mj_reloadData)];
-        });
-#pragma clang diagnostic pop
-    }
 }
 @end

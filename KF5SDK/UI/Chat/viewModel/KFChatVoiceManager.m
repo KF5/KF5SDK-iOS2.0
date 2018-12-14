@@ -215,8 +215,7 @@ static KFChatVoiceManager *sharedManager = nil;
     [[[NSURLSession sharedSession] downloadTaskWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:messageModel.message.url]] completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             [weakSelf.messageList removeObject:messageModel];
             if (!error) {
-                NSURL *localURL= [[[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil] URLByAppendingPathComponent:[NSString stringWithFormat:@"KF5SDK/%@",[KFHelper md5HexDigest:messageModel.message.url]]];
-                localURL = [NSURL fileURLWithPath:local_path];
+                NSURL *localURL = [NSURL fileURLWithPath:local_path];
                 [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
                 messageModel.message.local_path = localURL.path;
                 messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:messageModel.message.local_path];

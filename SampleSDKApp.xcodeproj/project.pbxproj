@@ -390,6 +390,15 @@
 		847418AA213E2C6E0079EE9D /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA631FDE1C61004B4852 /* TZVideoPlayerController.m */; };
 		847418AB213E2C6E0079EE9D /* UIView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA681FDE1C61004B4852 /* UIView+Layout.m */; };
 		847418AC213E31E30079EE9D /* libopencore-amrnb.a in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA801FDE1C61004B4852 /* libopencore-amrnb.a */; };
+		84D241F621BA24AA0079F974 /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F021BA24A90079F974 /* SDWebImageTransition.m */; };
+		84D241F721BA24AA0079F974 /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F021BA24A90079F974 /* SDWebImageTransition.m */; };
+		84D241F821BA24AA0079F974 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F121BA24A90079F974 /* SDAnimatedImageRep.m */; };
+		84D241F921BA24AA0079F974 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F121BA24A90079F974 /* SDAnimatedImageRep.m */; };
+		84D241FA21BA24AA0079F974 /* SDWebImageTransition.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D241F221BA24AA0079F974 /* SDWebImageTransition.h */; };
+		84D241FB21BA24AA0079F974 /* SDAnimatedImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D241F321BA24AA0079F974 /* SDAnimatedImageRep.h */; };
+		84D241FC21BA24AA0079F974 /* NSButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F421BA24AA0079F974 /* NSButton+WebCache.m */; };
+		84D241FD21BA24AA0079F974 /* NSButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F421BA24AA0079F974 /* NSButton+WebCache.m */; };
+		84D241FE21BA24AA0079F974 /* NSButton+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D241F521BA24AA0079F974 /* NSButton+WebCache.h */; };
 		84DA1376212BBF1400CAC7DF /* KF5SDKCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84DA1375212BBF1300CAC7DF /* KF5SDKCore.framework */; };
 		84E2BDC61E2347C0006BD73E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E2BDC51E2347C0006BD73E /* main.m */; };
 		84E2BDC91E2347C0006BD73E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E2BDC81E2347C0006BD73E /* AppDelegate.m */; };
@@ -690,6 +699,12 @@
 		8455FB431FDE1C61004B4852 /* KFHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFHelper.h; sourceTree = "<group>"; };
 		8455FB441FDE1C61004B4852 /* KFUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFUser.h; sourceTree = "<group>"; };
 		847417E5213E28240079EE9D /* KF5SDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KF5SDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84D241F021BA24A90079F974 /* SDWebImageTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTransition.m; sourceTree = "<group>"; };
+		84D241F121BA24A90079F974 /* SDAnimatedImageRep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDAnimatedImageRep.m; sourceTree = "<group>"; };
+		84D241F221BA24AA0079F974 /* SDWebImageTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageTransition.h; sourceTree = "<group>"; };
+		84D241F321BA24AA0079F974 /* SDAnimatedImageRep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDAnimatedImageRep.h; sourceTree = "<group>"; };
+		84D241F421BA24AA0079F974 /* NSButton+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSButton+WebCache.m"; sourceTree = "<group>"; };
+		84D241F521BA24AA0079F974 /* NSButton+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSButton+WebCache.h"; sourceTree = "<group>"; };
 		84DA1375212BBF1300CAC7DF /* KF5SDKCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = KF5SDKCore.framework; sourceTree = "<group>"; };
 		84DA1378212BC13A00CAC7DF /* KF5SDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KF5SDK.h; sourceTree = "<group>"; };
 		84E2BDC11E2347C0006BD73E /* SampleSDKApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleSDKApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -977,6 +992,12 @@
 		8455FA8B1FDE1C61004B4852 /* SDWebImage */ = {
 			isa = PBXGroup;
 			children = (
+				84D241F521BA24AA0079F974 /* NSButton+WebCache.h */,
+				84D241F421BA24AA0079F974 /* NSButton+WebCache.m */,
+				84D241F321BA24AA0079F974 /* SDAnimatedImageRep.h */,
+				84D241F121BA24A90079F974 /* SDAnimatedImageRep.m */,
+				84D241F221BA24AA0079F974 /* SDWebImageTransition.h */,
+				84D241F021BA24A90079F974 /* SDWebImageTransition.m */,
 				8455FA8F1FDE1C61004B4852 /* NSData+ImageContentType.h */,
 				8455FAA91FDE1C61004B4852 /* NSData+ImageContentType.m */,
 				8455FA8D1FDE1C61004B4852 /* NSImage+WebCache.h */,
@@ -1416,6 +1437,7 @@
 				841D3C20213F7C6600DDDC01 /* KFHelper.h in Headers */,
 				841D3C21213F7C6600DDDC01 /* KFUser.h in Headers */,
 				841D3C22213F7C6600DDDC01 /* KFUserManager.h in Headers */,
+				84D241FE21BA24AA0079F974 /* NSButton+WebCache.h in Headers */,
 				841D3CA5213F7D6300DDDC01 /* KFMessage.h in Headers */,
 				841D3CA6213F7D6300DDDC01 /* KF5SDKCore.h in Headers */,
 				841D3CA7213F7D6400DDDC01 /* KFAgent.h in Headers */,
@@ -1423,6 +1445,7 @@
 				841D3CA9213F7D6400DDDC01 /* KFChatManager.h in Headers */,
 				841D3CAA213F7D6400DDDC01 /* KFDispatcher.h in Headers */,
 				841D3CAB213F7D6400DDDC01 /* KFConfig.h in Headers */,
+				84D241FB21BA24AA0079F974 /* SDAnimatedImageRep.h in Headers */,
 				841D3CAC213F7D6400DDDC01 /* KFHttpTool.h in Headers */,
 				841D3CAD213F7D8100DDDC01 /* KFContentLabelHelp.h in Headers */,
 				841D3CAE213F7D8100DDDC01 /* KFCategory.h in Headers */,
@@ -1469,6 +1492,7 @@
 				841D3CD7213F7D8100DDDC01 /* MJRefreshBackStateFooter.h in Headers */,
 				841D3CD8213F7D8100DDDC01 /* MJRefreshBackNormalFooter.h in Headers */,
 				841D3CD9213F7D8100DDDC01 /* MJRefreshAutoStateFooter.h in Headers */,
+				84D241FA21BA24AA0079F974 /* SDWebImageTransition.h in Headers */,
 				841D3CDA213F7D8100DDDC01 /* MJRefreshAutoNormalFooter.h in Headers */,
 				841D3CDB213F7D8100DDDC01 /* MJRefreshAutoGifFooter.h in Headers */,
 				841D3CDC213F7D8100DDDC01 /* MJRefreshStateHeader.h in Headers */,
@@ -1742,8 +1766,10 @@
 				84741859213E2C6D0079EE9D /* KFProgressHUD.m in Sources */,
 				8474185A213E2C6D0079EE9D /* KFTextView.m in Sources */,
 				8474185B213E2C6D0079EE9D /* KFCreateTicketView.m in Sources */,
+				84D241F921BA24AA0079F974 /* SDAnimatedImageRep.m in Sources */,
 				8474185C213E2C6D0079EE9D /* KFCreateTicketViewController.m in Sources */,
 				8474185D213E2C6D0079EE9D /* KFSudokuView.m in Sources */,
+				84D241FD21BA24AA0079F974 /* NSButton+WebCache.m in Sources */,
 				8474185E213E2C6D0079EE9D /* KFTicket.m in Sources */,
 				8474185F213E2C6D0079EE9D /* KFTicketListViewCell.m in Sources */,
 				84741860213E2C6D0079EE9D /* KFTicketListViewController.m in Sources */,
@@ -1819,6 +1845,7 @@
 				847418A6213E2C6E0079EE9D /* TZPhotoPickerController.m in Sources */,
 				847418A7213E2C6E0079EE9D /* TZPhotoPreviewCell.m in Sources */,
 				847418A8213E2C6E0079EE9D /* TZPhotoPreviewController.m in Sources */,
+				84D241F721BA24AA0079F974 /* SDWebImageTransition.m in Sources */,
 				847418A9213E2C6E0079EE9D /* TZProgressView.m in Sources */,
 				847418AA213E2C6E0079EE9D /* TZVideoPlayerController.m in Sources */,
 				847418AB213E2C6E0079EE9D /* UIView+Layout.m in Sources */,
@@ -1860,6 +1887,7 @@
 				8455FBC21FDE1C62004B4852 /* KFUserManager.m in Sources */,
 				8455FB691FDE1C61004B4852 /* TZLocationManager.m in Sources */,
 				8455FB801FDE1C61004B4852 /* UIImageView+WebCache.m in Sources */,
+				84D241F821BA24AA0079F974 /* SDAnimatedImageRep.m in Sources */,
 				8455FB6E1FDE1C61004B4852 /* MLAudioMeterObserver.m in Sources */,
 				8455FBB51FDE1C62004B4852 /* KFDetailMessageViewCell.m in Sources */,
 				8455FB4D1FDE1C61004B4852 /* MJRefreshBackStateFooter.m in Sources */,
@@ -1868,6 +1896,7 @@
 				8455FB601FDE1C61004B4852 /* NSBundle+TZImagePicker.m in Sources */,
 				8455FB931FDE1C62004B4852 /* KFVoiceMessageCell.m in Sources */,
 				8455FB711FDE1C61004B4852 /* SDWebImageManager.m in Sources */,
+				84D241FC21BA24AA0079F974 /* NSButton+WebCache.m in Sources */,
 				8455FBA11FDE1C62004B4852 /* KFLabel.m in Sources */,
 				84E2C1D11E2348F3006BD73E /* KFPersonTableViewController.m in Sources */,
 				8455FB541FDE1C61004B4852 /* MJRefreshGifHeader.m in Sources */,
@@ -1945,6 +1974,7 @@
 				8455FB651FDE1C61004B4852 /* TZImageManager.m in Sources */,
 				8455FBA21FDE1C62004B4852 /* KFPreviewController.m in Sources */,
 				8455FBBD1FDE1C62004B4852 /* KFForumListViewController.m in Sources */,
+				84D241F621BA24AA0079F974 /* SDWebImageTransition.m in Sources */,
 				84E2BDC61E2347C0006BD73E /* main.m in Sources */,
 				8455FBB91FDE1C62004B4852 /* KFCategorieListViewController.m in Sources */,
 				8455FB551FDE1C61004B4852 /* MJRefreshFooter.m in Sources */,

@@ -79,7 +79,7 @@
     
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:color];
     __weak typeof(self)weakSelf = self;
-    if (optional&1<<0) {
+    if (optional&KFLabelHelpHandleATag) {
         // 匹配 atag
         text = [self matchingWithRegular:self.regexAtagFormat attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 3) return nil;
@@ -89,7 +89,7 @@
         }];
     }
     
-    if (optional&1<<1) {
+    if (optional&KFLabelHelpHandleImg) {
         // 匹配img
         text = [self matchingWithRegular:self.regexImg attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 2) return nil;
@@ -99,7 +99,7 @@
         }];
     }
     
-    if (optional&1<<2) {
+    if (optional&KFLabelHelpHandleHttp) {
         // 匹配 http
         text = [self matchingWithRegular:self.regexHttp attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count == 0) return nil;
@@ -108,7 +108,7 @@
         }];
     }
     
-    if (optional&1<<3) {
+    if (optional&KFLabelHelpHandlePhone) {
         // 匹配phone
         text = [self matchingWithRegular:self.regexPhone attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 1) return nil;
@@ -116,7 +116,7 @@
             return [weakSelf hightlightBorderWithString:phoneStr userInfo:[weakSelf userInfoWithType:kKFLinkTypePhone title:phoneStr key:phoneStr] font:font color:color];
         }];
     }
-    if (optional&1<<4) {
+    if (optional&KFLabelHelpHandleBracket) {
         // 匹配{{}}
         text = [self matchingWithRegular:self.regexBracket attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 2) return nil;

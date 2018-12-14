@@ -178,7 +178,11 @@
                 if (!isDegraded) {
                     self.isRequestingGIF = NO;
                     self.progressView.hidden = YES;
-                    self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                    if ([TZImagePickerConfig sharedInstance].gifImagePlayBlock) {
+                        [TZImagePickerConfig sharedInstance].gifImagePlayBlock(self, self.imageView, data, info);
+                    } else {
+                        self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                    }
                     [self resizeSubviews];
                 }
             }];
@@ -188,7 +192,7 @@
     }
 }
 
-- (void)setAsset:(id)asset {
+- (void)setAsset:(PHAsset *)asset {
     if (_asset && self.imageRequestID) {
         [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
     }
@@ -220,6 +224,8 @@
             self.imageRequestID = 0;
         }
     } networkAccessAllowed:YES];
+    
+    [self configMaximumZoomScale];
 }
 
 - (void)recoverSubviews {
@@ -253,9 +259,8 @@
     [self refreshScrollViewContentSize];
 }
 
-- (void)setAllowCrop:(BOOL)allowCrop {
-    _allowCrop = allowCrop;
-    _scrollView.maximumZoomScale = allowCrop ? 4.0 : 2.5;
+- (void)configMaximumZoomScale {
+    _scrollView.maximumZoomScale = _allowCrop ? 4.0 : 2.5;
     
     if ([self.asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = (PHAsset *)self.asset;
@@ -358,8 +363,8 @@
         [_playButton removeFromSuperview];
     }
     _playButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_playButton setImage:[UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
-    [_playButton setImage:[UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlayHL"] forState:UIControlStateHighlighted];
+    [_playButton setImage:[UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
+    [_playButton setImage:[UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlayHL"] forState:UIControlStateHighlighted];
     [_playButton addTarget:self action:@selector(playButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_playButton];
 }
@@ -412,7 +417,7 @@
         if (currentTime.value == durationTime.value) [_player.currentItem seekToTime:CMTimeMake(0, 1)];
         [_player play];
         [_playButton setImage:nil forState:UIControlStateNormal];
-        if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = YES;
+        [UIApplication sharedApplication].statusBarHidden = YES;
         if (self.singleTapGestureBlock) {
             self.singleTapGestureBlock();
         }
@@ -424,7 +429,7 @@
 - (void)pausePlayerAndShowNaviBar {
     if (_player.rate != 0.0) {
         [_player pause];
-        [_playButton setImage:[UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
+        [_playButton setImage:[UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
         if (self.singleTapGestureBlock) {
             self.singleTapGestureBlock();
         }

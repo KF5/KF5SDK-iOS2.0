@@ -241,6 +241,17 @@
  */
 + (nullable NSURLSessionDataTask *)getCustomFieldsWithCompletion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
 
+/**
+ 工单催单
+ 
+ @param params 参数,如下:
+ @{
+ @"userToken":@"",       // 用户唯一标示,可通过创建或登录用户获得,必填
+ @"ticket_id":@(),           // 工单的id,必填
+ };
+ */
++ (nullable NSURLSessionDataTask *)pushesTicketWithParams:(nonnull NSDictionary *)params completion:(nullable void (^) ( NSDictionary *_Nullable result, NSError *_Nullable error))completion;
+
 #pragma mark - 上传文件接口
 /**
  工单上传文件
