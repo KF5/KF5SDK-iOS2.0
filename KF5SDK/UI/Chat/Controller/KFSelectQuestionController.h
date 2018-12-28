@@ -7,7 +7,7 @@
 //
 
 #import "KFBaseViewController.h"
-typedef void ((^SelectQuestionBlock)(NSArray<NSNumber *> * _Nullable agentIds, BOOL cancel));
+typedef void ((^SelectQuestionBlock)(NSNumber * _Nullable questionKey, BOOL cancel));
 
 @interface KFSelectQuestionController : KFBaseTableViewController
 

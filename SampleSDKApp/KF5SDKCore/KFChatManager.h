@@ -113,8 +113,9 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
 /// warning:优先级高于问题分配，如果该访客有受理客服，则不显示问题分配选项
 @property (nullable, nonatomic, strong,readonly) NSArray *assignAgentIds;
 
-/// 问题分配数据 enabled:是否开启问题分配,force：是否强制分配,options：问题分配选项, socket连接成功后有效.
-@property (nullable, nonatomic,strong,readonly) NSDictionary *selectQuestionDictionary;
+/// 问题分配数据 enabled:是否开启问题分配,options问题分配选项, socket连接成功后有效.
+/// { "enabled" : true, "options" : [ { "title" : "全部客服组-全部客服", "key" : 1000028, "description" : "全部客服" },]}
+@property (nullable, nonatomic,strong,readonly) NSDictionary *questionDictionary;
 
 #pragma mark 方法
 /**
@@ -154,14 +155,22 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  */
 - (nonnull KFMessage *)sendAIQuestionId:(NSInteger)question_id questionTitle:(nonnull NSString *)questionTitle completion:(nullable void (^)(KFMessage * _Nonnull me_message,KFMessage * _Nullable ai_message, NSError * _Nullable error))completion;
 /**
- 用户加入排队
+ 用户指定客服加入排队
  
- @param agentIds 希望分配的客服id数组(agentIds可以通过ownAgents或selectQuestionDictionary中获取)
+ @param agentIds 希望分配的客服id数组(agentIds可以通过后台获取)
  @param force 是否强制分配（如果强制分配，则不溢出）
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
           completion中的error用于判断排队请求是否成功,排队结果会调用chatManager:queueIndex:和chatManager:queueError:代理方法
  */
 - (void)queueUpWithAgentIds:(nullable NSArray <NSNumber *>*)agentIds isForce:(BOOL)force completion:(nullable void (^)(NSError * _Nullable error))completion;
+/**
+ 用户指定问题分配加入排队
+
+ @param questionKey 问题分配key
+ @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
+    completion中的error用于判断排队请求是否成功,排队结果会调用chatManager:queueIndex:和chatManager:queueError:代理方法
+ */
+- (void)queueUpWithQuestionKey:(NSInteger)questionKey completion:(nullable void (^)(NSError * _Nullable error))completion;
 /**
  用户取消排队
 

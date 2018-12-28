@@ -44,7 +44,7 @@ typedef NS_ENUM(NSInteger,KFChatRatingScore) {
 - (void)chat:(nonnull KFChatViewModel *)chat reloadMessageModels:(nullable NSArray <KFMessageModel *>*)messageModels;
 
 /**获取要选择的客服组模型*/
-- (void)chat:(nonnull KFChatViewModel *)chat selectQuestionWithOptions:(nonnull NSArray <NSDictionary*>*)options selectBlock:(void (^_Nullable)(NSArray <NSNumber *>* _Nullable agentIds, BOOL cancel))selectBlock;
+- (void)chat:(nonnull KFChatViewModel *)chat selectQuestionWithOptions:(nonnull NSArray <NSDictionary*>*)options selectBlock:(void (^_Nullable)(NSNumber* _Nullable questionKey, BOOL cancel))selectBlock;
 @end
 
 @interface KFChatViewModel : NSObject

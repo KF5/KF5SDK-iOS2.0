@@ -13,15 +13,13 @@
 
 + (UIImage *)kf5_imageWithBundleImageName:(NSString *)name {
     UIImage *image = [UIImage imageNamed:[KF5SDKBundle stringByAppendingPathComponent:name]];
-    if (image) {
-        return image;
-    } else {
-        image = [UIImage imageNamed:[KF5SDKFrameworkBundle stringByAppendingPathComponent:name]];
-        if (!image) {
-            image = [UIImage imageNamed:name];
-        }
-        return image;
+    if (!image) {
+         image = [UIImage imageNamed:[KF5SDKFrameworkBundle stringByAppendingPathComponent:name]];
     }
+    if (!image) {
+        image = [UIImage imageNamed:name];
+    }
+    return image;
 }
 
 - (UIImage *)kf5_imageWithOverlayColor:(UIColor *)overlayColor{

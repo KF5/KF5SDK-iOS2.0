@@ -20,8 +20,6 @@
 
 /// 是否开启问题分配
 @property (nonatomic, assign, ) BOOL selectQuestionEnabled;
-/// 是否强制分配
-@property (nonatomic, assign) BOOL selectQuestionisForce;
 /// 问题分配选项
 @property (nonatomic, strong) NSArray <NSDictionary *>* selectQuestionOption;
 
@@ -87,10 +85,9 @@
             if(completion) completion(error);
             [weakSelf delegateWithConnectError:error];
         }else{
-            NSDictionary *dict = [KFChatManager sharedChatManager].selectQuestionDictionary;
+            NSDictionary *dict = [KFChatManager sharedChatManager].questionDictionary;
             if (dict) {
                 weakSelf.selectQuestionEnabled = [dict kf5_numberForKeyPath:@"enabled"].boolValue;
-                weakSelf.selectQuestionisForce = [dict kf5_numberForKeyPath:@"force"].boolValue;
                 weakSelf.selectQuestionOption = [dict kf5_arrayForKeyPath:@"options"];
             }
             if (weakSelf.shouldQueueUp) {
@@ -122,11 +119,11 @@
     };
     // 如果该访客有受理客服则使用默认的受理客服,不弹出问题分配
     if ([KFChatManager sharedChatManager].assignAgentIds.count == 0 && self.selectQuestionEnabled && self.selectQuestionOption.count > 0 && [self.delegate respondsToSelector:@selector(chat:selectQuestionWithOptions:selectBlock:)]) {
-        [self.delegate chat:self selectQuestionWithOptions:self.selectQuestionOption selectBlock:^(NSArray<NSNumber *> * _Nullable agentIds, BOOL cancel) {
+        [self.delegate chat:self selectQuestionWithOptions:self.selectQuestionOption selectBlock:^(NSNumber * _Nullable questionKey, BOOL cancel) {
             if (cancel) {
                 if (completion) completion(nil);
             }else{
-                [[KFChatManager sharedChatManager]queueUpWithAgentIds:agentIds isForce:weakSelf.selectQuestionisForce completion:queueUpCompletion];
+                [[KFChatManager sharedChatManager]queueUpWithQuestionKey:questionKey.integerValue completion:queueUpCompletion];
             }
         }];
     }else{

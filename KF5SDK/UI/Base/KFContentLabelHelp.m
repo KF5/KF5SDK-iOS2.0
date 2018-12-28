@@ -77,11 +77,24 @@
 + (NSMutableAttributedString *)attributedString:(NSString *)string labelHelpHandle:(KFLabelHelpHandle)optional font:(UIFont *)font color:(UIColor *)color{
     if (string.length == 0) return [self attStringWithString:@" " font:font color:color];
     
+    [self regexInitialization];
+    
     NSMutableAttributedString *text = [self attStringWithString:string font:font color:color];
     __weak typeof(self)weakSelf = self;
+    // 匹配过滤br标签
+    text = [self matchingWithRegular:regexBr attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        if (results.count != 1) return nil;
+        return [weakSelf attStringWithString:@"\n" font:font color:color];
+    }];
+    // 匹配过滤p标签
+    text = [self matchingWithRegular:regexP attributeString:text mapHandle:^NSAttributedString *(NSArray <NSString *>*results) {
+        if (results.count != 3) return nil;
+        return [weakSelf attStringWithString:[NSString stringWithFormat:@"%@%@",results[1], [results[2] isEqualToString:@"\n"] ? @"" : @"\n"] font:font color:color];
+    }];
+    
     if (optional&KFLabelHelpHandleATag) {
         // 匹配 atag
-        text = [self matchingWithRegular:self.regexAtagFormat attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        text = [self matchingWithRegular:regexAtagFormat attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 3) return nil;
             NSString *href = results[1];
             NSString *title = results[2];
@@ -91,7 +104,7 @@
     
     if (optional&KFLabelHelpHandleImg) {
         // 匹配img
-        text = [self matchingWithRegular:self.regexImg attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        text = [self matchingWithRegular:regexImg attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 2) return nil;
             NSString *imgStr = results[1];
             NSString *title = @"[图片]";
@@ -101,7 +114,7 @@
     
     if (optional&KFLabelHelpHandleHttp) {
         // 匹配 http
-        text = [self matchingWithRegular:self.regexHttp attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        text = [self matchingWithRegular:regexHttp attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count == 0) return nil;
             NSString *httpStr = results[0];
             return [weakSelf hightlightBorderWithString:httpStr userInfo:[weakSelf userInfoWithType:kKFLinkTypeURL title:httpStr key:httpStr] font:font color:color];
@@ -110,7 +123,7 @@
     
     if (optional&KFLabelHelpHandlePhone) {
         // 匹配phone
-        text = [self matchingWithRegular:self.regexPhone attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        text = [self matchingWithRegular:regexPhone attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 1) return nil;
             NSString *phoneStr = results[0];
             return [weakSelf hightlightBorderWithString:phoneStr userInfo:[weakSelf userInfoWithType:kKFLinkTypePhone title:phoneStr key:phoneStr] font:font color:color];
@@ -118,13 +131,22 @@
     }
     if (optional&KFLabelHelpHandleBracket) {
         // 匹配{{}}
-        text = [self matchingWithRegular:self.regexBracket attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        text = [self matchingWithRegular:regexBracket attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
             if (results.count != 2) return nil;
             NSString *bracketStr = results[1];
             return [weakSelf hightlightBorderWithString:bracketStr userInfo:[weakSelf userInfoWithType:kKFLinkTypeBracket title:bracketStr key:bracketStr] font:font color:color];
         }];
     }
-    
+
+    // 匹配过滤其他标签和尾部的换行以及尾部的&nbsp;
+    text = [self matchingWithRegular:regexOther attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        return [weakSelf attStringWithString:@"" font:font color:color];
+    }];
+    // 匹配&nbsp;
+    text = [self matchingWithRegular:regexNBSP attributeString:text mapHandle:^NSAttributedString *(NSArray *results) {
+        if (results.count != 1) return nil;
+        return [weakSelf attStringWithString:@" " font:font color:color];
+    }];
     return text;
 }
 
@@ -186,51 +208,39 @@
     return attributedString;
 }
 
-#pragma mark 手机号
-+ (NSRegularExpression *)regexPhone{
-    static NSRegularExpression *phone;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        phone = [NSRegularExpression regularExpressionWithPattern:@"1[0-9]{10}(?!\\d)" options:kNilOptions error:NULL];
-    });
-    return phone;
-}
+#pragma mark - 正则表达式
+static NSRegularExpression *regexAtagFormat;
+static NSRegularExpression *regexHttp;
+static NSRegularExpression *regexBracket;
+static NSRegularExpression *regexPhone;
+static NSRegularExpression *regexImg;
+static NSRegularExpression *regexBr;
+static NSRegularExpression *regexP;
+static NSRegularExpression *regexOther;
+static NSRegularExpression *regexNBSP;
 
-#pragma mark 匹配a标签
-+ (NSRegularExpression *)regexAtagFormat{
-    static NSRegularExpression *atagFormat;
++ (void)regexInitialization{
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        atagFormat = [NSRegularExpression regularExpressionWithPattern:@"<a\\b[^>]+\\bhref\\s*=\\s*\"([^\"]*)\"[^>]*>([\\s\\S]*?)</a>" options:kNilOptions error:NULL];
+        // 匹配a标签
+        regexAtagFormat = [NSRegularExpression regularExpressionWithPattern:@"<a\\b[^>]+\\bhref\\s*=\\s*\"([^\"]*)\"[^>]*>([\\s\\S]*?)</a>" options:kNilOptions error:NULL];
+        // 匹配http
+        regexHttp = [NSRegularExpression regularExpressionWithPattern:@"([hH]ttp[s]{0,1})://[a-zA-Z0-9\\.\\-]+\\.([a-zA-Z]{2,4})(:\\d+)?(/[a-zA-Z0-9\\-~!@#$%^&*+?:_/=<>.\',;]*)?" options:kNilOptions error:NULL];
+        // {{}}
+        regexBracket = [NSRegularExpression regularExpressionWithPattern:@"\\{\\{(.+?)\\}\\}" options:kNilOptions error:NULL];
+        // 匹配手机号
+        regexPhone = [NSRegularExpression regularExpressionWithPattern:@"1[0-9]{10}(?!\\d)" options:kNilOptions error:NULL];
+        // 匹配img
+        regexImg = [NSRegularExpression regularExpressionWithPattern:@"<img.*?src\\s*=\\s*\"(.*?)\".*?>" options:kNilOptions error:NULL];
+        // 匹配br标签
+        regexBr = [NSRegularExpression regularExpressionWithPattern:@"<br\\s{0,1}/?>" options:kNilOptions error:NULL];
+        // 匹配p标签
+        regexP = [NSRegularExpression regularExpressionWithPattern:@"<p>((.|\n)*?)</p>" options:kNilOptions error:NULL];
+        // 匹配其他标签和尾部的换行,以及尾部的&nbsp;
+        regexOther = [NSRegularExpression regularExpressionWithPattern:@"<[^>]+>|\n+$|(&nbsp;|\\s)+$" options:kNilOptions error:NULL];
+        // 匹配&nbsp;
+        regexNBSP = [NSRegularExpression regularExpressionWithPattern:@"&nbsp;" options:kNilOptions error:NULL];
     });
-    return atagFormat;
-}
-#pragma mark 匹配{{}}
-+ (NSRegularExpression *)regexBracket{
-    static NSRegularExpression *bracket;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        bracket = [NSRegularExpression regularExpressionWithPattern:@"\\{\\{(.+?)\\}\\}" options:kNilOptions error:NULL];
-    });
-    return bracket;
-}
-#pragma mark 匹配http
-+ (NSRegularExpression *)regexHttp{
-    static NSRegularExpression *http;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        http = [NSRegularExpression regularExpressionWithPattern:@"([hH]ttp[s]{0,1})://[a-zA-Z0-9\\.\\-]+\\.([a-zA-Z]{2,4})(:\\d+)?(/[a-zA-Z0-9\\-~!@#$%^&*+?:_/=<>.\',;]*)?" options:kNilOptions error:NULL];
-    });
-    return http;
-}
-#pragma mark 匹配img
-+ (NSRegularExpression *)regexImg{
-    static NSRegularExpression *img;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        img = [NSRegularExpression regularExpressionWithPattern:@"<img.*?src\\s*=\\s*\"(.*?)\".*?>" options:kNilOptions error:NULL];
-    });
-    return img;
 }
 
 #pragma mark userInfo制作

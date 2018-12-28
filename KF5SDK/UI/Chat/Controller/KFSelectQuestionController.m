@@ -66,7 +66,7 @@ static NSString *cellID = @"selectQuestionCell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    if (self.selectBlock) self.selectBlock([self.questions[indexPath.row] kf5_arrayForKeyPath:@"agent_ids"], NO);
+    if (self.selectBlock) self.selectBlock([self.questions[indexPath.row] objectForKey:@"key"], NO);
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

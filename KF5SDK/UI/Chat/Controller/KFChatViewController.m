@@ -349,7 +349,7 @@
     });
 }
 #pragma mark 获取分配的问题
-- (void)chat:(KFChatViewModel *)chat selectQuestionWithOptions:(NSArray<NSDictionary *> *)options selectBlock:(void (^)(NSArray<NSNumber *> * _Nullable, BOOL))selectBlock{
+- (void)chat:(KFChatViewModel *)chat selectQuestionWithOptions:(nonnull NSArray<NSDictionary *> *)options selectBlock:(void (^ _Nullable)(NSNumber * _Nullable, BOOL))selectBlock{
     [KFSelectQuestionController selectQuestionWithViewController:self questions:options selectBlock:selectBlock];
 }
 
