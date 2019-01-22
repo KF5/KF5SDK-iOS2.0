@@ -41,10 +41,13 @@
 
 - (void)setMessageModel:(KFMessageModel *)messageModel{
     [super setMessageModel:messageModel];
-    
+    // 去除CALayer隐式动画
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     _systemMessageLabel.attributedText = messageModel.systemText;
     _systemMessageLabel.frame = messageModel.systemFrame;
     _backgroundLayer.frame = messageModel.systemBackgroundFrame;
+    [CATransaction commit];
 }
 
 

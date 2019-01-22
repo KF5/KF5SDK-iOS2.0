@@ -30,6 +30,10 @@
 + (nonnull instancetype)shareConfig;
 
 /**
+ SDK沙盒路径
+ */
++ (nonnull NSString *)dataDefaultPath;
+/**
  初始化信息
 
  @param hostName  云客服域名
@@ -38,7 +42,7 @@
 - (void)initializeWithHostName:(nonnull NSString *)hostName appId:(nonnull NSString *)appId;
 
 /**
- 获取当前SDK的版本(当前SDK版本为2.8.0)
+ 获取当前SDK的版本(当前SDK版本为2.9.0)
 
  @return 版本号
  */

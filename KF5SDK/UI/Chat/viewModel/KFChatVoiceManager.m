@@ -13,8 +13,11 @@
 #import "AmrPlayerReader.h"
 #import "AmrRecordWriter.h"
 #import "KFMessageModel.h"
+#import "SDWebImageManager.h"
+#import <AVFoundation/AVFoundation.h>
 
 NSString * const KFChatVoiceDidDownloadNotification = @"KF5ChatVoiceDidDownloadNotification";
+NSString * const KFChatVideoImageDidDownloadNotification = @"KF5ChatVideoImageDidDownloadNotification";
 NSString * const KFChatVoiceStopPlayNotification = @"KF5ChatVoiceStopPlayNotification";
 
 @interface KFChatVoiceManager()
@@ -26,6 +29,9 @@ NSString * const KFChatVoiceStopPlayNotification = @"KF5ChatVoiceStopPlayNotific
 @property (nonatomic, strong) MLAudioPlayer *player;
 
 @property (nonatomic, strong) NSMutableSet <KFMessageModel *>*messageList;
+
+/// 用于下载的视频第一帧图片
+@property (nonatomic, strong) NSMutableSet <KFMessageModel *>*videoImageMessageList;
 
 @end
 
@@ -53,15 +59,22 @@ static KFChatVoiceManager *sharedManager = nil;
     return _messageList;
 }
 
+- (NSMutableSet<KFMessageModel *> *)videoImageMessageList{
+    if (_videoImageMessageList == nil) {
+        _videoImageMessageList = [NSMutableSet set];
+    }
+    return _videoImageMessageList;
+}
+
 #pragma mark - 音频相关
 #pragma mark 开始录制音频
 -(void)startVoiceRecord{
     
     [self stopVoicePlayingMessage];
     
-    NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"KF5SDK"];
     AmrRecordWriter *amrWriter = [[AmrRecordWriter alloc]init];
-    NSString *filePath = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.amr",[KFHelper md5HexDigest:[NSString stringWithFormat:@"%f",[NSDate date].timeIntervalSince1970]]]];
+    
+    NSString *filePath = [self filePathWithString:[NSString stringWithFormat:@"%f",[NSDate date].timeIntervalSince1970]];
     amrWriter.filePath = filePath;
     amrWriter.maxSecondCount = 62;
     
@@ -75,23 +88,24 @@ static KFChatVoiceManager *sharedManager = nil;
         
     };
     meterObserver.errorBlock = ^(NSError *error,MLAudioMeterObserver *meterObserver){
-        if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:recordVoice:error:)]) {
-            [weakSelf.delegate chatVoiceManager:weakSelf recordVoice:nil error:error];
+        if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:voiceFileURL:error:)]) {
+            [weakSelf.delegate chatVoiceManager:weakSelf voiceFileURL:nil error:error];
         }
     };
     
     MLAudioRecorder *recorder = [[MLAudioRecorder alloc]init];
     
     // 录音完成的处理
-    void (^completion)(void) = ^{
+    void (^completion)(BOOL) = ^(BOOL deleteFile){
         // 删除文件
-        NSFileManager *fileMgr = [NSFileManager defaultManager];
-        BOOL bRet = [fileMgr fileExistsAtPath:filePath];
-        if (bRet) {
-            NSError *err;
-            [fileMgr removeItemAtPath:filePath error:&err];
+        if (deleteFile) {
+            NSFileManager *fileMgr = [NSFileManager defaultManager];
+            BOOL bRet = [fileMgr fileExistsAtPath:filePath];
+            if (bRet) {
+                NSError *err;
+                [fileMgr removeItemAtPath:filePath error:&err];
+            }
         }
-        
         weakSelf.meterObserver.audioQueue = nil;
         weakSelf.recorder = nil;
         weakSelf.meterObserver = nil;
@@ -99,28 +113,28 @@ static KFChatVoiceManager *sharedManager = nil;
     };
     
     recorder.receiveStoppedBlock = ^{
-        if ([AmrPlayerReader durationOfAmrFilePath:filePath] < 1) {
-            NSError *error = [[NSError alloc] initWithDomain:KF5Localized(@"录音时间过短") code:KFErrorCodeRecordTimeShort userInfo:@{NSLocalizedDescriptionKey:@"录音时间过短,不能发送"}];
-            if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:recordVoice:error:)]) {
-                [weakSelf.delegate chatVoiceManager:weakSelf recordVoice:nil error:error];
+        if ([AmrPlayerReader durationOfAmrFilePath:filePath] < 2) {
+            NSError *error = [[NSError alloc] initWithDomain:KF5Localized(@"kf5_record_short") code:KFErrorCodeRecordTimeShort userInfo:@{NSLocalizedDescriptionKey:@"录音时间过短,不能发送"}];
+            if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:voiceFileURL:error:)]) {
+                [weakSelf.delegate chatVoiceManager:weakSelf voiceFileURL:nil error:error];
             }
+            completion(YES);
         }else{
-            if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:recordVoice:error:)]) {
-                NSData *data = [NSData dataWithContentsOfFile:amrWriter.filePath];
-                [weakSelf.delegate chatVoiceManager:weakSelf recordVoice:data error:nil];
+            if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:voiceFileURL:error:)]) {
+                [weakSelf.delegate chatVoiceManager:weakSelf voiceFileURL:[NSURL fileURLWithPath:amrWriter.filePath] error:nil];
             }
+            completion(NO);
         }
-        completion();
     };
     recorder.receiveCancleBlock = ^{
-        completion();
+        completion(YES);
     };
     recorder.receiveErrorBlock = ^(NSError *error){
         
-        if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:recordVoice:error:)]) {
-            [weakSelf.delegate chatVoiceManager:weakSelf recordVoice:nil error:error];
+        if ([weakSelf.delegate respondsToSelector:@selector(chatVoiceManager:voiceFileURL:error:)]) {
+            [weakSelf.delegate chatVoiceManager:weakSelf voiceFileURL:nil error:error];
         }
-        completion();
+        completion(YES);
     };
     
     recorder.bufferDurationSeconds = 0.25;
@@ -154,7 +168,7 @@ static KFChatVoiceManager *sharedManager = nil;
         weakself.player = nil;
         weakself.amrReader = nil;
         [weakself notificationWithName:KFChatVoiceStopPlayNotification model:weakself.currentPlayingMessageModel error:error];
-       weakself.currentPlayingMessageModel = nil;
+        weakself.currentPlayingMessageModel = nil;
     };
     
     if ([self.player isPlaying]) [self.player stopPlaying];
@@ -213,19 +227,19 @@ static KFChatVoiceManager *sharedManager = nil;
     
     __weak typeof(self)weakSelf = self;
     [[[NSURLSession sharedSession] downloadTaskWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:messageModel.message.url]] completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            [weakSelf.messageList removeObject:messageModel];
-            if (!error) {
-                NSURL *localURL = [NSURL fileURLWithPath:local_path];
-                [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
-                messageModel.message.local_path = localURL.path;
-                messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:messageModel.message.local_path];
-            }else{
-                messageModel.voiceLength = 0;
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [messageModel updateFrame];
-                [weakSelf  notificationWithName:KFChatVoiceDidDownloadNotification model:messageModel error:error];
-            });
+        [weakSelf.messageList removeObject:messageModel];
+        if (!error) {
+            NSURL *localURL = [NSURL fileURLWithPath:local_path];
+            [[NSFileManager defaultManager] moveItemAtURL:location toURL:localURL error:nil];
+            messageModel.message.local_path = localURL.path;
+            messageModel.voiceLength = [KFChatVoiceManager voiceDurationWithlocalPath:messageModel.message.local_path];
+        }else{
+            messageModel.voiceLength = 0;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [messageModel updateFrame];
+            [weakSelf  notificationWithName:KFChatVoiceDidDownloadNotification model:messageModel error:error];
+        });
     }] resume];
 }
 
@@ -240,6 +254,68 @@ static KFChatVoiceManager *sharedManager = nil;
         return nil;
     }
 }
+
+#pragma mark - 下载视频的第一帧图片
+- (UIImage *)downloadVideoImageWithMessageModel:(KFMessageModel *)messageModel {
+    if (messageModel.message.local_path.length > 0) {
+        NSString *videoName = [[NSFileManager defaultManager] displayNameAtPath:messageModel.message.local_path];
+        UIImage *image = [[SDImageCache sharedImageCache]imageFromCacheForKey:videoName];
+        if (image) {
+            return image;
+        }
+    }
+    
+    if (messageModel.message.url.length == 0) {
+        return nil;
+    }
+    
+    NSURL *url = [NSURL URLWithString:messageModel.message.url];
+    UIImage *image = [[SDImageCache sharedImageCache]imageFromCacheForKey:[[SDWebImageManager sharedManager] cacheKeyForURL:url]];
+    
+    if (image || [self.videoImageMessageList containsObject:messageModel]){
+        return image;
+    }
+    
+    __weak typeof(self) weakSelf = self;
+    [self.videoImageMessageList addObject:messageModel];
+    void (^completion)(UIImage *, NSError *) = ^(UIImage *image, NSError *error) {
+        if (!error) {
+            [[SDImageCache sharedImageCache]storeImage:image forKey:[[SDWebImageManager sharedManager]cacheKeyForURL:url] completion:^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakSelf.videoImageMessageList removeObject:messageModel];
+                    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:2];
+                    if (messageModel) dict[@"model"] = messageModel;
+                    if (image) dict[@"image"] = messageModel;
+                    [messageModel updateFrame];
+                    [[NSNotificationCenter defaultCenter]postNotificationName:KFChatVideoImageDidDownloadNotification object: dict];
+                });
+            }];
+        }else{
+            [weakSelf.videoImageMessageList removeObject:messageModel];
+        }
+    };
+ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url options:nil];
+        AVAssetImageGenerator *generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:urlAsset];
+        generator.appliesPreferredTrackTransform = YES;
+        generator.maximumSize = CGSizeMake(400, 400);
+        NSError *error = nil;
+        CGImageRef img = [generator copyCGImageAtTime:CMTimeMake(0, 10) actualTime:NULL error:&error];
+        if (error == nil){
+            UIImage *image = [UIImage imageWithCGImage:img];
+            CGImageRelease(img);
+            if (completion) {
+                completion(image, nil);
+            }
+        }else{
+            if (completion) {
+                completion(nil, error);
+            }
+        }
+    });
+    return nil;
+}
+
 #pragma mark 其他
 - (NSString *)filePathWithString:(NSString *)string {
     return  [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"KF5SDK"] stringByAppendingPathComponent:[KFHelper md5HexDigest:string]];

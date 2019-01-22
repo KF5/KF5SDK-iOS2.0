@@ -17,6 +17,7 @@
 #import "KFPreviewController.h"
 #import "KFContentLabelHelp.h"
 #import "KFSelectQuestionController.h"
+#import "KFPreViewController.h"
 
 #if __has_include("KFDocumentViewController.h")
 #import "KFDocumentViewController.h"
@@ -109,12 +110,14 @@
     [self.viewModel configChatWithCompletion:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [KFProgressHUD hideHUDForView:weakSelf.view];
-            if (weakSelf.cardDict && !error && weakSelf.view.tag == 0) {
+        });
+        if (weakSelf.cardDict && !error && weakSelf.view.tag == 0) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                 KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:[KFChatManager createMessageWithType:KFMessageTypeCard data:[KFHelper JSONStringWithObject:weakSelf.cardDict]]];
                 [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
-                weakSelf.view.tag = 1;
-            }
-        });
+            });
+            weakSelf.view.tag = 1;
+        }
     }];
 }
 
@@ -269,24 +272,31 @@
 
 #pragma mark 排队变化
 - (void)chat:(KFChatViewModel *)chat queueIndexChange:(NSInteger)queueIndex{
-    
     KFMessage *message = [[KFMessage alloc] init];
-    if (queueIndex == -1) {
-        message.content = KF5Localized(@"kf5_update_queue");
-    }else{
-        message.content = [NSString stringWithFormat:KF5Localized(@"kf5_update_queue_%ld"),queueIndex + 1];
-    }
     message.messageType = KFMessageTypeSystem;
     message.created = [NSDate date].timeIntervalSince1970;
-    
+    message.content = queueIndex == -1? KF5Localized(@"kf5_update_queue") : [NSString stringWithFormat:KF5Localized(@"kf5_update_queue_%ld"),queueIndex + 1];
+    message.timestamp = message.created * 1000;
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.queueMessageModel) {
-            [self.tableView.messageModels removeObject:self.queueMessageModel];
-        }
-        self.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
-        [self.tableView.messageModels addObject:self.queueMessageModel];
-        [self.tableView reloadData];
-        [self.tableView scrollViewBottomWithAnimated:YES];
+        __weak typeof(self) weakSelf = self;
+        [self.tableView reloadData:KFScrollTypeBottom handleModelBlock:^NSDictionary<NSString *,NSArray<NSIndexPath *> *> *(NSMutableArray<KFMessageModel *> *messageModels) {
+            NSIndexPath *deleteIndexPath = nil;
+            if (weakSelf.queueMessageModel) {
+                NSInteger index = [messageModels indexOfObject:weakSelf.queueMessageModel];
+                if (index != NSNotFound) {
+                    deleteIndexPath = [NSIndexPath indexPathForRow:index inSection:0];
+                    [messageModels removeObject:weakSelf.queueMessageModel];
+                }
+            }
+            weakSelf.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
+            [messageModels addObject:weakSelf.queueMessageModel];
+            NSIndexPath *insertIndexPath = [NSIndexPath indexPathForRow:messageModels.count - 1 inSection:0];
+            if (deleteIndexPath.row == insertIndexPath.row) {
+                return @{@"reload":@[insertIndexPath]};
+            }else{
+                return @{@"insert":@[insertIndexPath],@"delete":deleteIndexPath? @[deleteIndexPath] : @[]};
+            }
+        }];
     });
 }
 
@@ -316,36 +326,53 @@
     });
 }
 #pragma mark 添加数据
-- (void)chat:(KFChatViewModel *)chat addMessageModels:(NSArray <KFMessageModel *>*)messageModels{
-    if (messageModels.count == 0) return;
-    [self.tableView.messageModels addObjectsFromArray:messageModels];
-    [self.tableView reloadData];
-    [self.tableView scrollViewBottomWithAnimated:YES];
+- (void)chat:(KFChatViewModel *)chat addMessageModels:(NSArray <KFMessageModel *>*)addMessageModels{
+    if (addMessageModels.count == 0) return;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData:KFScrollTypeBottom handleModelBlock:^NSDictionary<NSString *,NSArray<NSIndexPath *> *> *(NSMutableArray<KFMessageModel *> *messageModels) {
+            NSMutableArray *insertIndexPaths = [NSMutableArray arrayWithCapacity:addMessageModels.count];
+            for (NSInteger index = 0; index < addMessageModels.count; index++) {
+                [insertIndexPaths addObject:[NSIndexPath indexPathForRow:messageModels.count + index inSection:0]];
+            }
+            [messageModels addObjectsFromArray:addMessageModels];
+            return @{@"insert":insertIndexPaths};
+        }];
+    });
 }
 #pragma mark 更新数据
-- (void)chat:(KFChatViewModel *)chat reloadMessageModels:(NSArray<KFMessageModel *> *)messageModels{
-    if (messageModels.count == 0) return;
-    BOOL shouldReload = NO;
-    for (KFMessageModel *model in messageModels) {
-        NSInteger index = [self.tableView.messageModels indexOfObject:model];
-        if (index != NSNotFound) {
-            if (model.message.local_path.length == 0) {
-                model.message.local_path = self.tableView.messageModels[index].message.local_path;
+- (void)chat:(KFChatViewModel *)chat reloadMessageModels:(NSArray<KFMessageModel *> *)reloadMessageModels{
+    if (reloadMessageModels.count == 0) return;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData:KFScrollTypeHold handleModelBlock:^NSDictionary<NSString *,NSArray<NSIndexPath *> *> *(NSMutableArray<KFMessageModel *> *messageModels) {
+            NSMutableArray *reloadIndexPaths = [NSMutableArray arrayWithCapacity:messageModels.count];
+            for (KFMessageModel *model in reloadMessageModels) {
+                NSInteger index = [messageModels indexOfObject:model];
+                if (index != NSNotFound) {
+                    [reloadIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+                    if (model.message.local_path.length == 0) {
+                        model.message.local_path = messageModels[index].message.local_path;
+                    }
+                    messageModels[index] = model;
+                }
             }
-            self.tableView.messageModels[index] = model;
-            shouldReload = YES;
-        }
-    }
-    if (shouldReload)  [self.tableView reloadData];
+            return @{@"reload":reloadIndexPaths};
+        }];
+    });
+
 }
 #pragma mark 删除排队消息
 - (void)removeQueueMessage{
+    if (self.queueMessageModel == nil) { return; }
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.queueMessageModel) {
-            [self.tableView.messageModels removeObject:self.queueMessageModel];
-            [self.tableView reloadData];
-            [self.tableView scrollViewBottomWithAnimated:YES];
-        }
+        __weak typeof(self) weakSelf = self;
+        [self.tableView reloadData:KFScrollTypeBottom handleModelBlock:^NSDictionary<NSString *,NSArray<NSIndexPath *> *> *(NSMutableArray<KFMessageModel *> *messageModels) {
+            NSInteger index = [messageModels indexOfObject:weakSelf.queueMessageModel];
+            if (index == NSNotFound) { return @{}; }
+            NSIndexPath *deleteIndexPath = [NSIndexPath indexPathForRow:index inSection:0];
+            [messageModels removeObjectAtIndex:index];
+            return @{@"delete":@[deleteIndexPath]};
+        }];
     });
 }
 #pragma mark 获取分配的问题
@@ -354,13 +381,13 @@
 }
 
 #pragma mark - KFChatVoiceManagerDelegate
-- (void)chatVoiceManager:(KFChatVoiceManager *)chatManager recordVoice:(NSData *)data error:(NSError *)error{
+- (void)chatVoiceManager:(KFChatVoiceManager *)voiceManager voiceFileURL:(NSURL *)voiceFileURL error:(NSError *)error{
     if (error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [KFProgressHUD showTitleToView:self.view title:error.domain hideAfter:0.7f];
         });
     }else{
-        [self.viewModel sendMessageWithMessageType:KFMessageTypeVoice data:data];
+        [self.viewModel sendMessageWithMessageType:KFMessageTypeVoice data:voiceFileURL];
     }
 }
 - (void)chatVoiceManager:(KFChatVoiceManager *)chatManager recordingAmplitude:(CGFloat)amplitude{
@@ -380,13 +407,23 @@
     if (![self canSendMessage]) return;
     
     __weak typeof(self)weakSelf = self;
-    UIViewController *imagePickerVC = [KFHelper imagePickerControllerWithMaxCount:1 selectedAssets:nil didFinishedHandle:^(NSArray<UIImage *> *photos, NSArray *assets) {
+    UIViewController *imagePickerVC = [KFHelper imagePickerControllerWithImageHandle:^(NSArray<UIImage *> *photos, NSArray *assets) {
         if (photos.count > 0){
             UIImage *newImage = [UIImage imageWithData:UIImageJPEGRepresentation(photos.firstObject, 1)];
             [weakSelf.viewModel sendMessageWithMessageType:KFMessageTypeImage data:newImage];
         }
+    } videoHandle:^(UIImage *coverImage, NSURL *videoURL, NSString *videoName, NSError *error, UIViewController *vc) {
+        if (error) {
+            [vc presentViewController:[KFHelper alertWithMessage:error.domain] animated:YES completion:nil];
+        }else if (videoURL != nil && videoName != nil){
+            [weakSelf.viewModel sendMessageWithMessageType:KFMessageTypeVideo data:videoURL];
+        }
     }];
-    [self presentViewController:imagePickerVC animated:YES completion:nil];
+    if (imagePickerVC) {
+        [self presentViewController:imagePickerVC animated:YES completion:nil];
+    }else{
+        [KFLogger log:@"请添加自己的图片选择器"];
+    }
 }
 #pragma mark 转接人工客服点击事件
 - (void)chatToolViewWithTransferAction:(KFChatToolView *)chatToolView{
@@ -441,9 +478,15 @@
     NSArray *newDatas = [self.viewModel queryMessageModelsWithLimit:self.limit];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
         if (self.tableView.messageModels.count > 0 && newDatas.count > 0) {
-            [self.tableView.messageModels insertObjects:newDatas atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newDatas.count)]];
-            [self.tableView reloadData];
-            [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:newDatas.count inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            [self.tableView reloadData:KFScrollTypeBottom handleModelBlock:^NSDictionary<NSString *,NSArray<NSIndexPath *> *> *(NSMutableArray<KFMessageModel *> *messageModels) {
+                [messageModels insertObjects:newDatas atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newDatas.count)]];
+                
+                NSMutableArray *insertIndexPaths = [NSMutableArray arrayWithCapacity:newDatas.count];
+                for (NSInteger index = 0; index < newDatas.count; index++) {
+                    [insertIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+                }
+                return @{@"insert":insertIndexPaths};
+            }];
         }
         self.tableView.canRefresh = newDatas.count >= self.limit;
         self.tableView.refreshing = NO;
@@ -489,6 +532,15 @@
     }
     [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
     [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:largeImageURL placeholder:imageCell.messageImageView.image]] selectIndex:0];
+}
+
+- (void)cell:(KFChatViewCell *)cell clickVideoWithMessageModel:(KFMessageModel *)messageModel image:(UIImage *)image{
+    [self.view endEditing:NO];
+    
+    BOOL hasLocal = messageModel.message.local_path.length > 0 ? [[NSFileManager defaultManager]fileExistsAtPath:messageModel.message.local_path] : NO;
+    KFPlayerController *player = [[KFPlayerController alloc] init];
+    [player assetWithModel:[[KFPreviewModel alloc] initWithValue:hasLocal ? [NSURL fileURLWithPath:messageModel.message.local_path] : [NSURL URLWithString:messageModel.message.url] placeholder:image isVideo:YES]];
+    [self presentViewController:player animated:YES completion:nil];
 }
 
 - (void)cell:(KFChatViewCell *)cell clickCardLinkWithUrl:(NSString *)linkUrl{
@@ -584,20 +636,6 @@
             break;
         default:
             break;
-    }
-}
-
-- (void)reloadCell:(KFChatViewCell *)cell{
-    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-    if (indexPath) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.tableView beginUpdates];
-            [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-            [self.tableView endUpdates];
-        });
-        if (indexPath.row == self.tableView.messageModels.count - 1) {
-            [self.tableView scrollViewBottomWithAfterTime:600];
-        }
     }
 }
 

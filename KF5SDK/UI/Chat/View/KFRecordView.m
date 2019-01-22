@@ -25,7 +25,7 @@
         self.backgroundColor = [UIColor blackColor];
         self.layer.cornerRadius = 10;
 
-        UIImageView *amplitudeImageView = [[UIImageView alloc]initWithImage:KF5Helper.chat_records.firstObject];
+        UIImageView *amplitudeImageView = [[UIImageView alloc]initWithImage:[KF5Helper chat_recordsWithIndex:1]];
         [self addSubview:amplitudeImageView];
         _amplitudeImageView = amplitudeImageView;
         
@@ -69,11 +69,7 @@
     if (_dragSide == kKF5DragSideOut) {
         _amplitudeImageView.image = KF5Helper.chat_record_cancel;
     }else{
-        NSInteger recordIndex =  (NSInteger)((_amplitude * 14) + 1) ;
-        recordIndex = recordIndex > 14 ? 14 :recordIndex;
-        
-        if (recordIndex < KF5Helper.chat_records.count)
-            _amplitudeImageView.image = KF5Helper.chat_records[recordIndex];
+        _amplitudeImageView.image = [KF5Helper chat_recordsWithIndex:MIN((NSInteger)((_amplitude * 13) + 1), 14)];
     }
     [self setNeedsDisplay];
 }

@@ -390,6 +390,15 @@
 		847418AA213E2C6E0079EE9D /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA631FDE1C61004B4852 /* TZVideoPlayerController.m */; };
 		847418AB213E2C6E0079EE9D /* UIView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA681FDE1C61004B4852 /* UIView+Layout.m */; };
 		847418AC213E31E30079EE9D /* libopencore-amrnb.a in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA801FDE1C61004B4852 /* libopencore-amrnb.a */; };
+		84A61CAD21F1D4E100361568 /* KFVideoMessageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A61CAB21F1D4E000361568 /* KFVideoMessageCell.h */; };
+		84A61CAE21F1D4E100361568 /* KFVideoMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CAC21F1D4E000361568 /* KFVideoMessageCell.m */; };
+		84A61CAF21F1D4E100361568 /* KFVideoMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CAC21F1D4E000361568 /* KFVideoMessageCell.m */; };
+		84A61CB221F1D50E00361568 /* KFPlayerController.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A61CB021F1D50D00361568 /* KFPlayerController.h */; };
+		84A61CB321F1D50E00361568 /* KFPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CB121F1D50D00361568 /* KFPlayerController.m */; };
+		84A61CB421F1D50E00361568 /* KFPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CB121F1D50D00361568 /* KFPlayerController.m */; };
+		84A61CB721F1D5D700361568 /* TZImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CB521F1D5D700361568 /* TZImageRequestOperation.m */; };
+		84A61CB821F1D5D700361568 /* TZImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CB521F1D5D700361568 /* TZImageRequestOperation.m */; };
+		84A61CB921F1D5D700361568 /* TZImageRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A61CB621F1D5D700361568 /* TZImageRequestOperation.h */; };
 		84D241F621BA24AA0079F974 /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F021BA24A90079F974 /* SDWebImageTransition.m */; };
 		84D241F721BA24AA0079F974 /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F021BA24A90079F974 /* SDWebImageTransition.m */; };
 		84D241F821BA24AA0079F974 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D241F121BA24A90079F974 /* SDAnimatedImageRep.m */; };
@@ -699,6 +708,12 @@
 		8455FB431FDE1C61004B4852 /* KFHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFHelper.h; sourceTree = "<group>"; };
 		8455FB441FDE1C61004B4852 /* KFUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFUser.h; sourceTree = "<group>"; };
 		847417E5213E28240079EE9D /* KF5SDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KF5SDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84A61CAB21F1D4E000361568 /* KFVideoMessageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFVideoMessageCell.h; sourceTree = "<group>"; };
+		84A61CAC21F1D4E000361568 /* KFVideoMessageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFVideoMessageCell.m; sourceTree = "<group>"; };
+		84A61CB021F1D50D00361568 /* KFPlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFPlayerController.h; sourceTree = "<group>"; };
+		84A61CB121F1D50D00361568 /* KFPlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFPlayerController.m; sourceTree = "<group>"; };
+		84A61CB521F1D5D700361568 /* TZImageRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZImageRequestOperation.m; sourceTree = "<group>"; };
+		84A61CB621F1D5D700361568 /* TZImageRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZImageRequestOperation.h; sourceTree = "<group>"; };
 		84D241F021BA24A90079F974 /* SDWebImageTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTransition.m; sourceTree = "<group>"; };
 		84D241F121BA24A90079F974 /* SDAnimatedImageRep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDAnimatedImageRep.m; sourceTree = "<group>"; };
 		84D241F221BA24AA0079F974 /* SDWebImageTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageTransition.h; sourceTree = "<group>"; };
@@ -918,6 +933,8 @@
 		8455FA5D1FDE1C61004B4852 /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
+				84A61CB621F1D5D700361568 /* TZImageRequestOperation.h */,
+				84A61CB521F1D5D700361568 /* TZImageRequestOperation.m */,
 				8455FA721FDE1C61004B4852 /* NSBundle+TZImagePicker.h */,
 				8455FA651FDE1C61004B4852 /* NSBundle+TZImagePicker.m */,
 				8455FA6D1FDE1C61004B4852 /* TZAssetCell.h */,
@@ -1117,6 +1134,8 @@
 				8455FADC1FDE1C61004B4852 /* KFTextMessageCell.m */,
 				8455FAE01FDE1C61004B4852 /* KFVoiceMessageCell.h */,
 				8455FAD81FDE1C61004B4852 /* KFVoiceMessageCell.m */,
+				84A61CAB21F1D4E000361568 /* KFVideoMessageCell.h */,
+				84A61CAC21F1D4E000361568 /* KFVideoMessageCell.m */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -1160,6 +1179,8 @@
 				8455FAFC1FDE1C61004B4852 /* KFLoadView.m */,
 				8455FAF31FDE1C61004B4852 /* KFPreviewController.h */,
 				8455FAF91FDE1C61004B4852 /* KFPreviewController.m */,
+				84A61CB021F1D50D00361568 /* KFPlayerController.h */,
+				84A61CB121F1D50D00361568 /* KFPlayerController.m */,
 				8455FAF81FDE1C61004B4852 /* KFProgressHUD.h */,
 				8455FAF41FDE1C61004B4852 /* KFProgressHUD.m */,
 				8455FAF61FDE1C61004B4852 /* KFTextView.h */,
@@ -1486,6 +1507,7 @@
 				841D3CD1213F7D8100DDDC01 /* MJRefreshAutoFooter.h in Headers */,
 				841D3CD2213F7D8100DDDC01 /* MJRefreshBackFooter.h in Headers */,
 				841D3CD3213F7D8100DDDC01 /* MJRefreshComponent.h in Headers */,
+				84A61CB221F1D50E00361568 /* KFPlayerController.h in Headers */,
 				841D3CD4213F7D8100DDDC01 /* MJRefreshFooter.h in Headers */,
 				841D3CD5213F7D8100DDDC01 /* MJRefreshHeader.h in Headers */,
 				841D3CD6213F7D8100DDDC01 /* MJRefreshBackGifFooter.h in Headers */,
@@ -1495,6 +1517,7 @@
 				84D241FA21BA24AA0079F974 /* SDWebImageTransition.h in Headers */,
 				841D3CDA213F7D8100DDDC01 /* MJRefreshAutoNormalFooter.h in Headers */,
 				841D3CDB213F7D8100DDDC01 /* MJRefreshAutoGifFooter.h in Headers */,
+				84A61CB921F1D5D700361568 /* TZImageRequestOperation.h in Headers */,
 				841D3CDC213F7D8100DDDC01 /* MJRefreshStateHeader.h in Headers */,
 				841D3CDD213F7D8100DDDC01 /* MJRefreshGifHeader.h in Headers */,
 				841D3CDE213F7D8100DDDC01 /* MJRefreshNormalHeader.h in Headers */,
@@ -1511,6 +1534,7 @@
 				841D3CEB213F7D8100DDDC01 /* MLAudioRecorder.h in Headers */,
 				841D3CEC213F7D8100DDDC01 /* NSData+ImageContentType.h in Headers */,
 				841D3CED213F7D8100DDDC01 /* NSImage+WebCache.h in Headers */,
+				84A61CAD21F1D4E100361568 /* KFVideoMessageCell.h in Headers */,
 				841D3CEE213F7D8100DDDC01 /* SDImageCache.h in Headers */,
 				841D3CEF213F7D8100DDDC01 /* SDImageCacheConfig.h in Headers */,
 				841D3CF0213F7D8100DDDC01 /* SDWebImageCoder.h in Headers */,
@@ -1734,6 +1758,7 @@
 				84741839213E2C6D0079EE9D /* NSDate+KF5.m in Sources */,
 				8474183A213E2C6D0079EE9D /* NSDictionary+KF5.m in Sources */,
 				8474183B213E2C6D0079EE9D /* UIImage+KF5.m in Sources */,
+				84A61CAF21F1D4E100361568 /* KFVideoMessageCell.m in Sources */,
 				8474183C213E2C6D0079EE9D /* UITableView+KFRefresh.m in Sources */,
 				8474183D213E2C6D0079EE9D /* KFBaseMessageCell.m in Sources */,
 				8474183E213E2C6D0079EE9D /* KFCardMessageCell.m in Sources */,
@@ -1803,6 +1828,7 @@
 				8474187B213E2C6D0079EE9D /* MJRefreshStateHeader.m in Sources */,
 				8474187C213E2C6D0079EE9D /* MJRefreshGifHeader.m in Sources */,
 				8474187D213E2C6D0079EE9D /* MJRefreshConst.m in Sources */,
+				84A61CB421F1D50E00361568 /* KFPlayerController.m in Sources */,
 				8474187E213E2C6E0079EE9D /* NSBundle+MJRefresh.m in Sources */,
 				8474187F213E2C6E0079EE9D /* UIScrollView+MJExtension.m in Sources */,
 				84741880213E2C6E0079EE9D /* UIScrollView+MJRefresh.m in Sources */,
@@ -1841,6 +1867,7 @@
 				847418A2213E2C6E0079EE9D /* TZImageCropManager.m in Sources */,
 				847418A3213E2C6E0079EE9D /* TZImageManager.m in Sources */,
 				847418A4213E2C6E0079EE9D /* TZImagePickerController.m in Sources */,
+				84A61CB821F1D5D700361568 /* TZImageRequestOperation.m in Sources */,
 				847418A5213E2C6E0079EE9D /* TZLocationManager.m in Sources */,
 				847418A6213E2C6E0079EE9D /* TZPhotoPickerController.m in Sources */,
 				847418A7213E2C6E0079EE9D /* TZPhotoPreviewCell.m in Sources */,
@@ -1869,6 +1896,7 @@
 				8455FB841FDE1C61004B4852 /* UIView+WebCacheOperation.m in Sources */,
 				8455FB9C1FDE1C62004B4852 /* KFChatTableView.m in Sources */,
 				8455FBB71FDE1C62004B4852 /* KFDocument.m in Sources */,
+				84A61CB321F1D50E00361568 /* KFPlayerController.m in Sources */,
 				8455FB7F1FDE1C61004B4852 /* NSData+ImageContentType.m in Sources */,
 				8455FBB81FDE1C62004B4852 /* KFDocItem.m in Sources */,
 				8455FB741FDE1C61004B4852 /* UIImage+ForceDecode.m in Sources */,
@@ -1879,6 +1907,7 @@
 				8455FB811FDE1C61004B4852 /* NSImage+WebCache.m in Sources */,
 				8455FBC11FDE1C62004B4852 /* KFBaseViewController.m in Sources */,
 				8455FB821FDE1C61004B4852 /* SDWebImageGIFCoder.m in Sources */,
+				84A61CAE21F1D4E100361568 /* KFVideoMessageCell.m in Sources */,
 				8455FB4E1FDE1C61004B4852 /* MJRefreshBackNormalFooter.m in Sources */,
 				8455FBA81FDE1C62004B4852 /* KFTicketListViewCell.m in Sources */,
 				8455FB4F1FDE1C61004B4852 /* MJRefreshAutoStateFooter.m in Sources */,
@@ -1981,6 +2010,7 @@
 				8455FBAD1FDE1C62004B4852 /* KFDetailMessageViewController.m in Sources */,
 				8455FB9D1FDE1C62004B4852 /* KFRecordView.m in Sources */,
 				8455FB8E1FDE1C61004B4852 /* KFChatViewModel.m in Sources */,
+				84A61CB721F1D5D700361568 /* TZImageRequestOperation.m in Sources */,
 				8455FB581FDE1C61004B4852 /* MJRefreshAutoFooter.m in Sources */,
 				8455FB561FDE1C61004B4852 /* MJRefreshHeader.m in Sources */,
 				8455FBB01FDE1C62004B4852 /* KFRatingModel.m in Sources */,

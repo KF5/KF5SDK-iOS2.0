@@ -89,8 +89,8 @@ typedef NS_ENUM(NSInteger,KFChatRatingScore) {
 /**
  发送消息
 
- @param messageType 消息格式,文本,图片,语音
- @param data        NSString,UIImage,NSData
+ @param messageType 消息格式,文本,图片,语音,视频
+ @param data        NSString,UIImage,NSURL,NSURL
  */
 - (void)sendMessageWithMessageType:(KFMessageType)messageType data:(nonnull id)data;
 /**

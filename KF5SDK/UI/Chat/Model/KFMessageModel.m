@@ -31,13 +31,16 @@ BOOL isShowTime(double time){
 - (instancetype)initWithMessage:(KFMessage *)message{
     self = [super init];
     if (self) {
-        _message = message;
-        [self setupData];
+        self.message = message;
         [self updateFrame];
     }
     return self;
 }
 
+- (void)setMessage:(KFMessage *)message{
+    _message = message;
+    [self setupData];
+}
 - (void)setupData{
     
     if (_message.recalled) {
@@ -83,7 +86,7 @@ BOOL isShowTime(double time){
                 _voiceLength = -1;
                 [[KFChatVoiceManager sharedChatVoiceManager]downloadDataWithMessageModel:self];
             }
-        }
+        }else if (_message.messageType == KFMessageTypeVideo) { }// 视频不要设置数据
     }
 }
 
@@ -120,7 +123,17 @@ BOOL isShowTime(double time){
             }
         }else if(_message.messageType == KFMessageTypeVoice){
             messageSize = CGSizeMake(KF_CLAMP(maxWidth * _voiceLength / 60.0, 50, maxWidth), 15);
-        }else{
+        }else if(_message.messageType == KFMessageTypeVideo){
+            UIImage *image = [[KFChatVoiceManager sharedChatVoiceManager]downloadVideoImageWithMessageModel:self];
+            if (image) {
+                CGFloat scaleFactor = MIN(KF5MaxImageWidth/image.size.width, KF5MaxImageHeight/image.size.height);
+                scaleFactor = scaleFactor > 1 ? 1 :scaleFactor;
+                messageSize = CGSizeMake(image.size.width *scaleFactor, image.size.height*scaleFactor);
+            }
+            if (CGSizeEqualToSize(messageSize, CGSizeZero)) {
+                messageSize = CGSizeMake(100, 100);
+            }
+        }else {
             messageSize = [_text boundingRectWithSize:CGSizeMake(maxWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
         }
         

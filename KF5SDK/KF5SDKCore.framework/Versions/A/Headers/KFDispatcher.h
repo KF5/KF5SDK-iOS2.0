@@ -52,7 +52,8 @@ typedef NS_ENUM(NSInteger,KFMessageType) {
     KFMessageTypeSystem,
     KFMessageTypeOther,
     KFMessageTypeCustom,
-    KFMessageTypeCard
+    KFMessageTypeCard,
+    KFMessageTypeVideo
 };
 /**
  *  消息来自于

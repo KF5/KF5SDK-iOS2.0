@@ -28,7 +28,7 @@
 - (NSString *)kf5_stringForKeyPath:(NSString *)keyPath{
     id value = [self kf5_objectForKeyPath:keyPath];
     if (value) {
-        NSAssert([value isKindOfClass:[NSString class]], @"该value类型不是NSString");
+        NSAssert([value isKindOfClass:[NSString class]], @"%@  keyPath:%@ 该value类型不是NSString",self, keyPath);
         if ([value isKindOfClass:[NSString class]]) return value;
     }
     
@@ -37,7 +37,7 @@
 -(NSNumber *)kf5_numberForKeyPath:(NSString *)keyPath{
     id value = [self kf5_objectForKeyPath:keyPath];
     if (value) {
-        NSAssert([value isKindOfClass:[NSNumber class]], @"该value类型不是NSNumber");
+        NSAssert([value isKindOfClass:[NSNumber class]], @"%@  keyPath:%@ 该value类型不是NSNumber",self, keyPath);
         if ([value isKindOfClass:[NSNumber class]]) return value;
     }
     return nil;
@@ -45,12 +45,12 @@
 -(NSArray *)kf5_arrayForKeyPath:(NSString *)keyPath{
     id value = [self kf5_objectForKeyPath:keyPath];
     if (value) {
-        NSAssert([value isKindOfClass:[NSArray class]], @"该value类型不是NSArray");
+        NSAssert([value isKindOfClass:[NSArray class]], @"%@  keyPath:%@ 该value类型不是NSArray",self, keyPath);
         if ([value isKindOfClass:[NSArray class]]){
             NSArray *array = value;
             BOOL hasNull = NO;
             for (id v in array) {
-                NSAssert(![v isKindOfClass:[NSNull class]], @"数组内部有NULL");
+                NSAssert(![v isKindOfClass:[NSNull class]], @"%@  keyPath:%@ 数组内部有NULL",self, keyPath);
                 hasNull = [v isKindOfClass:[NSNull class]];
                 if (hasNull)break;
             }
@@ -73,7 +73,7 @@
 - (NSDictionary *)kf5_dictionaryForKeyPath:(NSString *)keyPath{
     id value = [self kf5_objectForKeyPath:keyPath];
     if (value) {
-        NSAssert([value isKindOfClass:[NSDictionary class]], @"该value类型不是NSDictionary");
+        NSAssert([value isKindOfClass:[NSDictionary class]], @"%@  keyPath:%@ 该value类型不是NSDictionary",self, keyPath);
         if ([value isKindOfClass:[NSDictionary class]]) return value;
     }
     return nil;

@@ -36,11 +36,11 @@
  */
 @property (nullable, nonatomic, copy) NSString *content;
 /**
- 图片或语音的url
+ 图片、语音或视频的url
  */
 @property (nullable, nonatomic, copy) NSString *url;
 /**
- 图片或语音的本地路径
+ 图片、语音或视频的本地路径
  */
 @property (nullable, nonatomic, copy) NSString *local_path;
 /**

@@ -66,7 +66,7 @@
                 self.messageModel = model;
             }else if (note.name == KFChatVoiceStopPlayNotification){
                 if (error) {
-                    [KFProgressHUD showLoadingTo:[UIApplication sharedApplication].keyWindow title:KF5Localized(@"kf5_play_error") hideAfter:0.7f];
+                    [KFProgressHUD showErrorTitleToView:[UIApplication sharedApplication].keyWindow title:KF5Localized(@"kf5_play_error") hideAfter:0.7f];
                 }
                 [self.voiceMessageView stopAnimating];
             }

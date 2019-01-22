@@ -9,6 +9,7 @@
 #import "KFChatTableView.h"
 #import "KFCategory.h"
 
+static NSString *kChatMessageVideoCellID = @"chatMessageVideoCellID";
 static NSString *kChatMessageVoiceCellID = @"chatMessageVoiceCellID";
 static NSString *kChatMessageTextCellID = @"chatMessageTextCellID";
 static NSString *kChatMessageImageCellID = @"chatMessageImageCellID";
@@ -49,6 +50,7 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
         [self registerClass:[KFTextMessageCell class] forCellReuseIdentifier:kChatMessageTextCellID];
         [self registerClass:[KFImageMessageCell class] forCellReuseIdentifier:kChatMessageImageCellID];
         [self registerClass:[KFVoiceMessageCell class] forCellReuseIdentifier:kChatMessageVoiceCellID];
+        [self registerClass:[KFVideoMessageCell class] forCellReuseIdentifier:kChatMessageVideoCellID];
         [self registerClass:[KFSystemMessageCell class] forCellReuseIdentifier:kChatMessageSystemCellID];
         [self registerClass:[KFCardMessageCell class] forCellReuseIdentifier:kChatMessageCardCellID];
         
@@ -56,7 +58,7 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
         self.delegate = self;
         self.dataSource = self;
         
-        self.separatorStyle = UITableViewCellSeparatorStyleNone;
+        self.separatorStyle = UITableViewCellSeparatorStyleNone;        
     }
     return self;
 }
@@ -115,6 +117,10 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
             identifier = kChatMessageVoiceCellID;
         }
             break;
+        case KFMessageTypeVideo:{
+            identifier = kChatMessageVideoCellID;
+        }
+            break;
         case KFMessageTypeSystem:{
             identifier = kChatMessageSystemCellID;
         }
@@ -167,12 +173,6 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
     });
 }
 
-- (void)scrollViewBottomWithAfterTime:(int16_t)afterTime{
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(afterTime * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        [self scrollViewBottomWithAnimated:YES];
-    });
-}
-
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view {
     if ( [view isKindOfClass:[UIControl class]]) {
         return YES;
@@ -187,6 +187,58 @@ static NSString *kChatMessageQueueCellID = @"chatMessageQueueCellID";
 
     [self reloadData];
     [self scrollViewBottomWithAnimated:YES];
+}
+
+- (void)reloadData:(KFScrollType)scrollType handleModelBlock:(NSDictionary<NSString *,NSArray<NSIndexPath *> *> *(^)(NSMutableArray<KFMessageModel *> *))handleModelBlock{
+    if (handleModelBlock == nil && scrollType != KFScrollTypeBottom) {// 如果是滚动a到底部,可以不处理数据
+        return;
+    }
+    KFMessageModel *bottomMessageModel = nil;
+    CGFloat offsetInset = 0;
+    if (scrollType == KFScrollTypeHold) {
+        UITableViewCell *cell = self.visibleCells.lastObject;
+        if (cell != nil) {
+            NSIndexPath *indexPath = [self indexPathForCell:cell];
+            if (indexPath != nil && indexPath.row < self.messageModels.count) {
+                bottomMessageModel = self.messageModels[indexPath.row];
+                offsetInset = CGRectGetMaxY(cell.frame) - self.frame.size.height - self.contentOffset.y;
+                if (offsetInset < 0) { offsetInset = 0; }
+            }
+        }
+    }
+    __weak typeof(self) weakSelf = self;
+    if (handleModelBlock) {
+        [UIView performWithoutAnimation:^{
+            NSDictionary *indexPathDict = handleModelBlock(weakSelf.messageModels);
+            NSArray *deleteIndexPaths = [indexPathDict kf5_arrayForKeyPath:@"delete"];
+            NSArray *insertIndexPaths = [indexPathDict kf5_arrayForKeyPath:@"insert"];
+            NSArray *reloadIndexPaths = [indexPathDict kf5_arrayForKeyPath:@"reload"];
+            
+            [self beginUpdates];
+            if (deleteIndexPaths.count > 0) {
+                [self deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+            }
+            if (insertIndexPaths.count > 0) {
+                [self insertRowsAtIndexPaths:insertIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+            }
+            if (reloadIndexPaths.count > 0) {
+                [self reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+            }
+            [self endUpdates];
+        }];
+    }
+    
+    if (scrollType == KFScrollTypeBottom  && self.messageModels.count > 0) {
+        [self scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageModels.count-1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    }else if (scrollType == KFScrollTypeHold && bottomMessageModel != nil) {
+        NSInteger bottomIndex = [self.messageModels indexOfObject:bottomMessageModel];
+        if (bottomIndex != NSNotFound) {
+            [self scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:bottomIndex inSection:0] atScrollPosition:UITableViewScrollPositionNone animated:NO];
+            CGPoint offset = self.contentOffset;
+            offset.y -= offsetInset;
+            self.contentOffset = offset;
+        }
+    }
 }
 
 @end

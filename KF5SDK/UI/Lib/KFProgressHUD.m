@@ -15,26 +15,21 @@ static CGFloat OPACITY = 0.95;
 
 @interface KFProgressHUD()
 
-@property (nonatomic, strong) MBProgressHUD *hud;
-
 @end
 
 @implementation KFProgressHUD
 
-+ (instancetype)showHUDAddedTo:(UIView *)view title:(NSString *)title{
++ (MBProgressHUD *)showHUDAddedTo:(UIView *)view title:(NSString *)title{
     if (view == nil) return nil;
     
-    MBProgressHUD *HUD = [MBProgressHUD HUDForView:view]?:[MBProgressHUD showHUDAddedTo:view animated:YES];
+    MBProgressHUD *hud = [MBProgressHUD HUDForView:view]?:[MBProgressHUD showHUDAddedTo:view animated:YES];
 
-    HUD.contentColor = [UIColor whiteColor];
-    HUD.bezelView.color = [UIColor colorWithWhite:0 alpha:OPACITY];
-    HUD.label.font = [UIFont systemFontOfSize:FONTSIZE];
-    HUD.label.text = title;
-    
-    KFProgressHUD *progress = [[KFProgressHUD alloc]init];
-    progress.hud = HUD;
-    
-    return progress;
+    hud.contentColor = [UIColor whiteColor];
+    hud.bezelView.color = [UIColor colorWithWhite:0 alpha:OPACITY];
+    hud.label.font = [UIFont systemFontOfSize:FONTSIZE];
+    hud.label.text = title;
+        
+    return hud;
 }
 
 + (void)showTitleToView:(UIView *)view title:(NSString *)title{
@@ -50,26 +45,39 @@ static CGFloat OPACITY = 0.95;
     [self hideHUDForView:view hideAfter:0];
 }
 
++ (void)showProgress:(UIView *)view progress:(CGFloat)progress{
+    MBProgressHUD *hud = [KFProgressHUD showHUDAddedTo:view title:nil];
+    hud.mode = MBProgressHUDModeDeterminate;
+    hud.progress = progress;
+}
+
 
 + (void)showLoadingTo:(UIView *)view title:(NSString *)title hideAfter:(NSTimeInterval)afterSecond{
-    KFProgressHUD *progress = [KFProgressHUD showHUDAddedTo:view title:title];
+    MBProgressHUD *hud = [KFProgressHUD showHUDAddedTo:view title:title];
     if(afterSecond > 0)
-        [progress.hud hideAnimated:YES afterDelay:afterSecond];
+        [hud hideAnimated:YES afterDelay:afterSecond];
 }
 
 + (void)showTitleToView:(UIView *)view title:(NSString *)title hideAfter:(NSTimeInterval)afterSecond{
-    KFProgressHUD *progress = [self showHUDAddedTo:view title:title];
-    progress.hud.mode = MBProgressHUDModeText;
+    MBProgressHUD *hud = [self showHUDAddedTo:view title:title];
+    hud.mode = MBProgressHUDModeText;
     if(afterSecond > 0)
-        [progress.hud hideAnimated:YES afterDelay:afterSecond];
+        [hud hideAnimated:YES afterDelay:afterSecond];
 }
 
 + (void)showErrorTitleToView:(UIView *)view title:(NSString *)title hideAfter:(NSTimeInterval)afterSecond{
-     KFProgressHUD *progress = [self showHUDAddedTo:view title:title];
-    progress.hud.customView = [[UIImageView alloc] initWithImage:KF5Helper.hudErrorImage];
-    progress.hud.mode = MBProgressHUDModeCustomView;
+     MBProgressHUD *hud = [self showHUDAddedTo:view title:title];
+    hud.customView = [[UIImageView alloc] initWithImage:KF5Helper.hudErrorImage];
+    hud.mode = MBProgressHUDModeCustomView;
     if(afterSecond > 0)
-        [progress.hud hideAnimated:YES afterDelay:afterSecond];
+        [hud hideAnimated:YES afterDelay:afterSecond];
+}
++ (void)showSuccessTitleToView:(UIView *)view title:(NSString *)title hideAfter:(NSTimeInterval)afterSecond{
+    MBProgressHUD *hud = [self showHUDAddedTo:view title:title];
+    hud.customView = [[UIImageView alloc] initWithImage:KF5Helper.hudSuccessImage];
+    hud.mode = MBProgressHUDModeCustomView;
+    if(afterSecond > 0)
+        [hud hideAnimated:YES afterDelay:afterSecond];
 }
 
 + (void)hideHUDForView:(UIView *)view hideAfter:(NSTimeInterval)afterSecond{

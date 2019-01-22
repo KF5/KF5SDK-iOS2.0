@@ -200,12 +200,21 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
 /**
  发送语音消息
  
- @param voice       语音
+ @param voiceFileURL       语音本地路径
  
  @return  消息实体
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
  */
-- (nonnull KFMessage *)sendVoice:(nonnull NSData *)voice completion:(nullable void (^)(KFMessage * _Nonnull message, NSError * _Nullable error))completion;
+- (nonnull KFMessage *)sendVoice:(nonnull NSURL *)voiceFileURL completion:(nullable void (^)(KFMessage * _Nonnull message, NSError * _Nullable error))completion;
+/**
+ 发送语音消息
+ 
+ @param videoFileURL        视频本地路径
+ 
+ @return  消息实体
+ @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
+ */
+- (nonnull KFMessage *)sendVideo:(nonnull NSURL *)videoFileURL completion:(nullable void (^)(KFMessage * _Nonnull message, NSError * _Nullable error))completion;
 /**
  重新发送消息
 

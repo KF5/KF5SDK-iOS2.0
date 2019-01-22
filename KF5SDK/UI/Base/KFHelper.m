@@ -36,6 +36,10 @@ return _##property;\
 #import "KFUserManager.h"
 #import <AVFoundation/AVCaptureDevice.h>
 
+#if __has_include("SDImageCache.h")
+#import "SDImageCache.h"
+#endif
+
 #if __has_include("TZImagePickerController.h")
 #import "TZImagePickerController.h"
 #endif
@@ -97,10 +101,14 @@ KF5LazyImage(failedImage, @"kf5_failed");
 KF5LazyImage(agentImage, @"kf5_header_agent");
 KF5LazyImage(endUserImage, @"kf5_header_endUser");
 KF5LazyImage(hudErrorImage, @"kf5_hud_error");
+KF5LazyImage(hudSuccessImage, @"kf5_hud_success");
 
 KF5LazyImage(placeholderImage, @"kf5_placeholder_image");
 KF5LazyImage(placeholderImageFailed, @"kf5_placeholder_image_failed");
 KF5LazyImage(placeholderOther, @"kf5_placeholder_other");
+KF5LazyImage(videoPlayImage, @"kf5_videoPlay");
+KF5LazyImage(videoPlayImageH, @"kf5_videoPlay_pre");
+
 KF5LazyImage(ticketTool_addAtt, @"kf5_ticket_addatt");
 KF5LazyImage(ticketTool_closeAtt, @"kf5_ticket_closeatt");
 KF5LazyImage(ticketTool_openAtt, @"kf5_ticket_attBtn");
@@ -109,13 +117,8 @@ KF5LazyImage(ticket_createAtt, @"kf5_ticket_create_att");
 
 KF5LazyImage(chat_record_cancel, @"kf5_chat_record_cancel");
 
-- (NSArray<UIImage *> *)chat_records{
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:14];
-    for (int i = 0; i < 14; i++) {
-        UIImage *image = [UIImage kf5_imageWithBundleImageName:[NSString stringWithFormat:@"kf5_chat_record_%02d",(i+1)]];
-        if (image) [array addObject:image];
-    }
-    return array;
+- (UIImage *)chat_recordsWithIndex:(NSInteger)index{
+    return [UIImage kf5_imageWithBundleImageName:[NSString stringWithFormat:@"kf5_chat_record_%02ld",index]];
 }
 
 - (NSArray<UIImage *> *)chat_meWaves{
@@ -136,7 +139,7 @@ KF5LazyImage(chat_record_cancel, @"kf5_chat_record_cancel");
 }
 
 - (void)setup{
-        
+    self.imCanSendVideo = YES;
     self.KF5TitleColor = KF5ColorFromRGB(0x424345);
     self.KF5NameColor = KF5ColorFromRGB(0xa0a0a0);
     self.KF5TimeColor = KF5ColorFromRGB(0x888888);
@@ -316,11 +319,83 @@ static NSBundle *bundle = nil;
     imagePickerVC.barItemTextFont = [UIFont boldSystemFontOfSize:17];
     imagePickerVC.preferredLanguage = [self localLanguage];    
     [imagePickerVC setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-        didFinishedHandle(photos,assets);
+        if (didFinishedHandle) {
+            didFinishedHandle(photos,assets);
+        }
     }];
     return imagePickerVC;
 #else
     return [[UIViewController alloc] init];
+#endif
+}
+
++ (UIViewController *)imagePickerControllerWithImageHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))imageHandle  videoHandle:(void (^)(UIImage *coverImage, NSURL *videoURL, NSString *videoName, NSError *error, UIViewController *vc))videoHandle{
+#if __has_include("TZImagePickerController.h")
+    TZImagePickerController *imagePickerVC = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:nil];
+    imagePickerVC.autoDismiss = NO;
+    imagePickerVC.allowPickingMultipleVideo = KF5Helper.imCanSendVideo;
+    imagePickerVC.allowPickingOriginalPhoto = NO;
+    imagePickerVC.allowPickingVideo = KF5Helper.imCanSendVideo;
+    imagePickerVC.allowTakeVideo = KF5Helper.imCanSendVideo;
+    imagePickerVC.videoMaximumDuration = 10;
+    imagePickerVC.barItemTextFont = [UIFont boldSystemFontOfSize:17];
+    imagePickerVC.preferredLanguage = [self localLanguage];
+    __weak typeof(TZImagePickerController *)weakVC= imagePickerVC;
+    [imagePickerVC setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        [weakVC dismissViewControllerAnimated:YES completion:nil];
+        if (imageHandle) {
+            imageHandle(photos,assets);
+        }
+    }];
+    [imagePickerVC setImagePickerControllerDidCancelHandle:^{
+        [weakVC dismissViewControllerAnimated:YES completion:nil];
+    }];
+    [imagePickerVC setDidFinishPickingVideoHandle:^(UIImage *coverImage, PHAsset *asset) {
+        PHAssetResource *resource = [[PHAssetResource assetResourcesForAsset:asset] firstObject];
+        long long originFileSize = [[resource valueForKey:@"fileSize"] longLongValue] / (1024.0 * 1024.0);
+        if (originFileSize > 50) {
+            if (videoHandle) {
+                videoHandle(nil,nil, nil, [NSError errorWithDomain:@"文件不能超过50MB" code:4000 userInfo:nil],weakVC);
+            }
+            return;
+        }
+        [KFProgressHUD showDefaultLoadingTo:weakVC.view];
+        [[TZImageManager manager] getVideoOutputPathWithAsset:asset presetName:AVAssetExportPreset640x480 success:^(NSString *outputPath) {
+            NSString *videoName = [NSString stringWithFormat:@"%@.mp4",[self md5HexDigest:outputPath]];
+            NSURL *videoURL = [NSURL fileURLWithPath:[[KFConfig dataDefaultPath] stringByAppendingPathComponent:videoName]];
+            
+            [[NSFileManager defaultManager] moveItemAtURL:[NSURL fileURLWithPath:outputPath] toURL:videoURL error:nil];
+#if __has_include("SDImageCache.h")
+            [[SDImageCache sharedImageCache]storeImage:coverImage forKey:videoName completion:^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [KFProgressHUD hideHUDForView:weakVC.view];
+                    [weakVC dismissViewControllerAnimated:YES completion:nil];
+                    if (videoHandle) {
+                        videoHandle(coverImage, videoURL, videoName, nil,weakVC);
+                    }
+                });
+            }];
+#else
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [KFProgressHUD hideHUDForView:weakVC.view];
+                [weakVC dismissViewControllerAnimated:YES completion:nil];
+                if (videoHandle) {
+                    videoHandle(coverImage, videoURL, videoName, nil);
+                }
+            });
+#endif
+        } failure:^(NSString *errorMessage, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [KFProgressHUD hideHUDForView:weakVC.view];
+                if (videoHandle) {
+                    videoHandle(nil,nil, nil, [NSError errorWithDomain:@"视频转码失败" code:4000 userInfo:nil], weakVC);
+                }
+            });
+        }];
+    }];
+    return imagePickerVC;
+#else
+    return nil;
 #endif
 }
 

@@ -184,9 +184,11 @@ Accept: application/json
 3、KF5SDK/UI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。      
 4、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 ## 七、最新版本            
+#### V2.9.0 最后更新于 2019-01-22            
+新增IM支持视频消息            
+### 历史版本                    
 #### V2.8.0 最后更新于 2018-12-28            
 更新问题分配方式,问题分配需在KF5后台重新配置            
-### 历史版本                    
 #### V2.7.4 最后更新于 2018-12-14            
 新增工单催单接口            
 #### V2.7.3 最后更新于 2018-11-23            

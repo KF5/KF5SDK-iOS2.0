@@ -10,6 +10,7 @@
 #import "KFUserManager.h"
 #import "KFCategory.h"
 #import "KFMessageModel.h"
+#import "KFChatVoiceManager.h"
 
 @interface KFChatViewModel()<KFChatManagerDelegate>
 
@@ -35,6 +36,9 @@
         _sqlOffSet = -1;
         
         [[KFChatManager sharedChatManager] addObserver:self forKeyPath:@"chatStatus" options:NSKeyValueObservingOptionNew context:nil];
+        
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(videoImageDidDownload:) name:KFChatVideoImageDidDownloadNotification object:nil];
+
     }
     return self;
 }
@@ -174,6 +178,10 @@
                 message = [[KFChatManager sharedChatManager] sendVoice:data completion:nil];
             }
                 break;
+            case KFMessageTypeVideo:{
+                message = [[KFChatManager sharedChatManager] sendVideo:data completion:nil];
+            }
+                break;
             default:
                 break;
         }
@@ -285,7 +293,11 @@ static BOOL isCanSendChecking = NO;
 }
 // 接收聊天消息撤回通知
 - (void)chatManager:(KFChatManager *)chatManager receiveRecallMessages:(nonnull NSArray<KFMessage *> *)chatMessages{
-    [self delegateWithReloadMessages:chatMessages];
+    if ([self.delegate respondsToSelector:@selector(chat:reloadMessageModels:)]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate chat:self reloadMessageModels:[self messageModelsWithMessages:chatMessages]];
+        });
+    }
 }
 // 用户排队的当前位置通知
 - (void)chatManager:(KFChatManager *)chatManager queueIndex:(NSInteger)queueIndex{
@@ -301,11 +313,15 @@ static BOOL isCanSendChecking = NO;
 }
 // 客服关闭对话通知
 - (void)chatManagerEndChat:(KFChatManager *)chatManager{
-    [self delegateWithEndChat];
+    if ([self.delegate respondsToSelector:@selector(chatWithEndChat:)]) {
+        [self.delegate chatWithEndChat:self];
+    }
 }
 // 客服发起满意度评价通知
 - (void)chatManagerRating:(KFChatManager *)chatManager{
-    [self delegateWithAgentRating];
+    if ([self.delegate respondsToSelector:@selector(chatWithAgentRating:)]) {
+        [self.delegate chatWithAgentRating:self];
+    }
 }
 
 #pragma mark - 获取数据
@@ -357,18 +373,6 @@ static BOOL isCanSendChecking = NO;
         [self.delegate chat:self statusChange:self.chatStatus];
     }
 }
-/** 客服发起满意度评价请求*/
-- (void)delegateWithAgentRating{
-    if ([self.delegate respondsToSelector:@selector(chatWithAgentRating:)]) {
-        [self.delegate chatWithAgentRating:self];
-    }
-}
-/**对话被客服关闭*/
-- (void)delegateWithEndChat{
-    if ([self.delegate respondsToSelector:@selector(chatWithEndChat:)]) {
-        [self.delegate chatWithEndChat:self];
-    }
-}
 /**添加数据*/
 - (void)delegateWithAddMessages:(NSArray <KFMessage *>*)messages{
     if ([self.delegate respondsToSelector:@selector(chat:addMessageModels:)]) {
@@ -377,16 +381,23 @@ static BOOL isCanSendChecking = NO;
         });
     }
 }
-/**更新数据**/
-- (void)delegateWithReloadMessages:(NSArray <KFMessage *>*)messages{
-    if ([self.delegate respondsToSelector:@selector(chat:reloadMessageModels:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate chat:self reloadMessageModels:[self messageModelsWithMessages:messages]];
-            });
+
+/// 视频首帧图片下载成功通知
+- (void)videoImageDidDownload:(NSNotification *)note {
+    NSDictionary *dict = note.object;
+    if (![dict isKindOfClass:[NSDictionary class]]) {
+        return;
+    }
+    KFMessageModel *model = dict[@"model"];
+    if (model) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate chat:self reloadMessageModels:@[model]];
+        });
     }
 }
 
 - (void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
     [[KFChatManager sharedChatManager]removeObserver:self forKeyPath:@"chatStatus"];
     [[KFChatManager sharedChatManager]setUserOffline];
 }

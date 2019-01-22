@@ -1,6 +1,6 @@
 //
 //  KFPreviewController.m
-//  KF5SDKUI2.0
+//  5SDKUI2.0
 //
 //  Created by admin on 2017/11/21.
 //  Copyright © 2017年 kf5. All rights reserved.
@@ -8,57 +8,58 @@
 
 #import "KFPreviewController.h"
 #import "UIImageView+WebCache.h"
-#import "KFAutoLayout.h"
+#import "KFPlayerController.h"
+#import <CommonCrypto/CommonDigest.h>
+#import "KFPlayerController.h"
+#import "KFCategory.h"
 
-static UIImage *placeHolderErrorImage = nil;
-static NSString *cellID = @"KFPreviewCell";
+static UIImage *placeHolderErrorImage;
+static NSString *cellID = @"KFPreviewPhotoCell";
+static NSString *cellVideoID = @"KFPreviewVideoCell";
 
-@interface KFProgressView : UIView
+@interface KFPreviewVideoCell()
+@property (nonatomic, weak) KFPlayerView *playView;
+@end
 
-@property (nonatomic, assign) double progress;
-@property (nonatomic, strong) CAShapeLayer *progressLayer;
+@interface KFPreviewModel()
+
+@property (nonatomic, strong) NSURL *localURL;
 
 @end
 
-@interface KFPreviewView : UIView<UIScrollViewDelegate>
+@interface KFCollectionView : UICollectionView
+@end
 
-@property (nonatomic, strong) UIImageView *imageView;
-@property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic, strong) KFProgressView *progressView;
-@property (nonatomic, strong) KFPreviewModel *model;
-@property (nonatomic, copy) void (^singleTapGestureBlock)(void);
-@property (nonatomic, copy) void (^longTapGestureBlock)(UIImage *image);
-- (void)recoverSubviews;
+@implementation KFCollectionView
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event{
+    /*
+     直接拖动UISlider，此时touch时间在150ms以内，UIScrollView会认为是拖动自己，从而拦截了event，导致UISlider接受不到滑动的event。但是只要按住UISlider一会再拖动，此时此时touch时间超过150ms，因此滑动的event会发送到UISlider上。
+     */
+    UIView *view = [super hitTest:point withEvent:event];
+    if ([view isKindOfClass:NSClassFromString(@"UISlider")]) {
+        //如果响应view是UISlider,则scrollview禁止滑动
+        self.scrollEnabled = NO;
+    }else{
+        //如果不是,则恢复滑动
+        self.scrollEnabled = YES;
+    }
+    return view;
+}
 
 @end
 
-@interface KFPreviewCell : UICollectionViewCell
-
-@property (nonatomic, strong) KFPreviewModel *model;
-@property (nonatomic, copy) void (^singleTapGestureBlock)(void);
-@property (nonatomic, copy) void (^longTapGestureBlock)(UIImage *image);
-@property (nonatomic, weak) KFPreviewView *previewView;
-- (void)recoverSubviews;
-
-@end
-
-@interface KFSwipeUpInteractiveTransition : UIPercentDrivenInteractiveTransition<UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate>
-
-- (instancetype)initWithVC:(UIViewController *)vc;
-@property (nonatomic, assign) BOOL shouldComplete;
-@property (nonatomic, assign) BOOL interacting;
-@property (nonatomic, weak) UIViewController *presentingVC;
-
-@end
-
-@interface KFPreviewController()
+@interface KFPreviewController()<UICollectionViewDelegate,UICollectionViewDataSource>
 
 @property (nonatomic,strong) NSArray <KFPreviewModel *>*models;
-@property (nonatomic,weak) UICollectionView *collectionView;
+@property (nonatomic,weak) KFCollectionView *collectionView;
+
 @property (nonatomic,weak) UILabel *numberLabel;
 @property (nonatomic, assign) NSInteger currentIndex;
 @property (nonatomic, assign) NSInteger selectIndex;
-@property (nonatomic, strong) KFSwipeUpInteractiveTransition *transitionController;
+@property (nonatomic, assign) NSInteger displayIndex;
+
+@property (nonatomic, strong) SwipeUpInteractiveTransition *transitionController;
 
 @end
 
@@ -69,7 +70,7 @@ static NSString *cellID = @"KFPreviewCell";
     if (self) {
         _models = models;
         _selectIndex = selectIndex;
-        _transitionController = [[KFSwipeUpInteractiveTransition alloc] initWithVC:self];
+        _transitionController = [[SwipeUpInteractiveTransition alloc] initWithVC:self];
     }
     return self;
 }
@@ -96,9 +97,17 @@ static NSString *cellID = @"KFPreviewCell";
 - (void)viewDidLoad{
     [super viewDidLoad];
     
+    if (!placeHolderErrorImage) placeHolderErrorImage = KF5Helper.placeholderImage;
+    
     if (self.models.count == 0) return;
     
-    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:[[UICollectionViewFlowLayout alloc]init]];
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumInteritemSpacing = 0;
+    layout.minimumLineSpacing = 0;
+    layout.sectionInset = UIEdgeInsetsZero;
+    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    
+    KFCollectionView *collectionView = [[KFCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
     self.automaticallyAdjustsScrollViewInsets = NO;
     collectionView.backgroundColor = [UIColor blackColor];
     collectionView.delegate = self;
@@ -117,22 +126,38 @@ static NSString *cellID = @"KFPreviewCell";
     self.numberLabel = numberLabel;
     
     [numberLabel kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+        make.top.kf_equalTo(self.view.kf5_safeAreaLayoutGuideTop).kf_offset(15);
         make.centerX.kf_equalTo(self.view);
-        make.bottom.kf_equalTo(self.view.kf5_safeAreaLayoutGuideBottom);
     }];
-    
-    [collectionView kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+    [collectionView kf5_makeConstraints:^(KFAutoLayout *make) {
         make.top.kf_equalTo(self.view);
         make.left.kf_equalTo(self.view).kf_offset(-10);
         make.right.kf_equalTo(self.view).kf_offset(10);
         make.bottom.kf_equalTo(self.view);
     }];
     
-    [_collectionView registerClass:[KFPreviewCell class] forCellWithReuseIdentifier:cellID];
+    [_collectionView registerClass:[KFPreviewPhotoCell class] forCellWithReuseIdentifier:cellID];
+    [_collectionView registerClass:[KFPreviewVideoCell class] forCellWithReuseIdentifier:cellVideoID];
     
     if (self.selectIndex < self.models.count) self.currentIndex = self.selectIndex;
 }
 
+- (void)setCurrentIndex:(NSInteger)currentIndex{
+    _currentIndex = currentIndex;
+    if (self.models.count == 1) {
+        self.numberLabel.text = nil;
+    }else{
+        self.numberLabel.text = [NSString stringWithFormat:@"%ld/%lu", currentIndex+1,(unsigned long)self.models.count];
+    }
+}
+- (CGSize)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    return CGSizeMake(collectionView.bounds.size.width, collectionView.bounds.size.height);
+}
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    _collectionView.contentSize = CGSizeMake(self.models.count * (self.collectionView.frame.size.width + 20), self.collectionView.frame.size.height);
+    [_collectionView setContentOffset:CGPointMake(self.collectionView.bounds.size.width * self.currentIndex, 0)];
+}
 #pragma mark - UIScrollViewDelegate
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     CGFloat offSetWidth = scrollView.contentOffset.x;
@@ -144,27 +169,6 @@ static NSString *cellID = @"KFPreviewCell";
     }
 }
 
-- (void)setCurrentIndex:(NSInteger)currentIndex{
-    _currentIndex = currentIndex;
-    self.numberLabel.text = [NSString stringWithFormat:@"%ld/%lu", currentIndex+1,(unsigned long)self.models.count];
-}
-
-- (void)viewDidLayoutSubviews {
-    [super viewDidLayoutSubviews];
-    if (((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize.height != self.collectionView.frame.size.height || self.selectIndex > -1) {
-        self.selectIndex = -1;
-        UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-        layout.itemSize = CGSizeMake(self.collectionView.frame.size.width, self.collectionView.frame.size.height);
-        layout.minimumInteritemSpacing = 0;
-        layout.minimumLineSpacing = 0;
-        layout.sectionInset = UIEdgeInsetsZero;
-        layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-        [_collectionView setCollectionViewLayout:layout];
-        _collectionView.contentSize = CGSizeMake(self.models.count * (self.collectionView.frame.size.width + 20), self.collectionView.frame.size.height);
-        [_collectionView setContentOffset:CGPointMake(layout.itemSize.width * self.currentIndex, 0)];
-    }
-}
-
 #pragma mark - UICollectionViewDataSource && Delegate
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -172,16 +176,26 @@ static NSString *cellID = @"KFPreviewCell";
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    KFPreviewCell *photoPreviewCell = [collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    photoPreviewCell.model = self.models[indexPath.row];
+    KFPreviewModel *model = self.models[indexPath.row];
     __weak typeof(self)weakSelf = self;
-    [photoPreviewCell setSingleTapGestureBlock:^{
-        [weakSelf dismissView];
-    }];
-    [photoPreviewCell setLongTapGestureBlock:^(UIImage *image) {
-        [weakSelf showSaveActivityView:image];
-    }];
-    return photoPreviewCell;
+    if (model.isVideo) {
+        KFPreviewVideoCell *previewVideoCell = [collectionView dequeueReusableCellWithReuseIdentifier:cellVideoID forIndexPath:indexPath];
+        previewVideoCell.model = model;
+        [previewVideoCell setSingleTapGestureBlock:^{
+            [weakSelf dismissView];
+        }];
+        return previewVideoCell;
+    }else {
+        KFPreviewPhotoCell *previewPhotoCell = [collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
+        previewPhotoCell.model = model;
+        [previewPhotoCell setLongTapGestureBlock:^(UIImage *image) {
+            [weakSelf showSaveActivityView:image];
+        }];
+        [previewPhotoCell setSingleTapGestureBlock:^{
+            [weakSelf dismissView];
+        }];
+        return previewPhotoCell;
+    }
 }
 
 - (void)dismissView{
@@ -189,8 +203,7 @@ static NSString *cellID = @"KFPreviewCell";
 }
 
 - (void)showSaveActivityView:(UIImage *)image{
-    UIActivityViewController *activityViewController =
-    [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
+    UIActivityViewController *activityViewController =  [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
     if ([activityViewController respondsToSelector:@selector(popoverPresentationController)]) {
         activityViewController.popoverPresentationController.sourceView = self.view;
     }
@@ -198,41 +211,114 @@ static NSString *cellID = @"KFPreviewCell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[KFPreviewCell class]]) {
-        [(KFPreviewCell *)cell recoverSubviews];
+    if ([cell isKindOfClass:[KFPreviewPhotoCell class]]) {
+        [(KFPreviewPhotoCell *)cell recoverSubviews];
+    }else if ([cell isKindOfClass:[KFPreviewVideoCell class]]) {
+        [((KFPreviewVideoCell *)cell).playView resetPlay];
     }
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[KFPreviewCell class]]) {
-        [(KFPreviewCell *)cell recoverSubviews];
+    UICollectionViewCell *oldCell = [collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForRow:self.currentIndex inSection:0]];
+   if ([oldCell isKindOfClass:[KFPreviewVideoCell class]]) {
+        [((KFPreviewVideoCell *)oldCell).playView resetPlay];
+    }
+    
+    if ([cell isKindOfClass:[KFPreviewPhotoCell class]]){
+        [(KFPreviewPhotoCell *)cell recoverSubviews];
+    }else if ([cell isKindOfClass:[KFPreviewVideoCell class]]) {
+        [((KFPreviewVideoCell *)cell).playView pause];
     }
 }
 + (void)setPlaceholderErrorImage:(UIImage *)image{
     placeHolderErrorImage = image;
 }
 
++ (UIImage *)imageNamed:(NSString *)name {
+    return [UIImage kf5_imageWithBundleImageName:name];
+}
+
 @end
 
-@implementation KFPreviewCell
+@interface KFPreviewVideoCell()
+
+@property (nonatomic, weak) UIImageView *imageView;
+@property (nonatomic, weak) UIButton *closeBtn;
+@property (nonatomic, strong) KFPlayerController *playerController;
+
+@end
+
+@implementation KFPreviewVideoCell
+
+- (KFPlayerView *)playView{
+    return self.playerController.playView;
+}
+
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         self.backgroundColor = [UIColor blackColor];
-        KFPreviewView *previewView = [[KFPreviewView alloc] initWithFrame:CGRectZero];
-        [self addSubview:previewView];
-        _previewView = previewView;
+        
+        KFPlayerController *playerController = [[KFPlayerController alloc] init];
+        [self.contentView addSubview:playerController.view];
+        
         __weak typeof(self) weakSelf = self;
-        [previewView setSingleTapGestureBlock:^{
+        playerController.closeGestureBlock = ^{
+            if (weakSelf.singleTapGestureBlock) {
+                weakSelf.singleTapGestureBlock();
+            }
+        };
+        self.playerController = playerController;
+        [playerController.view kf5_makeConstraints:^(KFAutoLayout * _Nonnull make) {
+            make.left.kf_equalTo(self.contentView).kf_offset(10);
+            make.right.kf_equalTo(self.contentView).kf_offset(-10);
+            make.top.kf_equalTo(self.contentView);
+            make.bottom.kf_equalTo(self.contentView);
+        }];
+    }
+    return self;
+}
+
+- (void)setModel:(KFPreviewModel *)model{
+    _model = model;
+    if ([model.value isKindOfClass:[NSURL class]]) {
+        [self.playerController assetWithModel:model];
+    }else{
+        NSAssert(NO, @"model的格式错误");
+    }
+}
+
+- (void)closeAction:(UIButton *)btn {
+    if (self.singleTapGestureBlock) {
+        self.singleTapGestureBlock();
+    }
+}
+
+- (void)dealloc{
+    [self.playView stop];
+    self.playView = nil;
+}
+
+@end
+
+@implementation KFPreviewPhotoCell
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor blackColor];
+        self.previewView = [[KFPreviewView alloc] initWithFrame:CGRectZero];
+        __weak typeof(self) weakSelf = self;
+        [self.previewView setSingleTapGestureBlock:^{
             if (weakSelf.singleTapGestureBlock) {
                 weakSelf.singleTapGestureBlock();
             }
         }];
-        [previewView setLongTapGestureBlock:^(UIImage *image) {
+        [self.previewView setLongTapGestureBlock:^(UIImage *image) {
             if (weakSelf.longTapGestureBlock) {
                 weakSelf.longTapGestureBlock(image);
             }
         }];
+        [self.contentView addSubview:self.previewView];
     }
     return self;
 }
@@ -250,7 +336,9 @@ static NSString *cellID = @"KFPreviewCell";
     [super layoutSubviews];
     self.previewView.frame = self.bounds;
 }
+
 @end
+
 
 
 @implementation KFPreviewView
@@ -278,11 +366,7 @@ static NSString *cellID = @"KFPreviewCell";
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
         _imageView.clipsToBounds = YES;
         [_scrollView addSubview:_imageView];
-        
-        _progressView = [[KFProgressView alloc] init];
-        _progressView.hidden = YES;
-        [self addSubview:_progressView];
-        
+    
         [self configGestureRecognizer];
     }
     return self;
@@ -304,27 +388,24 @@ static NSString *cellID = @"KFPreviewCell";
     if ([model.value isKindOfClass:[UIImage class]]) {
         self.imageView.image = model.value;
         [self resizeSubviews];
-        _progressView.hidden = YES;
+        [KFProgressHUD hideHUDForView:self];
     }else if ([model.value isKindOfClass:[NSURL class]]){
         __weak typeof(self)weakSelf = self;
         [self.imageView sd_setImageWithURL:model.value placeholderImage:model.placeholder options:kNilOptions progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                weakSelf.progressView.hidden = NO;
-                [weakSelf bringSubviewToFront:weakSelf.progressView];
                 CGFloat progress = receivedSize / (CGFloat)expectedSize;
                 progress = progress > 0.02 ? progress : 0.02;
-                weakSelf.progressView.progress = progress;
-                if (progress >= 1) {
-                    weakSelf.progressView.hidden = YES;
-                }
+                [KFProgressHUD showProgress:weakSelf progress:progress];
             });
         } completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (error) {
                     weakSelf.imageView.image = placeHolderErrorImage;
+                }else{
+                    weakSelf.imageView.image = image;
                 }
                 [weakSelf resizeSubviews];
-                weakSelf.progressView.hidden = YES;
+                [KFProgressHUD hideHUDForView:weakSelf];
             });
         }];
     }else{
@@ -358,11 +439,6 @@ static NSString *cellID = @"KFPreviewCell";
 - (void)layoutSubviews {
     [super layoutSubviews];
     _scrollView.frame = CGRectMake(10, 0, self.frame.size.width - 20, self.frame.size.height);
-    static CGFloat progressWH = 40;
-    CGFloat progressX = (self.frame.size.width - progressWH) / 2;
-    CGFloat progressY = (self.frame.size.height - progressWH) / 2;
-    _progressView.frame = CGRectMake(progressX, progressY, progressWH, progressWH);
-    
     [self recoverSubviews];
 }
 
@@ -416,64 +492,33 @@ static NSString *cellID = @"KFPreviewCell";
 
 @end
 
-
-@implementation KFProgressView
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        self.backgroundColor = [UIColor clearColor];
-        
-        _progressLayer = [CAShapeLayer layer];
-        _progressLayer.fillColor = [[UIColor clearColor] CGColor];
-        _progressLayer.strokeColor = [[UIColor whiteColor] CGColor];
-        _progressLayer.opacity = 1;
-        _progressLayer.lineCap = kCALineCapRound;
-        _progressLayer.lineWidth = 5;
-        
-        [_progressLayer setShadowColor:[UIColor blackColor].CGColor];
-        [_progressLayer setShadowOffset:CGSizeMake(1, 1)];
-        [_progressLayer setShadowOpacity:0.5];
-        [_progressLayer setShadowRadius:2];
-    }
-    return self;
-}
-
-- (void)drawRect:(CGRect)rect {
-    CGPoint center = CGPointMake(rect.size.width / 2, rect.size.height / 2);
-    CGFloat radius = rect.size.width / 2;
-    CGFloat startA = - M_PI_2;
-    CGFloat endA = - M_PI_2 + M_PI * 2 * _progress;
-    _progressLayer.frame = self.bounds;
-    UIBezierPath *path = [UIBezierPath bezierPathWithArcCenter:center radius:radius startAngle:startA endAngle:endA clockwise:YES];
-    _progressLayer.path =[path CGPath];
-    
-    [_progressLayer removeFromSuperlayer];
-    [self.layer addSublayer:_progressLayer];
-}
-
-- (void)setProgress:(double)progress {
-    _progress = progress;
-    [self setNeedsDisplay];
-}
-
-@end
-
-
 @implementation KFPreviewModel
 
 - (instancetype)initWithValue:(id)value placeholder:(UIImage *)placeholder{
+    return [self initWithValue:value placeholder:placeholder isVideo:NO];
+}
+
+- (instancetype)initWithValue:(id)value placeholder:(UIImage *)placeholder isVideo:(BOOL)isVideo {
     self = [super init];
     if (self) {
-        self.value = value;
-        self.placeholder = placeholder;
+        _value = value;
+        _placeholder = placeholder;
+        _isVideo = isVideo;
     }
     return self;
 }
 
 @end
 
-@implementation KFSwipeUpInteractiveTransition
+#pragma mark 转场动画
+@interface SwipeUpInteractiveTransition ()
+
+@property (nonatomic, assign) BOOL interacting;
+@property (nonatomic, weak) UIViewController *presentingVC;
+
+@end
+
+@implementation SwipeUpInteractiveTransition
 - (instancetype)initWithVC:(UIViewController *)vc{
     self = [super init];
     if (self) {
@@ -489,24 +534,27 @@ static NSString *cellID = @"KFPreviewCell";
     return 1 - self.percentComplete;
 }
 - (void)handleGesture:(UIPanGestureRecognizer *)gestureRecognizer {
+
     CGPoint translation = [gestureRecognizer translationInView:gestureRecognizer.view.superview];
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
-
+            // 1. Mark the interacting flag. Used when supplying it in delegate.
             self.interacting = YES;
             [self.presentingVC dismissViewControllerAnimated:YES completion:nil];
             break;
         case UIGestureRecognizerStateChanged: {
-
+            // 2. Calculate the percentage of guesture
             CGFloat fraction = translation.y / ([UIScreen mainScreen].bounds.size.height * 0.6);
+            //Limit it between 0 and 1
             fraction = fminf(fmaxf(fraction, 0.0), 1.0);
             self.shouldComplete = (fraction > 0.25);
-            
+
             [self updateInteractiveTransition:fraction];
             break;
         }
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled: {
+            // 3. Gesture over. Check if the transition should happen or not
             self.interacting = NO;
             if (!self.shouldComplete || gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
                 [self cancelInteractiveTransition];
@@ -525,17 +573,21 @@ static NSString *cellID = @"KFPreviewCell";
 }
 
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext{
+    // 1. Get controllers from transition context
     UIViewController *fromVC = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     UIViewController *toVC = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-    
+
+    // 2. Set init frame for fromVC
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     CGRect initFrame = [transitionContext initialFrameForViewController:fromVC];
     CGRect finalFrame = CGRectOffset(initFrame, 0, screenBounds.size.height);
-    
+
+    // 3. Add target view to the container, and move it to back.
     UIView *containerView = [transitionContext containerView];
     [containerView addSubview:toVC.view];
     [containerView sendSubviewToBack:toVC.view];
-    
+
+    // 4. Do animate now
     NSTimeInterval duration = [self transitionDuration:transitionContext];
     [UIView animateWithDuration:duration animations:^{
         fromVC.view.frame = finalFrame;

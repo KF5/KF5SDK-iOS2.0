@@ -70,7 +70,7 @@
     NSDictionary *params = @{
                              KF5UserToken:[KFUserManager shareUserManager].user.userToken,
                              KF5TicketId:@(self.ticket_id),
-                             KF5PerPage:@"200"
+                             KF5PerPage:@"300"
                              };
     __weak typeof(self)weakSelf = self;
     [KFHttpTool getTicketWithParams:params completion:^(NSDictionary * _Nullable result, NSError * _Nullable error) {

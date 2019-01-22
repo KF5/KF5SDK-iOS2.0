@@ -14,6 +14,8 @@
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceDidDownloadNotification;
 // 播放完成的通知,object:{@"model":KFMessageModel, @"error":NSError}
 UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
+// 视频第一帧图片完成的通知,object:{@"model":KFMessageModel, @"image":UIImage}
+UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVideoImageDidDownloadNotification;
 
 @protocol KFChatVoiceManagerDelegate <NSObject>
 
@@ -26,10 +28,10 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
 /**
  录音完成的代理
 
- @param data 音频数据
+ @param voiceFileURL 音频数据本地路径
  @param error 错误信息,为nil表示为成功
  */
-- (void)chatVoiceManager:(nonnull KFChatVoiceManager *)voiceManager recordVoice:(nullable NSData *)data error:(nullable NSError *)error;
+- (void)chatVoiceManager:(nonnull KFChatVoiceManager *)voiceManager voiceFileURL:(nullable NSURL *)voiceFileURL error:(nullable NSError *)error;
 
 @end
 
@@ -92,6 +94,15 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVoiceStopPlayNotification;
  @warning 通过KFChatVoiceDidDownloadNotification获取下载完成通知
  */
 - (void)downloadDataWithMessageModel:(nonnull KFMessageModel *)messageModel;
+
+/**
+ 下载视频第一帧图片, cell中使用
+ 
+ @param messageModel 消息模型
+ @return 如果本地存在,则返回UIImage否则返回nil
+ @warning 通过KFChatVideoImageDidDownloadNotification获取下载成功的通知,下载失败不处理
+ */
+- (UIImage *)downloadVideoImageWithMessageModel:(KFMessageModel *)messageModel;
 
 /**
  是否存在local_path

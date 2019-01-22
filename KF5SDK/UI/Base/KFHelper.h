@@ -24,7 +24,6 @@
 @property (nullable, nonatomic, strong) UIImage *chatTool_voice;
 
 @property (nullable, nonatomic, strong) UIImage *chat_record_cancel;
-@property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_records;
 @property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_meWaves;
 @property (nullable, nonatomic, strong) NSArray <UIImage *>*chat_otherWaves;
 
@@ -33,10 +32,13 @@
 @property (nullable, nonatomic, strong) UIImage *agentImage;
 @property (nullable, nonatomic, strong) UIImage *endUserImage;
 @property (nullable, nonatomic, strong) UIImage *hudErrorImage;
+@property (nullable, nonatomic, strong) UIImage *hudSuccessImage;
 
 @property (nullable, nonatomic, strong) UIImage *placeholderImage;
 @property (nullable, nonatomic, strong) UIImage *placeholderImageFailed;
 @property (nullable, nonatomic, strong) UIImage *placeholderOther;
+@property (nullable, nonatomic, strong) UIImage *videoPlayImage;
+@property (nullable, nonatomic, strong) UIImage *videoPlayImageH;
 
 
 @property (nullable, nonatomic, strong) UIImage *ticketTool_addAtt;
@@ -108,6 +110,10 @@
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellLinkBtnBackgroundColor;
 @property (nonnull, nonatomic, strong) UIColor *KF5ChatCardCellBackgroundColor;
 
+@property (nonatomic, assign) BOOL  imCanSendVideo;
+
+- (UIImage *)chat_recordsWithIndex:(NSInteger)index;
+
 + (CGSize)mainSize;
 + (CGRect)safe_mainFrame;
 
@@ -129,7 +135,9 @@
 + (UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message confirmHandler:(void (^ __nullable)(UIAlertAction *_Nonnull action))handler;
 + (UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message;
 
-+ (UIViewController *_Nonnull)imagePickerControllerWithMaxCount:(NSInteger)maxCount selectedAssets:(NSArray *_Nullable)selectedAssets didFinishedHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))didFinishedHandle;
++ (UIViewController *)imagePickerControllerWithMaxCount:(NSInteger)maxCount selectedAssets:(NSArray *)selectedAssets didFinishedHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))didFinishedHandle;
+
++ (UIViewController *)imagePickerControllerWithImageHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))imageHandle  videoHandle:(void (^)(UIImage *coverImage, NSURL *videoURL, NSString *videoName, NSError *error, UIViewController *vc))videoHandle;
 
 #pragma mark - helper
 + (BOOL)isNetworkEnable;
