@@ -188,8 +188,10 @@ NSString *const KFLinkAttributeName = @"KFLinkAttributeName";
     if (rangeValues.count > 0 && self.linkTapBlock) {
         for (NSValue *rangeValue in rangeValues) {
             NSRange range = rangeValue.rangeValue;
-            id value = [self.attributedText attribute:KFLinkAttributeName atIndex:range.location effectiveRange:NULL];
-            self.linkTapBlock(self, value);
+            if (range.location < self.attributedText.length) {
+                id value = [self.attributedText attribute:KFLinkAttributeName atIndex:range.location effectiveRange:NULL];
+                self.linkTapBlock(self, value);
+            }
         }
     }else if (rangeValues.count == 0 && self.commonTapBlock){
         self.commonTapBlock(self);

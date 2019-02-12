@@ -110,14 +110,14 @@
     [self.viewModel configChatWithCompletion:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [KFProgressHUD hideHUDForView:weakSelf.view];
+            if (weakSelf.cardDict && !error && weakSelf.view.tag == 0) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                    KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:[KFChatManager createMessageWithType:KFMessageTypeCard data:[KFHelper JSONStringWithObject:weakSelf.cardDict]]];
+                    [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
+                });
+                weakSelf.view.tag = 1;
+            }
         });
-        if (weakSelf.cardDict && !error && weakSelf.view.tag == 0) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                KFMessageModel *model = [[KFMessageModel alloc] initWithMessage:[KFChatManager createMessageWithType:KFMessageTypeCard data:[KFHelper JSONStringWithObject:weakSelf.cardDict]]];
-                [weakSelf chat:weakSelf.viewModel addMessageModels:@[model]];
-            });
-            weakSelf.view.tag = 1;
-        }
     }];
 }
 
@@ -291,7 +291,7 @@
             weakSelf.queueMessageModel = [[KFMessageModel alloc] initWithMessage:message];
             [messageModels addObject:weakSelf.queueMessageModel];
             NSIndexPath *insertIndexPath = [NSIndexPath indexPathForRow:messageModels.count - 1 inSection:0];
-            if (deleteIndexPath.row == insertIndexPath.row) {
+            if (deleteIndexPath && deleteIndexPath.row == insertIndexPath.row) {
                 return @{@"reload":@[insertIndexPath]};
             }else{
                 return @{@"insert":@[insertIndexPath],@"delete":deleteIndexPath? @[deleteIndexPath] : @[]};
