@@ -17,7 +17,6 @@
 #import "KFPreviewController.h"
 #import "KFContentLabelHelp.h"
 #import "KFSelectQuestionController.h"
-#import "KFPreViewController.h"
 
 #if __has_include("KFDocumentViewController.h")
 #import "KFDocumentViewController.h"
@@ -43,7 +42,7 @@
 @property (nonatomic, strong) KFChatViewModel *viewModel;
 @property (nonatomic, weak) KFRecordView *recordView;
 
-@property (nonnull, nonatomic, strong) KFMessageModel *queueMessageModel;
+@property (nullable, nonatomic, strong) KFMessageModel *queueMessageModel;
 // 用于拨打电话
 @property (nullable, nonatomic, weak) UIWebView *webView;
 
@@ -81,6 +80,7 @@
     self.viewModel.metadata = self.metadata;
     self.viewModel.assignAgentWhenSendedMessage = self.assignAgentWhenSendedMessage;
     self.viewModel.delegate = self;
+    self.viewModel.questionId = self.questionId;
     [KFChatVoiceManager sharedChatVoiceManager].delegate = self;
     
     // 解决speakBtn的UIControlEventTouchDown响应延迟的问题
@@ -92,7 +92,6 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
     // 进入前台连接服务器
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
-    
     // 连接服务器
     [self connectServer];
 
@@ -231,6 +230,9 @@
                 break;
             default:
                 break;
+        }
+        if (self.title.length == 0) {
+            self.title = KF5Localized(@"kf5_chat");
         }
     });
 }
@@ -371,6 +373,7 @@
             if (index == NSNotFound) { return @{}; }
             NSIndexPath *deleteIndexPath = [NSIndexPath indexPathForRow:index inSection:0];
             [messageModels removeObjectAtIndex:index];
+            weakSelf.queueMessageModel = nil;
             return @{@"delete":@[deleteIndexPath]};
         }];
     });
@@ -494,7 +497,7 @@
 }
 #pragma mark - KFChatViewCellDelegate
 #pragma mark - 失败消息重发
-- (void)cell:(KFChatViewCell *)cell reSendMessageWithMessageModel:(KFMessageModel *)model{
+- (void)cell:(KFChatViewCell *)cell resendMessageWithMessageModel:(KFMessageModel *)model{
     if (self.viewModel.chatStatus != KFChatStatusChatting) return;
     __weak typeof(self)weakSelf = self;
     [[KFHelper alertWithMessage:KF5Localized(@"kf5_resend_message") confirmHandler:^(UIAlertAction * _Nonnull action) {
@@ -528,7 +531,7 @@
     if (model.message.local_path.length > 0) {
         largeImageURL = [NSURL fileURLWithPath:model.message.local_path];
     }else{
-        largeImageURL = [NSURL URLWithString:model.message.url];
+        largeImageURL = [KFHelper fullURL:model.message.url];
     }
     [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
     [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:largeImageURL placeholder:imageCell.messageImageView.image]] selectIndex:0];
@@ -539,7 +542,7 @@
     
     BOOL hasLocal = messageModel.message.local_path.length > 0 ? [[NSFileManager defaultManager]fileExistsAtPath:messageModel.message.local_path] : NO;
     KFPlayerController *player = [[KFPlayerController alloc] init];
-    [player assetWithModel:[[KFPreviewModel alloc] initWithValue:hasLocal ? [NSURL fileURLWithPath:messageModel.message.local_path] : [NSURL URLWithString:messageModel.message.url] placeholder:image isVideo:YES]];
+    [player assetWithModel:[[KFPreviewModel alloc] initWithValue:hasLocal ? [NSURL fileURLWithPath:messageModel.message.local_path] : [KFHelper fullURL:messageModel.message.url] placeholder:image isVideo:YES]];
     [self presentViewController:player animated:YES completion:nil];
 }
 
@@ -564,15 +567,15 @@
         }
             break;
         case kKFLinkTypeURL:{
-            NSURL *url = [NSURL URLWithString:[KFHelper fullURL:info[KF5LinkKey]] ?: @""];
+            NSURL *url = [KFHelper fullURL:info[KF5LinkKey]];
             if (url) {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
+                [[UIApplication sharedApplication] openURL:url];
             }
         }
             break;
         case kKFLinkTypeImg:{
             [self.view endEditing:YES];
-            NSURL *url = [NSURL URLWithString:[KFHelper fullURL:info[KF5LinkKey]] ?: @""];
+            NSURL *url = [KFHelper fullURL:info[KF5LinkKey]];
             if (url) {
                 [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
                 [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc]initWithValue:url placeholder:KF5Helper.placeholderImage]] selectIndex:0];
@@ -580,7 +583,10 @@
         }
             break;
         case kKFLinkTypeVideo:{// 可对接瞩目SDK实现应用内支持视频功能
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:info[KF5LinkKey]]];
+            NSURL *url = [KFHelper fullURL:info[KF5LinkKey]];
+            if (url) {
+                [[UIApplication sharedApplication] openURL:url];
+            }
         }
             break;
         case kKFLinkTypeDucument:{
@@ -591,17 +597,18 @@
             [self.navigationController pushViewController:[[KFDocumentViewController alloc] initWithPost:item] animated:YES];
 #else
 #warning 没有添加KF5SDKUI/Doc
-            NSString *url = info[KF5LinkURL];
-            if (url.length > 0) {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+            NSURL *url = [KFHelper fullURL:info[KF5LinkKey]];
+            if (url) {
+                [[UIApplication sharedApplication] openURL:url];
             }
 #endif
         }
             break;
-        case kKFLinkTypeQuestion:{
+        case kKFLinkTypeQuestion:
+        case kKFLinkTypeCategory:{
             NSString *title = info[KF5LinkTitle];
-            NSInteger questionId = ((NSString *)info[KF5LinkKey]).integerValue;
-            [self.viewModel getAnswerWithQuestionId:questionId questionTitle:title];
+            NSInteger Id = ((NSString *)info[KF5LinkKey]).integerValue;
+            [self.viewModel getAnswerWithId:Id title:title isCategory:type == kKFLinkTypeCategory];
         }
             break;
         case kKFLinkTypeBracket:

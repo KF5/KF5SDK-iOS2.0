@@ -51,13 +51,13 @@ static BOOL HideRightButton = NO;
     }];
 
     self.definesPresentationContext = YES;
-    KFBaseTableViewController *searchTV = [[KFBaseTableViewController alloc] init];
-    searchTV.tableView.delegate = self;
-    searchTV.tableView.dataSource = self;
-    searchTV.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-    self.searchTableView = searchTV.tableView;
+    KFBaseTableViewController *searchVC = [[KFBaseTableViewController alloc] init];
+    searchVC.tableView.delegate = self;
+    searchVC.tableView.dataSource = self;
+    searchVC.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.searchTableView = searchVC.tableView;
     
-    UISearchController *searchController = [[UISearchController alloc] initWithSearchResultsController:searchTV];
+    UISearchController *searchController = [[UISearchController alloc] initWithSearchResultsController:searchVC];
     self.searchController = searchController;
     searchController.searchBar.delegate = self;
     searchController.delegate = self;

@@ -417,11 +417,10 @@ static NSBundle *bundle = nil;
     return YES;
 }
 
-+ (NSString*)fullURL:(NSString*)url {
-    if (url == nil || [KFConfig shareConfig].hostName.length == 0) {
-        return url;
-    }
-    return [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:[KFConfig shareConfig].hostName]].absoluteString;
++ (NSURL *)fullURL:(NSString*)urlString {
+    if (urlString.length == 0) { return nil;  }
+    NSString *decodeString =   (NSString *) CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)urlString, (CFStringRef)@"!$&'()*+,-./:;=?@_~%#[]",NULL,kCFStringEncodingUTF8));
+    return [NSURL URLWithString:decodeString.length >0 ? decodeString : urlString relativeToURL:[KFConfig shareConfig].hostName.length > 0 ? [NSURL URLWithString:[KFConfig shareConfig].hostName] : nil];
 }
 
 /**

@@ -19,10 +19,6 @@
  */
 @property (nonnull, nonatomic, copy) NSString *appId;
 /**
- 应用名称,默认"iOSAPP"
- */
-@property (nullable, nonatomic, copy) NSString *appName;
-/**
  初始化方法
 
  @return 返回唯一KFConfig实例对象
@@ -42,7 +38,7 @@
 - (void)initializeWithHostName:(nonnull NSString *)hostName appId:(nonnull NSString *)appId;
 
 /**
- 获取当前SDK的版本(当前SDK版本为2.9.0.1)
+ 获取当前SDK的版本(当前SDK版本为2.10.0)
 
  @return 版本号
  */

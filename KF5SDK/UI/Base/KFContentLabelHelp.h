@@ -25,6 +25,7 @@ typedef enum : NSUInteger {
     kKFLinkTypeBracket,      // IM转接客服
     kKFLinkTypeVideo,        // 视频
     kKFLinkTypeQuestion,     // IM问题
+    kKFLinkTypeCategory,     // IM问题分类
 } kKFLinkType;
 
 @interface KFContentLabelHelp : NSObject

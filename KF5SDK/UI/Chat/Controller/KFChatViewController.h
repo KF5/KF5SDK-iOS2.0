@@ -34,6 +34,11 @@
 @property (nonatomic, assign) BOOL assignAgentWhenSendedMessage;
 
 /**
+ 问题分配的id,用于在关闭问题分配后,不走问题分配选择逻辑,直接通过questionId自动分配
+ */
+@property (nonatomic, assign) NSInteger questionId;
+
+/**
  初始化方法
  
  @param metadata IM自定义字段,格式如:@[@{@"name":@"姓名",@"value":@"小明"},@{@"name":@"性别",@"value":@"男"}]

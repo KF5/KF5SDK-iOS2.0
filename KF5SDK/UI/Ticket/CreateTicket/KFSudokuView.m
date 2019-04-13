@@ -120,7 +120,7 @@ static NSString *cellID = @"KFSudokuViewCell";
                 self.imageView.image = (UIImage *)attachment.url;
             }else if ([attachment.url isKindOfClass:[NSString class]]){
                 __weak typeof(self)weakSelf = self;
-                [self.imageView sd_setImageWithURL:[NSURL URLWithString:attachment.url] placeholderImage:KF5Helper.placeholderImage completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                [self.imageView sd_setImageWithURL:[KFHelper fullURL:attachment.url] placeholderImage:KF5Helper.placeholderImage completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         if (error) {
                             weakSelf.imageView.image = KF5Helper.placeholderImageFailed;

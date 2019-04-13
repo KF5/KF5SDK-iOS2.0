@@ -16,12 +16,12 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-pod 'KF5SDK', '~>2.7.1'
+pod 'KF5SDK', '~>2.10.0'
 end
 ```
 #### 2、Carthage
 ```ogdl
-github "KF5SDK/KF5SDK-iOS2.0" ~>2.7.4
+github "KF5SDK/KF5SDK-iOS2.0" ~>2.10.0
 ```
 #### 3、手动集成
 1、先下载[KF5SDK](https://codeload.github.com/KF5/KF5SDK-iOS2.0/zip/master)的官方demo。将KF5SDK下的文件拖拽到自己的工程中。      
@@ -183,10 +183,17 @@ Accept: application/json
 2、所有的UI样式被封装在KFHelper中，开发者可根据需求直接修改View的属性或修改KFHelper中的样式。       
 3、KF5SDK/UI部分使用的第三方库如果和您的有冲突，删除UI中相应的第三方库即可。      
 4、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
+
 ## 七、最新版本            
+#### V2.10.0 最后更新于 2019-04-13            
+新增IM支持机器人热门问题和自定义问题,新增IM机器人支持接收图片消息            
+### 历史版本                    
+#### V2.10.0 最后更新于 2019-04-02            
+新增IM支持机器人热门问题和自定义问题,新增IM支持接收图片消息            
+#### V2.10.0 最后更新于 2019-04-02            
+新增IM支持机器人热门问题和自定义问题,新增IM支持接收图片消息            
 #### V2.9.0 最后更新于 2019-01-22            
 新增IM支持视频消息            
-### 历史版本                    
 #### V2.8.0 最后更新于 2018-12-28            
 更新问题分配方式,问题分配需在KF5后台重新配置            
 #### V2.7.4 最后更新于 2018-12-14            

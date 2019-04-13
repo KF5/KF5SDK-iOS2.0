@@ -112,7 +112,7 @@
 
 @property (nonatomic, assign) BOOL  imCanSendVideo;
 
-- (UIImage *)chat_recordsWithIndex:(NSInteger)index;
+- (UIImage *_Nonnull)chat_recordsWithIndex:(NSInteger)index;
 
 + (CGSize)mainSize;
 + (CGRect)safe_mainFrame;
@@ -135,16 +135,16 @@
 + (UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message confirmHandler:(void (^ __nullable)(UIAlertAction *_Nonnull action))handler;
 + (UIAlertController *_Nonnull)alertWithMessage:(NSString *_Nullable)message;
 
-+ (UIViewController *)imagePickerControllerWithMaxCount:(NSInteger)maxCount selectedAssets:(NSArray *)selectedAssets didFinishedHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))didFinishedHandle;
++ (UIViewController *_Nullable)imagePickerControllerWithMaxCount:(NSInteger)maxCount selectedAssets:(NSArray *_Nullable)selectedAssets didFinishedHandle:(void (^_Nullable)(NSArray <UIImage *>* _Nullable photos, NSArray * _Nullable assets))didFinishedHandle;
 
-+ (UIViewController *)imagePickerControllerWithImageHandle:(void (^)(NSArray <UIImage *>*photos, NSArray *assets))imageHandle  videoHandle:(void (^)(UIImage *coverImage, NSURL *videoURL, NSString *videoName, NSError *error, UIViewController *vc))videoHandle;
++ (UIViewController *_Nullable)imagePickerControllerWithImageHandle:(void (^_Nullable)(NSArray <UIImage *>* _Nullable photos, NSArray * _Nullable assets))imageHandle  videoHandle:(void (^_Nullable)(UIImage * _Nullable coverImage, NSURL * _Nullable videoURL, NSString * _Nullable videoName, NSError * _Nullable error, UIViewController * _Nullable vc))videoHandle;
 
 #pragma mark - helper
 + (BOOL)isNetworkEnable;
 
 + (BOOL)canRecordVoice;
 
-+ (nullable NSString *)fullURL:(nullable NSString*)url;
++ (nullable NSURL *)fullURL:(nullable NSString*)urlString;
 
 + (nullable NSString *)disable_emoji:(nonnull NSString *)text;
 + (nonnull UILabel *)labelWithFont:(nonnull UIFont *)font textColor:(nullable UIColor *)textColor;

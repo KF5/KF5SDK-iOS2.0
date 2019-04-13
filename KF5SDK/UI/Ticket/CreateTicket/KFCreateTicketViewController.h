@@ -14,6 +14,11 @@
  */
 @property (nonatomic, assign) BOOL isShowKeyBoardWhenViewAppear;
 /**
+ 设置工单的标题,如果不设置,默认为@"来自xxx的工单请求",xxx为[KFConfig shareConfig].appName
+ @warning 每次提交工单时,都会使用该标题
+ */
++ (void)setTicketTitle:(nullable NSString *)ticketTitle;
+/**
  设置工单自定义字段数组
 
  @param customFields 格式如:@[@{@"name":@"field_123",@"value":@"手机端"},@{@"name":@"field_321",@"value":@"IOS"}]

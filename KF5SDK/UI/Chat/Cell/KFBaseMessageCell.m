@@ -38,8 +38,8 @@
         KFLoadView *loadView = [[KFLoadView alloc]init];
         __weak typeof(self)weakSelf = self;
         [loadView setClickFailureBtnBlock:^{
-            if ([weakSelf.cellDelegate respondsToSelector:@selector(cell:reSendMessageWithMessageModel:)]) {
-                [weakSelf.cellDelegate cell:weakSelf reSendMessageWithMessageModel:weakSelf.messageModel];
+            if ([weakSelf.cellDelegate respondsToSelector:@selector(cell:resendMessageWithMessageModel:)]) {
+                [weakSelf.cellDelegate cell:weakSelf resendMessageWithMessageModel:weakSelf.messageModel];
             }
         }];
         loadView.hidden = YES;
@@ -62,7 +62,7 @@
     _timeLabel.frame = messageModel.timeFrame;
     
     if (messageModel.message.messageFrom == KFMessageFromOther) {
-        [_headerImageView sd_setImageWithURL:[NSURL URLWithString:[[KFChatManager sharedChatManager] agentWithId:messageModel.message.user_id].photoUrl] placeholderImage:messageModel.headerImage];
+        [_headerImageView sd_setImageWithURL:[KFHelper fullURL:[[KFChatManager sharedChatManager] agentWithId:messageModel.message.user_id].photoUrl] placeholderImage:messageModel.headerImage];
     }else{
         _headerImageView.image = messageModel.headerImage;
     }

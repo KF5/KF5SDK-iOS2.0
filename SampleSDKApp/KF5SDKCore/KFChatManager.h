@@ -97,8 +97,8 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
 /// 当前人工客服,socket连接成功后有效
 @property (nullable, nonatomic, strong,readonly) KFAgent *currentAgent;
 
-/// 是否开启机器人,socket连接成功后有效
-@property (nonatomic, assign, readonly, getter=isOpenRobot) BOOL openRobot;
+/// 是否能使用机器人,socket连接成功后有效
+@property (nonatomic, assign, readonly, getter=canRobot) BOOL canUseRobot;
 
 /// 当前对话状态,socket连接成功后有效
 @property (nonatomic, assign,readonly) KFChatStatus chatStatus;
@@ -154,6 +154,15 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatConnectSuccessNotification;
  @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
  */
 - (nonnull KFMessage *)sendAIQuestionId:(NSInteger)question_id questionTitle:(nonnull NSString *)questionTitle completion:(nullable void (^)(KFMessage * _Nonnull me_message,KFMessage * _Nullable ai_message, NSError * _Nullable error))completion;
+/**
+ 发送分类id获取机器人的回答
+ 
+ @param category_id     分类的id
+ @param categoryTitle   分类的标题
+ @return  消息实体
+ @warning 需要先调用connectWithCompletion:连接服务器(socket请求).
+ */
+- (nonnull KFMessage *)sendAICategoryId:(NSInteger)category_id categoryTitle:(nonnull NSString *)categoryTitle completion:(nullable void (^)(KFMessage * _Nonnull me_message,KFMessage * _Nullable ai_message, NSError * _Nullable error))completion;
 /**
  用户指定客服加入排队
  

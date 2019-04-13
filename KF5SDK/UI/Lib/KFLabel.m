@@ -191,6 +191,8 @@ NSString *const KFLinkAttributeName = @"KFLinkAttributeName";
             if (range.location < self.attributedText.length) {
                 id value = [self.attributedText attribute:KFLinkAttributeName atIndex:range.location effectiveRange:NULL];
                 self.linkTapBlock(self, value);
+            }else if (self.commonTapBlock){
+                self.commonTapBlock(self);
             }
         }
     }else if (rangeValues.count == 0 && self.commonTapBlock){
@@ -202,8 +204,12 @@ NSString *const KFLinkAttributeName = @"KFLinkAttributeName";
     if (rangeValues.count > 0 && self.linkLongPressBlock) {
         for (NSValue *rangeValue in rangeValues) {
             NSRange range = rangeValue.rangeValue;
-            id value = [self.attributedText attribute:KFLinkAttributeName atIndex:range.location effectiveRange:NULL];
-            self.linkLongPressBlock(self, value);
+            if (range.location < self.attributedText.length) {
+                id value = [self.attributedText attribute:KFLinkAttributeName atIndex:range.location effectiveRange:NULL];
+                self.linkLongPressBlock(self, value);
+            }else if (self.commonLongPressBlock){
+                self.commonLongPressBlock(self);
+            }
         }
     }else if (rangeValues.count == 0 && self.commonLongPressBlock){
         self.commonLongPressBlock(self);

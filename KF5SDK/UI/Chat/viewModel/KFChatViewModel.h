@@ -68,6 +68,10 @@ typedef NS_ENUM(NSInteger,KFChatRatingScore) {
  */
 @property (nonatomic, assign) BOOL assignAgentWhenSendedMessage;
 /**
+ 问题分配的id,用于在关闭问题分配后,不走问题分配选择逻辑,直接通过questionId自动分配
+ */
+@property (nonatomic, assign) NSInteger questionId;
+/**
  是否能发送消息
  */
 - (BOOL)canSendMessageWithCompletion:(nullable void (^)(void))completion;
@@ -96,10 +100,11 @@ typedef NS_ENUM(NSInteger,KFChatRatingScore) {
 /**
  获取问题的答案
 
- @param questionId 问题的id
- @param questionTitle 问题的答案
+ @param Id    id
+ @param title 问题的标题
+ @param isCategory 如果是YES,id为问题分类的id;如果是NO,id为问题的id
  */
-- (void)getAnswerWithQuestionId:(NSInteger)questionId questionTitle:(nonnull NSString *)questionTitle;
+- (void)getAnswerWithId:(NSInteger)Id title:(nonnull NSString *)title isCategory:(BOOL)isCategory;
 /**
  重发消息
  */

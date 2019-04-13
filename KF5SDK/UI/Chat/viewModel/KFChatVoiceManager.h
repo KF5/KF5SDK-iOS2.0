@@ -43,7 +43,7 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVideoImageDidDownloadNotifi
 @property (nullable, nonatomic, weak) id<KFChatVoiceManagerDelegate> delegate;
 
 /**正在播放的模型*/
-@property (nonatomic,strong) KFMessageModel *currentPlayingMessageModel;
+@property (nullable,nonatomic,strong) KFMessageModel * currentPlayingMessageModel;
 
 #pragma mark - 音频相关
 /**
@@ -102,7 +102,7 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVideoImageDidDownloadNotifi
  @return 如果本地存在,则返回UIImage否则返回nil
  @warning 通过KFChatVideoImageDidDownloadNotification获取下载成功的通知,下载失败不处理
  */
-- (UIImage *)downloadVideoImageWithMessageModel:(KFMessageModel *)messageModel;
+- (nullable UIImage *)downloadVideoImageWithMessageModel:(nullable KFMessageModel *)messageModel;
 
 /**
  是否存在local_path
@@ -110,6 +110,6 @@ UIKIT_EXTERN _Nonnull NSNotificationName const KFChatVideoImageDidDownloadNotifi
  @param urlString url地址
  @return 如果为nil,则不存在
  */
-- (NSString *)voicePathWithURL:(NSString *)urlString;
+- (nullable NSString *)voicePathWithURL:(nullable NSString *)urlString;
 
 @end

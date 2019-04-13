@@ -153,7 +153,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
     
     self.hidesBottomBarWhenPushed = YES;
     
-    [self.navigationController pushViewController:[[KFCategorieListViewController alloc] init] animated:YES];
+    [self.navigationController pushViewController:[[KFCategoryListViewController alloc] init] animated:YES];
     
     self.hidesBottomBarWhenPushed = NO;
 }

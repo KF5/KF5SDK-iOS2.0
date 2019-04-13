@@ -185,7 +185,7 @@
             if ([attachment.url isKindOfClass:[UIImage class]]) {
                 [models addObject:[[KFPreviewModel alloc] initWithValue:attachment.url placeholder:imgView.imageView.image]];
             }else if ([attachment.url isKindOfClass:[NSString class]]){
-                [models addObject:[[KFPreviewModel alloc] initWithValue:[NSURL URLWithString:attachment.url] placeholder:imgView.imageView.image]];
+                [models addObject:[[KFPreviewModel alloc] initWithValue:[KFHelper fullURL:attachment.url] placeholder:imgView.imageView.image]];
             }
             if (i == index)selectIndex = models.count-1;
         }
@@ -193,7 +193,10 @@
         [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
         [KFPreviewController presentForViewController:self models:models selectIndex:selectIndex];
     }else{
-        [[UIApplication sharedApplication]openURL:[NSURL URLWithString:selectAttachment.url]];
+        NSURL *url = [KFHelper fullURL:selectAttachment.url];
+        if (url) {
+            [[UIApplication sharedApplication]openURL:url];
+        }
     }
     
 }
@@ -210,7 +213,7 @@
         }
             break;
         case kKFLinkTypeURL:{
-            NSURL *url = [NSURL URLWithString:[KFHelper fullURL:info[KF5LinkKey]] ?: @""];
+            NSURL *url = [KFHelper fullURL:info[KF5LinkKey]];
             if (url) {
                 [[UIApplication sharedApplication] openURL:url];
             }
@@ -218,7 +221,7 @@
             break;
         case kKFLinkTypeImg:{
             [self.view endEditing:YES];
-            NSURL *url = [NSURL URLWithString:[KFHelper fullURL:info[KF5LinkKey]] ?: @""];
+            NSURL *url = [KFHelper fullURL:info[KF5LinkKey]];
             if (url) {
                 [KFPreviewController setPlaceholderErrorImage:KF5Helper.placeholderImageFailed];
                 [KFPreviewController presentForViewController:self models:@[[[KFPreviewModel alloc] initWithValue:url placeholder:KF5Helper.placeholderImage]] selectIndex:0];

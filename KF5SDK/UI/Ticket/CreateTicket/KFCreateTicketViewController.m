@@ -24,11 +24,16 @@
 @end
 
 static NSArray *CustomFields = nil;
+static NSString *TicketTitle = nil;
 
 @implementation KFCreateTicketViewController
 
-+ (void)setCustomFields:(NSArray *)customFields{
++ (void)setCustomFields:(NSArray *)customFields {
     CustomFields = customFields;
+}
+
++ (void)setTicketTitle:(NSString *)ticketTitle {
+    TicketTitle = ticketTitle;
 }
 
 - (void)viewDidLoad {
@@ -98,6 +103,8 @@ static NSArray *CustomFields = nil;
 
 - (void)createTicket:(UIBarButtonItem *)btnItem{
     
+    [self.createView.textView resignFirstResponder];
+    
     if (![KFHelper isNetworkEnable]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [KFProgressHUD showErrorTitleToView:self.view title:KF5Localized(@"kf5_no_internet") hideAfter:3];
@@ -106,13 +113,6 @@ static NSArray *CustomFields = nil;
     }
     
     self.navigationItem.rightBarButtonItem.enabled = NO;
-    
-    [self.createView.textView resignFirstResponder];
-    
-    if (![KFHelper isNetworkEnable]) {
-        [[KFHelper alertWithMessage:KF5Localized(@"kf5_no_internet")]showToVC:self];
-        return ;
-    }
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [KFProgressHUD showLoadingTo:self.view title:KF5Localized(@"kf5_submitting")];
@@ -154,10 +154,11 @@ static NSArray *CustomFields = nil;
         if (failure) {
             [KFProgressHUD hideHUDForView:weakSelf.view];
             [[KFHelper alertWithMessage:KF5Localized(@"kf5_image_upload_error")]showToVC:weakSelf];
+            weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
             return;
         }
         
-        NSString *title = [NSString stringWithFormat:@"来自%@的工单请求",[KFConfig shareConfig].appName];
+        NSString *title = TicketTitle.length > 0 ? TicketTitle : @"来自iOS SDK的工单反馈";
         NSString *content = weakSelf.createView.textView.text;
         
         NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary: @{ KF5UserToken:[KFUserManager shareUserManager].user.userToken?:@"", KF5Title:title?:@"", KF5Content:content, KF5Uploads:imageTokens?:@[]}];

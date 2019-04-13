@@ -226,7 +226,7 @@ static KFChatVoiceManager *sharedManager = nil;
     [self.messageList addObject:messageModel];
     
     __weak typeof(self)weakSelf = self;
-    [[[NSURLSession sharedSession] downloadTaskWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:messageModel.message.url]] completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    [[[NSURLSession sharedSession] downloadTaskWithRequest:[NSURLRequest requestWithURL:[KFHelper fullURL:messageModel.message.url]] completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         [weakSelf.messageList removeObject:messageModel];
         if (!error) {
             NSURL *localURL = [NSURL fileURLWithPath:local_path];
@@ -269,7 +269,7 @@ static KFChatVoiceManager *sharedManager = nil;
         return nil;
     }
     
-    NSURL *url = [NSURL URLWithString:messageModel.message.url];
+    NSURL *url = [KFHelper fullURL:messageModel.message.url];
     UIImage *image = [[SDImageCache sharedImageCache]imageFromCacheForKey:[[SDWebImageManager sharedManager] cacheKeyForURL:url]];
     
     if (image || [self.videoImageMessageList containsObject:messageModel]){

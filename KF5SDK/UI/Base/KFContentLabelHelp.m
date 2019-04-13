@@ -30,7 +30,7 @@
         return text;
     }else if([type isEqualToString:@"document"]){// json字符串{@"type":@"document", @"content":"";@"documents":[{@"post_id":@(),@"title":@"",@"url":@""}]}
         
-        NSString *content = [dict objectForKey:@"content"];
+        NSString *content = [dict kf5_stringForKeyPath:@"content"];
         
         NSMutableAttributedString *text = [self baseMessageWithString:content font:font color:color];
         
@@ -51,11 +51,11 @@
         }
         return text;
     }else if([type isEqualToString:@"question"]){// json字符串{@"type":@"question", @"content":"";@"questions":[{@"id":@(),@"title":@""}]}
-        NSString *content = [dict objectForKey:@"content"];
+        NSString *content = [dict kf5_stringForKeyPath:@"content"];
         
         NSMutableAttributedString *text = [self baseMessageWithString:content font:font color:color];
         
-        NSArray *questions = [dict objectForKey:@"questions"];
+        NSArray *questions = [dict kf5_arrayForKeyPath:@"questions"];
         for (NSDictionary *questionDict in questions) {
             NSNumber *question_id = [questionDict kf5_numberForKeyPath:@"id"];
             NSString *title = [questionDict kf5_stringForKeyPath:@"title"];
@@ -67,6 +67,29 @@
             NSMutableAttributedString *t = [self attStringWithString:@"\n ● " font:font color:color];
             [text appendAttributedString:t];
             [text appendAttributedString:questionText];
+        }
+        return text;
+    }else if([type isEqualToString:@"categories"]){// json字符串{"type":"categories","title":"recommended categories","categories":[{"id":42501166,"company_id":26796,"title":"日常回复","parent_id":0,"order":12,"hit_count":1,"created":1515139223}]}
+        NSString *title = [dict kf5_stringForKeyPath:@"title"];
+        if ([title isEqualToString:@"recommended categories"]) {
+            title = KF5Localized(@"kf5_recommended_categories");
+        }else{
+            title = KF5Localized(@"kf5_hot_categories");
+        }
+        NSMutableAttributedString *text = [self baseMessageWithString:title font:font color:color];
+        
+        NSArray *categories = [dict kf5_arrayForKeyPath:@"categories"];
+        for (NSDictionary *categoryDict in categories) {
+            NSNumber *category_id = [categoryDict kf5_numberForKeyPath:@"id"];
+            NSString *title = [categoryDict kf5_stringForKeyPath:@"title"];
+            
+            NSMutableDictionary *userInfo = [self userInfoWithType:kKFLinkTypeCategory title:title key:category_id.integerValue > 0?[NSString stringWithFormat:@"%@",category_id]:@""];
+            
+            NSMutableAttributedString *categoryText = [self hightlightBorderWithString:title userInfo: userInfo font:font color:color];
+            
+            NSMutableAttributedString *t = [self attStringWithString:@"\n ● " font:font color:color];
+            [text appendAttributedString:t];
+            [text appendAttributedString:categoryText];
         }
         return text;
     }else{

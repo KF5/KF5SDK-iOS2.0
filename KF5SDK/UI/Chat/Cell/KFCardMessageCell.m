@@ -55,7 +55,7 @@
     NSString *link_title = messageModel.cardDict[@"link_title"];
     self.linkUrl = messageModel.cardDict[@"link_url"];
     
-    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:imgUrl] placeholderImage:KF5Helper.placeholderImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {}];
+    [self.headerImageView sd_setImageWithURL:[KFHelper fullURL:imgUrl] placeholderImage:KF5Helper.placeholderImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {}];
     self.titleLabel.text = title;
     self.priceLabel.text = description;
     [self.linkBtn setTitle:link_title forState:UIControlStateNormal];

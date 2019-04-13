@@ -12,7 +12,6 @@
 		841D3C06213F7ADE00DDDC01 /* KFMessageModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FAE41FDE1C61004B4852 /* KFMessageModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		841D3C09213F7ADE00DDDC01 /* KFChatViewModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FACB1FDE1C61004B4852 /* KFChatViewModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		841D3C0A213F7ADE00DDDC01 /* KFChatVoiceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FACC1FDE1C61004B4852 /* KFChatVoiceManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		841D3C0B213F7B0500DDDC01 /* KFCategorieListViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FB361FDE1C61004B4852 /* KFCategorieListViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		841D3C0C213F7B0500DDDC01 /* KFDocBaseViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FB301FDE1C61004B4852 /* KFDocBaseViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		841D3C0D213F7B0500DDDC01 /* KFDocumentViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FB2F1FDE1C61004B4852 /* KFDocumentViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		841D3C0E213F7B0500DDDC01 /* KFForumListViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8455FB331FDE1C61004B4852 /* KFForumListViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -146,6 +145,9 @@
 		8426B240213E649300F5A7F2 /* KF5SDKCore.framework in Sources */ = {isa = PBXBuildFile; fileRef = 84DA1375212BBF1300CAC7DF /* KF5SDKCore.framework */; };
 		8426B246213E657D00F5A7F2 /* KFAutoLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 8426B244213E657D00F5A7F2 /* KFAutoLayout.m */; };
 		8426B247213E657D00F5A7F2 /* KFAutoLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 8426B244213E657D00F5A7F2 /* KFAutoLayout.m */; };
+		842DA45B22615EF1001CC286 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 842DA45922615EF1001CC286 /* UIImage+MemoryCacheCost.m */; };
+		842DA45C22615EF1001CC286 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 842DA45922615EF1001CC286 /* UIImage+MemoryCacheCost.m */; };
+		842DA45D22615EF1001CC286 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 842DA45A22615EF1001CC286 /* UIImage+MemoryCacheCost.h */; };
 		8455FB461FDE1C61004B4852 /* UIScrollView+MJRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA2A1FDE1C61004B4852 /* UIScrollView+MJRefresh.m */; };
 		8455FB471FDE1C61004B4852 /* MJRefreshConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA2B1FDE1C61004B4852 /* MJRefreshConst.m */; };
 		8455FB481FDE1C61004B4852 /* MJRefresh.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 8455FA2F1FDE1C61004B4852 /* MJRefresh.bundle */; };
@@ -258,7 +260,6 @@
 		8455FBB61FDE1C62004B4852 /* KFTicketTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB261FDE1C61004B4852 /* KFTicketTableView.m */; };
 		8455FBB71FDE1C62004B4852 /* KFDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB2C1FDE1C61004B4852 /* KFDocument.m */; };
 		8455FBB81FDE1C62004B4852 /* KFDocItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB2D1FDE1C61004B4852 /* KFDocItem.m */; };
-		8455FBB91FDE1C62004B4852 /* KFCategorieListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB311FDE1C61004B4852 /* KFCategorieListViewController.m */; };
 		8455FBBA1FDE1C62004B4852 /* KFDocumentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB341FDE1C61004B4852 /* KFDocumentViewController.m */; };
 		8455FBBB1FDE1C62004B4852 /* KFPostListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB351FDE1C61004B4852 /* KFPostListViewController.m */; };
 		8455FBBC1FDE1C62004B4852 /* KFDocBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB371FDE1C61004B4852 /* KFDocBaseViewController.m */; };
@@ -298,7 +299,6 @@
 		8474184C213E2C6D0079EE9D /* KFVoiceMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FAEA1FDE1C61004B4852 /* KFVoiceMessageView.m */; };
 		8474184D213E2C6D0079EE9D /* KFChatViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FAC91FDE1C61004B4852 /* KFChatViewModel.m */; };
 		8474184E213E2C6D0079EE9D /* KFChatVoiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FACA1FDE1C61004B4852 /* KFChatVoiceManager.m */; };
-		8474184F213E2C6D0079EE9D /* KFCategorieListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB311FDE1C61004B4852 /* KFCategorieListViewController.m */; };
 		84741850213E2C6D0079EE9D /* KFDocBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB371FDE1C61004B4852 /* KFDocBaseViewController.m */; };
 		84741851213E2C6D0079EE9D /* KFDocumentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB341FDE1C61004B4852 /* KFDocumentViewController.m */; };
 		84741852213E2C6D0079EE9D /* KFForumListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FB381FDE1C61004B4852 /* KFForumListViewController.m */; };
@@ -390,6 +390,9 @@
 		847418AA213E2C6E0079EE9D /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA631FDE1C61004B4852 /* TZVideoPlayerController.m */; };
 		847418AB213E2C6E0079EE9D /* UIView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA681FDE1C61004B4852 /* UIView+Layout.m */; };
 		847418AC213E31E30079EE9D /* libopencore-amrnb.a in Sources */ = {isa = PBXBuildFile; fileRef = 8455FA801FDE1C61004B4852 /* libopencore-amrnb.a */; };
+		8474372C225DE02500C426BD /* KFCategoryListViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8474372A225DE02400C426BD /* KFCategoryListViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8474372D225DE02500C426BD /* KFCategoryListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8474372B225DE02500C426BD /* KFCategoryListViewController.m */; };
+		8474372E225DE02500C426BD /* KFCategoryListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8474372B225DE02500C426BD /* KFCategoryListViewController.m */; };
 		84A61CAD21F1D4E100361568 /* KFVideoMessageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A61CAB21F1D4E000361568 /* KFVideoMessageCell.h */; };
 		84A61CAE21F1D4E100361568 /* KFVideoMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CAC21F1D4E000361568 /* KFVideoMessageCell.m */; };
 		84A61CAF21F1D4E100361568 /* KFVideoMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A61CAC21F1D4E000361568 /* KFVideoMessageCell.m */; };
@@ -460,6 +463,8 @@
 		8426B241213E655200F5A7F2 /* KFCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFCategory.h; sourceTree = "<group>"; };
 		8426B243213E657D00F5A7F2 /* KFAutoLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFAutoLayout.h; sourceTree = "<group>"; };
 		8426B244213E657D00F5A7F2 /* KFAutoLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFAutoLayout.m; sourceTree = "<group>"; };
+		842DA45922615EF1001CC286 /* UIImage+MemoryCacheCost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MemoryCacheCost.m"; sourceTree = "<group>"; };
+		842DA45A22615EF1001CC286 /* UIImage+MemoryCacheCost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+MemoryCacheCost.h"; sourceTree = "<group>"; };
 		8455FA2A1FDE1C61004B4852 /* UIScrollView+MJRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+MJRefresh.m"; sourceTree = "<group>"; };
 		8455FA2B1FDE1C61004B4852 /* MJRefreshConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJRefreshConst.m; sourceTree = "<group>"; };
 		8455FA2C1FDE1C61004B4852 /* UIScrollView+MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+MJExtension.h"; sourceTree = "<group>"; };
@@ -688,12 +693,10 @@
 		8455FB2D1FDE1C61004B4852 /* KFDocItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFDocItem.m; sourceTree = "<group>"; };
 		8455FB2F1FDE1C61004B4852 /* KFDocumentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFDocumentViewController.h; sourceTree = "<group>"; };
 		8455FB301FDE1C61004B4852 /* KFDocBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFDocBaseViewController.h; sourceTree = "<group>"; };
-		8455FB311FDE1C61004B4852 /* KFCategorieListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFCategorieListViewController.m; sourceTree = "<group>"; };
 		8455FB321FDE1C61004B4852 /* KFPostListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFPostListViewController.h; sourceTree = "<group>"; };
 		8455FB331FDE1C61004B4852 /* KFForumListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFForumListViewController.h; sourceTree = "<group>"; };
 		8455FB341FDE1C61004B4852 /* KFDocumentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFDocumentViewController.m; sourceTree = "<group>"; };
 		8455FB351FDE1C61004B4852 /* KFPostListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFPostListViewController.m; sourceTree = "<group>"; };
-		8455FB361FDE1C61004B4852 /* KFCategorieListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFCategorieListViewController.h; sourceTree = "<group>"; };
 		8455FB371FDE1C61004B4852 /* KFDocBaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFDocBaseViewController.m; sourceTree = "<group>"; };
 		8455FB381FDE1C61004B4852 /* KFForumListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFForumListViewController.m; sourceTree = "<group>"; };
 		8455FB391FDE1C61004B4852 /* KF5SDKDoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KF5SDKDoc.h; sourceTree = "<group>"; };
@@ -708,6 +711,8 @@
 		8455FB431FDE1C61004B4852 /* KFHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFHelper.h; sourceTree = "<group>"; };
 		8455FB441FDE1C61004B4852 /* KFUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFUser.h; sourceTree = "<group>"; };
 		847417E5213E28240079EE9D /* KF5SDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KF5SDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474372A225DE02400C426BD /* KFCategoryListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFCategoryListViewController.h; sourceTree = "<group>"; };
+		8474372B225DE02500C426BD /* KFCategoryListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFCategoryListViewController.m; sourceTree = "<group>"; };
 		84A61CAB21F1D4E000361568 /* KFVideoMessageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFVideoMessageCell.h; sourceTree = "<group>"; };
 		84A61CAC21F1D4E000361568 /* KFVideoMessageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KFVideoMessageCell.m; sourceTree = "<group>"; };
 		84A61CB021F1D50D00361568 /* KFPlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KFPlayerController.h; sourceTree = "<group>"; };
@@ -1009,6 +1014,8 @@
 		8455FA8B1FDE1C61004B4852 /* SDWebImage */ = {
 			isa = PBXGroup;
 			children = (
+				842DA45A22615EF1001CC286 /* UIImage+MemoryCacheCost.h */,
+				842DA45922615EF1001CC286 /* UIImage+MemoryCacheCost.m */,
 				84D241F521BA24AA0079F974 /* NSButton+WebCache.h */,
 				84D241F421BA24AA0079F974 /* NSButton+WebCache.m */,
 				84D241F321BA24AA0079F974 /* SDAnimatedImageRep.h */,
@@ -1297,8 +1304,8 @@
 		8455FB2E1FDE1C61004B4852 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				8455FB361FDE1C61004B4852 /* KFCategorieListViewController.h */,
-				8455FB311FDE1C61004B4852 /* KFCategorieListViewController.m */,
+				8474372A225DE02400C426BD /* KFCategoryListViewController.h */,
+				8474372B225DE02500C426BD /* KFCategoryListViewController.m */,
 				8455FB301FDE1C61004B4852 /* KFDocBaseViewController.h */,
 				8455FB371FDE1C61004B4852 /* KFDocBaseViewController.m */,
 				8455FB2F1FDE1C61004B4852 /* KFDocumentViewController.h */,
@@ -1438,10 +1445,10 @@
 				841D3C1B213F7BB200DDDC01 /* KFAttachment.h in Headers */,
 				841D3C1C213F7BB200DDDC01 /* KFComment.h in Headers */,
 				841D3C1D213F7BB200DDDC01 /* KFRatingModel.h in Headers */,
-				841D3C0B213F7B0500DDDC01 /* KFCategorieListViewController.h in Headers */,
 				841D3C0C213F7B0500DDDC01 /* KFDocBaseViewController.h in Headers */,
 				841D3C0D213F7B0500DDDC01 /* KFDocumentViewController.h in Headers */,
 				841D3C0E213F7B0500DDDC01 /* KFForumListViewController.h in Headers */,
+				8474372C225DE02500C426BD /* KFCategoryListViewController.h in Headers */,
 				841D3C0F213F7B0500DDDC01 /* KFPostListViewController.h in Headers */,
 				841D3C10213F7B0500DDDC01 /* KF5SDKDoc.h in Headers */,
 				841D3C11213F7B0500DDDC01 /* KFDocItem.h in Headers */,
@@ -1470,6 +1477,7 @@
 				841D3CAC213F7D6400DDDC01 /* KFHttpTool.h in Headers */,
 				841D3CAD213F7D8100DDDC01 /* KFContentLabelHelp.h in Headers */,
 				841D3CAE213F7D8100DDDC01 /* KFCategory.h in Headers */,
+				842DA45D22615EF1001CC286 /* UIImage+MemoryCacheCost.h in Headers */,
 				841D3CAF213F7D8100DDDC01 /* NSDate+KF5.h in Headers */,
 				841D3CB0213F7D8100DDDC01 /* NSDictionary+KF5.h in Headers */,
 				841D3CB1213F7D8100DDDC01 /* UIImage+KF5.h in Headers */,
@@ -1681,7 +1689,7 @@
 			};
 			buildConfigurationList = 84E2BDBC1E2347C0006BD73E /* Build configuration list for PBXProject "SampleSDKApp" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -1765,6 +1773,7 @@
 				8474183F213E2C6D0079EE9D /* KFChatViewCell.m in Sources */,
 				84741840213E2C6D0079EE9D /* KFImageMessageCell.m in Sources */,
 				84741841213E2C6D0079EE9D /* KFSystemMessageCell.m in Sources */,
+				842DA45C22615EF1001CC286 /* UIImage+MemoryCacheCost.m in Sources */,
 				84741842213E2C6D0079EE9D /* KFTextMessageCell.m in Sources */,
 				84741843213E2C6D0079EE9D /* KFVoiceMessageCell.m in Sources */,
 				84741844213E2C6D0079EE9D /* KFChatViewController.m in Sources */,
@@ -1778,7 +1787,6 @@
 				8474184C213E2C6D0079EE9D /* KFVoiceMessageView.m in Sources */,
 				8474184D213E2C6D0079EE9D /* KFChatViewModel.m in Sources */,
 				8474184E213E2C6D0079EE9D /* KFChatVoiceManager.m in Sources */,
-				8474184F213E2C6D0079EE9D /* KFCategorieListViewController.m in Sources */,
 				84741850213E2C6D0079EE9D /* KFDocBaseViewController.m in Sources */,
 				84741851213E2C6D0079EE9D /* KFDocumentViewController.m in Sources */,
 				84741852213E2C6D0079EE9D /* KFForumListViewController.m in Sources */,
@@ -1814,6 +1822,7 @@
 				8474186E213E2C6D0079EE9D /* MBProgressHUD.m in Sources */,
 				8474186F213E2C6D0079EE9D /* MJRefreshAutoFooter.m in Sources */,
 				84741870213E2C6D0079EE9D /* MJRefreshBackFooter.m in Sources */,
+				8474372E225DE02500C426BD /* KFCategoryListViewController.m in Sources */,
 				84741871213E2C6D0079EE9D /* MJRefreshComponent.m in Sources */,
 				84ED4605215E37CF008536D3 /* AmrPlayerReader.m in Sources */,
 				84741872213E2C6D0079EE9D /* MJRefreshFooter.m in Sources */,
@@ -1911,6 +1920,7 @@
 				8455FB4E1FDE1C61004B4852 /* MJRefreshBackNormalFooter.m in Sources */,
 				8455FBA81FDE1C62004B4852 /* KFTicketListViewCell.m in Sources */,
 				8455FB4F1FDE1C61004B4852 /* MJRefreshAutoStateFooter.m in Sources */,
+				842DA45B22615EF1001CC286 /* UIImage+MemoryCacheCost.m in Sources */,
 				8455FB7C1FDE1C61004B4852 /* SDWebImageCoder.m in Sources */,
 				8455FB471FDE1C61004B4852 /* MJRefreshConst.m in Sources */,
 				8455FBC21FDE1C62004B4852 /* KFUserManager.m in Sources */,
@@ -1934,6 +1944,7 @@
 				8455FB961FDE1C62004B4852 /* KFTextMessageCell.m in Sources */,
 				8455FB5D1FDE1C61004B4852 /* TZAssetCell.m in Sources */,
 				8455FB721FDE1C61004B4852 /* UIImageView+HighlightedWebCache.m in Sources */,
+				8474372D225DE02500C426BD /* KFCategoryListViewController.m in Sources */,
 				8455FB761FDE1C61004B4852 /* SDWebImageDownloader.m in Sources */,
 				8455FB9B1FDE1C62004B4852 /* KFChatToolView.m in Sources */,
 				8455FB951FDE1C62004B4852 /* KFImageMessageCell.m in Sources */,
@@ -2005,7 +2016,6 @@
 				8455FBBD1FDE1C62004B4852 /* KFForumListViewController.m in Sources */,
 				84D241F621BA24AA0079F974 /* SDWebImageTransition.m in Sources */,
 				84E2BDC61E2347C0006BD73E /* main.m in Sources */,
-				8455FBB91FDE1C62004B4852 /* KFCategorieListViewController.m in Sources */,
 				8455FB551FDE1C61004B4852 /* MJRefreshFooter.m in Sources */,
 				8455FBAD1FDE1C62004B4852 /* KFDetailMessageViewController.m in Sources */,
 				8455FB9D1FDE1C62004B4852 /* KFRecordView.m in Sources */,
@@ -2301,7 +2311,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = WBB6368FVN;
 				ENABLE_BITCODE = YES;
@@ -2325,7 +2334,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = WBB6368FVN;
 				ENABLE_BITCODE = YES;

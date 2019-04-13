@@ -13,9 +13,9 @@
 
 @protocol KFChatViewCellDelegate <NSObject>
 
-- (void)cell:(nonnull KFChatViewCell *)cell reSendMessageWithMessageModel:(nullable KFMessageModel *)model;
+- (void)cell:(nonnull KFChatViewCell *)cell resendMessageWithMessageModel:(nullable KFMessageModel *)model;
 - (void)cell:(nonnull KFChatViewCell *)cell clickImageWithMessageModel:(nullable KFMessageModel *)model;
-- (void)cell:(nonnull KFChatViewCell *)cell clickVideoWithMessageModel:(nullable KFMessageModel *)model image:(UIImage *)image;
+- (void)cell:(nonnull KFChatViewCell *)cell clickVideoWithMessageModel:(nullable KFMessageModel *)model image:(nullable UIImage *)image;
 - (void)cell:(nonnull KFChatViewCell *)cell clickCardLinkWithUrl:(nullable NSString *)linkUrl;
 - (void)cell:(nonnull KFChatViewCell *)cell clickLabelWithInfo:(nullable NSDictionary *)info;
 

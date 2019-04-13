@@ -10,7 +10,7 @@
 #define KF5Doc_h
 
 #import "KFDocBaseViewController.h"         //文档控制器基类
-#import "KFCategorieListViewController.h"   //文档分区控制器
+#import "KFCategoryListViewController.h"   //文档分区控制器
 #import "KFForumListViewController.h"       //文档分类控制器
 #import "KFPostListViewController.h"        //文档列表控制器
 #import "KFDocumentViewController.h"        //文档内容控制器

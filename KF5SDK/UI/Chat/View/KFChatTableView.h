@@ -48,6 +48,6 @@ typedef NS_ENUM(NSInteger, KFScrollType) {
  @param handleModelBlock 处理Model的block
  @warning handleModelBlock的返回值为@{@"insert":@[NSIndexPath],@"reload":@[NSIndexPath],@"delete":@[NSIndexPath]}
  */
-- (void)reloadData:(KFScrollType)scrollType handleModelBlock:(NSDictionary <NSString *, NSArray <NSIndexPath *>*>* (^)(NSMutableArray<KFMessageModel *> *messageModels))handleModelBlock;
+- (void)reloadData:(KFScrollType)scrollType handleModelBlock:(NSDictionary <NSString *, NSArray <NSIndexPath *>*>* _Nullable (^_Nullable)(NSMutableArray<KFMessageModel *> * _Nullable messageModels))handleModelBlock;
 
 @end

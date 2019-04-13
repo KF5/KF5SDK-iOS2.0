@@ -50,7 +50,11 @@
 }
 
 - (KFChatStatus)chatStatus{
-    return [KFChatManager sharedChatManager].chatStatus;
+    KFChatStatus status = [KFChatManager sharedChatManager].chatStatus;
+    if (status == KFChatStatusNone && [KFChatManager sharedChatManager].canUseRobot) {
+        status = KFChatStatusAIAgent;
+    }
+    return status;
 }
 - (KFAgent *)currentAgent{
     return [KFChatManager sharedChatManager].currentAgent;
@@ -105,8 +109,7 @@
 }
 // 连接socket时使用
 - (BOOL)shouldQueueUp{
-    KFChatStatus status = [KFChatManager sharedChatManager].chatStatus;
-    return !(status == KFChatStatusChatting || status == KFChatStatusQueue || status == KFChatStatusAIAgent || self.assignAgentWhenSendedMessage);
+    return !(self.chatStatus == KFChatStatusChatting || self.chatStatus == KFChatStatusQueue || self.chatStatus == KFChatStatusAIAgent || self.assignAgentWhenSendedMessage);
 }
 
 #pragma mark 用户排队
@@ -130,6 +133,8 @@
                 [[KFChatManager sharedChatManager]queueUpWithQuestionKey:questionKey.integerValue completion:queueUpCompletion];
             }
         }];
+    }else if ([KFChatManager sharedChatManager].assignAgentIds.count == 0 && self.questionId > 0){
+        [[KFChatManager sharedChatManager]queueUpWithQuestionKey:self.questionId completion:queueUpCompletion];
     }else{
         [[KFChatManager sharedChatManager]queueUpWithAgentIds:[KFChatManager sharedChatManager].assignAgentIds isForce:[KFChatManager sharedChatManager].isForceAssignAgent completion:queueUpCompletion];
     }
@@ -160,7 +165,7 @@
                 message = [[KFChatManager sharedChatManager] sendText:data completion:^(KFMessage * _Nonnull message, NSError * _Nullable error) {
                     if (error) return ;
                     
-                    if (weakSelf.assignAgentWhenSendedMessage && [KFChatManager sharedChatManager].chatStatus == KFChatStatusNone) {
+                    if (weakSelf.assignAgentWhenSendedMessage && weakSelf.chatStatus == KFChatStatusNone) {
                         [weakSelf queueUpWithCompletion:^(NSError *error) {
                             [weakSelf delegateWithStatusChanage];
                         }];
@@ -191,19 +196,27 @@
     }
 }
 #pragma mark 获取问题的答案
-- (void)getAnswerWithQuestionId:(NSInteger)questionId questionTitle:(NSString *)questionTitle{
+- (void)getAnswerWithId:(NSInteger)Id title:(NSString *)title isCategory:(BOOL)isCategory{
     if (self.chatStatus == KFChatStatusAIAgent) {
         __weak typeof(self)weakSelf = self;
-        KFMessage *message = [[KFChatManager sharedChatManager]sendAIQuestionId:questionId questionTitle:questionTitle completion:^(KFMessage * _Nonnull me_message, KFMessage * _Nullable ai_message, NSError * _Nullable error) {
-            if (ai_message)
-                [weakSelf delegateWithAddMessages:@[ai_message]];
-            
-        }];
-        [self delegateWithAddMessages:@[message]];
+        KFMessage *message = nil;
+        if (isCategory) {
+            message = [[KFChatManager sharedChatManager]sendAICategoryId:Id categoryTitle:title completion:^(KFMessage * _Nonnull me_message, KFMessage * _Nullable ai_message, NSError * _Nullable error) {
+                if (ai_message)
+                    [weakSelf delegateWithAddMessages:@[ai_message]];
+            }];
+        }else{
+            message = [[KFChatManager sharedChatManager]sendAIQuestionId:Id questionTitle:title completion:^(KFMessage * _Nonnull me_message, KFMessage * _Nullable ai_message, NSError * _Nullable error) {
+                if (ai_message)
+                    [weakSelf delegateWithAddMessages:@[ai_message]];
+            }];
+        }
+        if (message) {
+            [self delegateWithAddMessages:@[message]];
+        }
     }else{
-        [self sendMessageWithMessageType:KFMessageTypeText data:questionTitle];
+        [self sendMessageWithMessageType:KFMessageTypeText data:title];
     }
-
 }
 
 - (void)resendMessageModel:(KFMessageModel *)messageModel{
@@ -235,7 +248,7 @@ static BOOL isCanSendChecking = NO;
     // 如果socket未连接,则直接上ChatManager管理消息的处理,无需判断客服有无
     if (![KFChatManager sharedChatManager].isConnectSuccess) return YES;
     // 如果是机器人客服,则设置为YES
-    if ([KFChatManager sharedChatManager].chatStatus != KFChatStatusNone) return YES;
+    if (self.chatStatus != KFChatStatusNone) return YES;
     
     if (![KFChatManager sharedChatManager].currentAgent && !self.assignAgentWhenSendedMessage) {
         isCanSendChecking = YES;
