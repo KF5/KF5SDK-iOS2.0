@@ -70,7 +70,6 @@ static NSString *cellVideoID = @"KFPreviewVideoCell";
     if (self) {
         _models = models;
         _selectIndex = selectIndex;
-        _transitionController = [[SwipeUpInteractiveTransition alloc] initWithVC:self];
     }
     return self;
 }
@@ -96,6 +95,16 @@ static NSString *cellVideoID = @"KFPreviewVideoCell";
 
 - (void)viewDidLoad{
     [super viewDidLoad];
+
+    BOOL useTransitionController = YES;
+    #ifdef __IPHONE_13_0
+        if (@available(iOS 13.0, *)) {
+            useTransitionController = self.modalPresentationStyle != UIModalPresentationPageSheet && self.modalPresentationStyle != UIModalPresentationFormSheet && self.modalPresentationStyle != UIModalPresentationPopover && self.modalPresentationStyle != UIModalPresentationAutomatic;
+        }
+    #endif
+    if (useTransitionController) {
+        self.transitionController = [[SwipeUpInteractiveTransition alloc] initWithVC:self];
+    }
     
     if (!placeHolderErrorImage) placeHolderErrorImage = KF5Helper.placeholderImage;
     

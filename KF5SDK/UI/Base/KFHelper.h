@@ -112,6 +112,8 @@
 
 @property (nonatomic, assign) BOOL  imCanSendVideo;
 
+@property (nonatomic, assign) UIModalPresentationStyle  defaultModalPresentationStyle;
+
 - (UIImage *_Nonnull)chat_recordsWithIndex:(NSInteger)index;
 
 + (CGSize)mainSize;

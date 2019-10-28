@@ -199,6 +199,13 @@ KF5LazyImage(chat_record_cancel, @"kf5_chat_record_cancel");
     self.KF5ChatCardCellLinkBtnTextColor = [UIColor whiteColor];
     self.KF5ChatCardCellLinkBtnBackgroundColor = KF5ColorFromRGB(0x0099ff);
     self.KF5ChatCardCellBackgroundColor = KF5ColorFromRGB(0xf7f7f8);
+    
+    self.defaultModalPresentationStyle = UIModalPresentationFullScreen;
+#ifdef __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        self.defaultModalPresentationStyle = UIModalPresentationPageSheet;
+    }
+#endif
 }
 
 #pragma mark - NSObject

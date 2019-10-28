@@ -10,7 +10,7 @@
 #import "KFPlayerController.h"
 @class KFPreviewModel, KFPreviewView;
 
-@interface KFPreviewController : UIViewController
+@interface KFPreviewController : KFBaseViewController
 
 - (instancetype)initWithModels:(NSArray<KFPreviewModel *> *)models selectIndex:(NSInteger)selectIndex;
 + (void)presentForViewController:(UIViewController *)vc models:(NSArray <KFPreviewModel *>*)models selectIndex:(NSInteger)selectIndex;

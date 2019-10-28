@@ -124,6 +124,9 @@
 - (void)setupView{
     
     KFChatTableView *tableView = [[KFChatTableView alloc]init];
+    if (@available(iOS 11, *)) {
+        tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+    }
     tableView.tableDelegate = self;
     [self.view addSubview:tableView];
     self.tableView = tableView;

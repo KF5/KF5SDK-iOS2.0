@@ -7,6 +7,7 @@
 //
 
 #import "KFBaseViewController.h"
+#import "KFHelper.h"
 
 @implementation KFBaseTableViewController
 - (instancetype)init{
@@ -14,8 +15,14 @@
     if (self) {
         self.automaticallyAdjustsScrollViewInsets = YES;
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willRotateFromInterface:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+        self.modalPresentationStyle = KF5Helper.defaultModalPresentationStyle;
     }
     return self;
+}
+
+- (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
+    viewControllerToPresent.modalPresentationStyle = KF5Helper.defaultModalPresentationStyle;
+    [super presentViewController:viewControllerToPresent animated:flag completion:completion];
 }
 
 - (void)willRotateFromInterface:(NSNotification *)note{
@@ -26,7 +33,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    if (@available(iOS 11, *)) {
+        self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+    }
     self.hidesBottomBarWhenPushed = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     
@@ -52,8 +61,14 @@
     if (self) {
         self.automaticallyAdjustsScrollViewInsets = YES;
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willRotateFromInterface:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+        self.modalPresentationStyle = KF5Helper.defaultModalPresentationStyle;
     }
     return self;
+}
+
+- (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
+    viewControllerToPresent.modalPresentationStyle = KF5Helper.defaultModalPresentationStyle;
+    [super presentViewController:viewControllerToPresent animated:flag completion:completion];
 }
 
 - (void)willRotateFromInterface:(NSNotification *)note{

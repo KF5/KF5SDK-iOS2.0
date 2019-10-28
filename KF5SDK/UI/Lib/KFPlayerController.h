@@ -5,7 +5,7 @@
 //  Created by admin on 12/5/18.
 //
 
-#import <UIKit/UIKit.h>
+#import "KFBaseViewController.h"
 #import <AVFoundation/AVFoundation.h>
 @class KFPlayerView;
 
@@ -17,7 +17,7 @@ typedef NS_ENUM(NSInteger,kLargeType) {
 
 @class KFPreviewModel;
 
-@interface KFPlayerController : UIViewController
+@interface KFPlayerController : KFBaseViewController
 
 @property (nonatomic, strong) KFPreviewModel *model;
 @property (nonatomic, weak) KFPlayerView *playView;

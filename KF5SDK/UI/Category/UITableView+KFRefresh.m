@@ -13,6 +13,7 @@
 
 - (void)kf5_headerWithRefreshingBlock:(void (^)(void))refreshingBlock{
     self.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:refreshingBlock];
+    self.mj_header.automaticallyChangeAlpha = YES;
 }
 
 - (void)kf5_footerWithRefreshingBlock:(void (^)(void))refreshingBlock{
