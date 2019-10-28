@@ -95,7 +95,7 @@ static NSString *cellVideoID = @"KFPreviewVideoCell";
 
 - (void)viewDidLoad{
     [super viewDidLoad];
-
+ 
     BOOL useTransitionController = YES;
     #ifdef __IPHONE_13_0
         if (@available(iOS 13.0, *)) {

@@ -38,7 +38,6 @@
     }
     self.hidesBottomBarWhenPushed = YES;
     self.view.backgroundColor = [UIColor whiteColor];
-    
 }
 
 - (void)updateFrame{}

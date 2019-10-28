@@ -65,7 +65,7 @@ int caclAMRFrameSize(unsigned char frameHeader)
 }
 
 // 读第一个帧 - (参考帧)
-BOOL ReadAMRFrameFirst(FILE* fpamr, int* stdFrameSize, unsigned char* stdFrameHeader)
+BOOL KFReadAMRFrameFirst(FILE* fpamr, int* stdFrameSize, unsigned char* stdFrameHeader)
 {
     unsigned long curpos = ftell(fpamr); //记录当前位置，这一帧只是读取一下，并不做处理
     
@@ -106,7 +106,7 @@ long filesize(FILE *stream)
     }
     unsigned char stdFrameHeader;
     int stdFrameSize;
-    if(!ReadAMRFrameFirst(file, &stdFrameSize, &stdFrameHeader)){
+    if(!KFReadAMRFrameFirst(file, &stdFrameSize, &stdFrameHeader)){
         return 0;
     }
     
@@ -156,7 +156,7 @@ long filesize(FILE *stream)
     self.readedLength += realReadedLength;
     
     //读取一个参考帧
-    if(!ReadAMRFrameFirst(_file, &_stdFrameSize, &_stdFrameHeader)){
+    if(!KFReadAMRFrameFirst(_file, &_stdFrameSize, &_stdFrameHeader)){
         return NO;
     }
     //	DLOG(@"帧大小%d,帧头%c",_stdFrameSize,_stdFrameHeader);
