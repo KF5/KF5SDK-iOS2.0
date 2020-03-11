@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
     s.platform    = :ios, '9.0'
     s.requires_arc = true
 
-    s.frameworks = 'Foundation', 'UIKit', 'JavaScriptCore','MobileCoreServices','SystemConfiguration'
+    s.frameworks = 'Foundation', 'UIKit', 'JavaScriptCore','MobileCoreServices','SystemConfiguration','WebKit'
     s.libraries   = 'sqlite3'
     s.static_framework = true
 

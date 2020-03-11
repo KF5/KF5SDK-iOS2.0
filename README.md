@@ -1,4 +1,4 @@
-KF5SDK帮助开发者快速完成开发，提供给开发者创建工单、查看工单列表、回复工单、查看和搜索知识库文档、消息通知推送、即时IM等功能。目前支持iOS8.0及以上系统(需要xcode8.0及以上)。KF5SDK2.0版现已经支持bitcode和国际化。     
+KF5SDK帮助开发者快速完成开发，提供给开发者创建工单、查看工单列表、回复工单、查看和搜索知识库文档、消息通知推送、即时IM等功能。目前支持iOS9.0及以上系统(需要xcode10.0及以上)。KF5SDK2.0版现已经支持bitcode和国际化。     
 
 为了更好的与企业的业务紧密结合，KF5SDK开源了SDK的UI界面，开发者可以根据自己的需求开发不同风格的页面，也可以使用KF5SDK提供的默认界面快速集成客服功能。     
 
@@ -13,15 +13,15 @@ KF5SDK帮助开发者快速完成开发，提供给开发者创建工单、查�
 #### 1、CocoaPods
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '8.0'
+platform :ios, '9.0'
 
 target 'TargetName' do
-pod 'KF5SDK', '~>2.10.0'
+pod 'KF5SDK', '~>2.11.0'
 end
 ```
 #### 2、Carthage
 ```ogdl
-github "KF5SDK/KF5SDK-iOS2.0" ~>2.10.0
+github "KF5SDK/KF5SDK-iOS2.0" ~>2.11.0
 ```
 #### 3、手动集成
 1、先下载[KF5SDK](https://codeload.github.com/KF5/KF5SDK-iOS2.0/zip/master)的官方demo。将KF5SDK下的文件拖拽到自己的工程中。      
