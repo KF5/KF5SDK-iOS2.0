@@ -33,7 +33,7 @@
 #define KFHasTicket 0
 #endif
 
-@interface KFChatViewController () <KFChatTooViewDelegate,KFChatViewModelDelegate,KFChatVoiceManagerDelegate,KFChatTableViewDelegate,KFChatViewCellDelegate,UIWebViewDelegate>{
+@interface KFChatViewController () <KFChatTooViewDelegate,KFChatViewModelDelegate,KFChatVoiceManagerDelegate,KFChatTableViewDelegate,KFChatViewCellDelegate>{
     dispatch_once_t _scrollBTMOnce;
 }
 
@@ -43,9 +43,6 @@
 @property (nonatomic, weak) KFRecordView *recordView;
 
 @property (nullable, nonatomic, strong) KFMessageModel *queueMessageModel;
-// 用于拨打电话
-@property (nullable, nonatomic, weak) UIWebView *webView;
-
 @property (nullable, nonatomic, strong) NSArray <NSDictionary *>*metadata;
 /**
  卡片消息
@@ -146,12 +143,6 @@
     recordView.hidden = YES;
     self.recordView = recordView;
     [self.view addSubview:recordView];
-    
-    // 用于打电话
-    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-    webView.delegate = self;
-    [self.view addSubview:webView];
-    self.webView = webView;
     
 #if KFHasTicket
     if (!self.isHideRightButton && !self.navigationItem.rightBarButtonItem) {
@@ -565,7 +556,11 @@
             NSString *phone = [NSString stringWithFormat:@"tel://%@",info[KF5LinkKey]];
             NSURL *url = [NSURL URLWithString:phone];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+                if (url) {
+                    [[UIApplication sharedApplication] openURL:url];
+                }else{
+                    [[KFHelper alertWithMessage:KF5Localized(@"kf5_phone_error")] showToVC:self];
+                }
             });
         }
             break;
@@ -649,10 +644,6 @@
     }
 }
 
-#pragma mark - webView的代理方法,用于拨打电话
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
-    [[KFHelper alertWithMessage:KF5Localized(@"kf5_phone_error")]showToVC:self];
-}
 #pragma mark 收到键盘弹出通知后的响应
 - (void)keyboardWillShow:(NSNotification *)info {
     //得到键盘的高度，即输入框需要移动的距离

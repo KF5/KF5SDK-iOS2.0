@@ -1,0 +1,69 @@
+<!doctype html>
+<html><body><script src="./socket.io.min.js"></script><script>
+function setupWebViewJavascriptBridge(callback) {
+    if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
+}
+function blob(dataString) {
+    var blob = new Blob([dataString], {type: 'text/plain'});
+    return blob;
+}
+setupWebViewJavascriptBridge(function(bridge) {
+    bridge.registerHandler('emit', function(data, responseCallback) {
+       var value1 = data[0];
+       var value2 = data[1];
+       if (value2){
+           objc_socket.emit(value1,value2,function(error, responseData) {
+                responseCallback([error, responseData]);
+            });
+       }else{
+           objc_socket.emit(value1,function(error, responseData) {
+                responseCallback([error, responseData]);
+            });
+       }
+
+    });
+    bridge.registerHandler('connectSocket', function(data, responseCallback) {
+       bridge.callHandler('log', "start", null)
+        objc_socket = io(data['url'],{
+          "query" : data['query'],
+          "reconnection" : "true",
+          "transports" : [
+            "websocket",
+            "polling"
+          ]
+        });
+        objc_socket.on('connect',function() {
+           bridge.callHandler('connect', {});
+        });
+        objc_socket.on('error', function(error) {
+            bridge.callHandler('error',error);
+        });
+        objc_socket.on('disconnect', function() {
+            bridge.callHandler('disconnect',{});
+        });
+        objc_socket.on('reconnect', function(numberOfAttempts) {
+            bridge.callHandler('reconnect',numberOfAttempts);
+        });
+        objc_socket.on('reconnect_attempt', function() {
+            bridge.callHandler('reconnect_attempt',null);
+        });
+        objc_socket.on('reconnecting', function(numberOfAttempts) {
+            bridge.callHandler('reconnecting',numberOfAttempts);
+        });
+        objc_socket.on('reconnect_error', function(error) {
+            bridge.callHandler('reconnect_error',error);
+        });
+        objc_socket.on('reconnect_failed', function(error) {
+            bridge.callHandler('reconnect_failed',error);
+        });
+        objc_socket.on('message', function(dict) {
+            bridge.callHandler('message',dict);
+        });
+       if (objc_socket) {
+           responseCallback('success');
+       }else{
+           responseCallback('failure');
+       }
+    })
+})
+</script></body></html>

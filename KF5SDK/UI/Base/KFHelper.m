@@ -340,10 +340,14 @@ static NSBundle *bundle = nil;
 #if __has_include("TZImagePickerController.h")
     TZImagePickerController *imagePickerVC = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:nil];
     imagePickerVC.autoDismiss = NO;
-    imagePickerVC.allowPickingMultipleVideo = KF5Helper.imCanSendVideo;
+    BOOL canSendVideo = KF5Helper.imCanSendVideo;
+    if([UIDevice currentDevice].systemVersion.doubleValue <10.0) {
+        canSendVideo = NO;
+    }
+    imagePickerVC.allowPickingMultipleVideo = canSendVideo;
     imagePickerVC.allowPickingOriginalPhoto = NO;
-    imagePickerVC.allowPickingVideo = KF5Helper.imCanSendVideo;
-    imagePickerVC.allowTakeVideo = KF5Helper.imCanSendVideo;
+    imagePickerVC.allowPickingVideo = canSendVideo;
+    imagePickerVC.allowTakeVideo = canSendVideo;
     imagePickerVC.videoMaximumDuration = 10;
     imagePickerVC.barItemTextFont = [UIFont boldSystemFontOfSize:17];
     imagePickerVC.preferredLanguage = [self localLanguage];

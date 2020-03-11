@@ -18,13 +18,10 @@
 #import "KFContentLabelHelp.h"
 #import "KFRatingViewController.h"
 
-@interface KFTicketViewController ()<KFTicketViewCellDelegate,UIWebViewDelegate,KFTicketToolViewDelegate,KFTicketTableViewDelegate>
+@interface KFTicketViewController ()<KFTicketViewCellDelegate,KFTicketToolViewDelegate,KFTicketTableViewDelegate>
 
 @property (nullable, nonatomic, weak) KFTicketTableView *tableView;
 @property (nullable, nonatomic, weak) KFTicketToolView *toolView;
-// 用于拨打电话
-@property (nullable, nonatomic, weak) UIWebView *webView;
-
 @property (nonatomic,strong) NSLayoutConstraint *toolBottomLayout;
 
 @end
@@ -117,13 +114,6 @@
     toolView.type = _isClose?KFTicketToolTypeClose:KFTicketToolTypeInputText;
     [self.view addSubview:toolView];
     self.toolView = toolView;
-    
-    // 用于打电话
-    UIWebView *webView = [[UIWebView alloc] init];
-    webView.delegate = self;
-    webView.frame = CGRectZero;
-    [self.view addSubview:webView];
-    self.webView = webView;
 }
 
 - (void)layoutView{
@@ -150,10 +140,6 @@
     }];
 }
 
-#pragma mark - webView的代理方法,用于拨打电话
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
-    [[KFHelper alertWithMessage:KF5Localized(@"kf5_phone_error")] showToVC:self];
-}
 #pragma mark - TicketTableViewDelegate
 - (void)ticketTableView:(KFTicketTableView *)tableView clickHeaderViewWithRatingModel:(KFRatingModel *)ratingModel{
     KFRatingViewController *ratingVC = [[KFRatingViewController alloc] initWithTicket_id:self.ticket_id ratingModel:ratingModel];
@@ -208,7 +194,11 @@
             NSString *phone = [NSString stringWithFormat:@"tel://%@",info[KF5LinkKey]];
             NSURL *url = [NSURL URLWithString:phone];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+                if (url) {
+                    [[UIApplication sharedApplication] openURL:url];
+                }else{
+                    [[KFHelper alertWithMessage:KF5Localized(@"kf5_phone_error")] showToVC:self];
+                }
             });
         }
             break;

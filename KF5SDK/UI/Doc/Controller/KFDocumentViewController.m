@@ -7,14 +7,15 @@
 //
 
 #import "KFDocumentViewController.h"
+#import <WebKit/WebKit.h>
 #import "KFCategory.h"
 #import "KFDocument.h"
 #import "KFUserManager.h"
 #import "KFCategory.h"
 
-@interface KFDocumentViewController ()<UIWebViewDelegate>
+@interface KFDocumentViewController ()<WKUIDelegate,WKNavigationDelegate>
 
-@property (nonatomic, weak) UIWebView *webView;
+@property (nonatomic, weak) WKWebView *webView;
 
 @end
 
@@ -33,19 +34,14 @@
     
     if (!self.title.length && self.post) self.title = self.post.title;
     
-    UIWebView *webView = [[UIWebView alloc]init];
-    webView.delegate = self;
-    webView.backgroundColor = [UIColor clearColor];
-    webView.allowsInlineMediaPlayback = YES;
-    webView.mediaPlaybackRequiresUserAction = NO;
-    webView.dataDetectorTypes = UIDataDetectorTypeNone;
-    webView.opaque = NO;
-    for (UIView* subview in [webView.scrollView subviews]) {
-        if ([subview isKindOfClass:[UIImageView class]]) {
-            ((UIImageView*)subview).image = nil;
-            subview.backgroundColor = [UIColor clearColor];
-        }
-    }
+    WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
+     configuration.preferences = [[WKPreferences alloc] init];
+     configuration.userContentController = [[WKUserContentController alloc] init];
+     
+     WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration];
+     webView.backgroundColor = [UIColor clearColor];
+    webView.UIDelegate = self;
+    webView.navigationDelegate = self;
     [self.view addSubview:webView];
     self.webView = webView;
     
@@ -108,23 +104,76 @@
     [KFProgressHUD hideHUDForView:self.view];
 }
 
-#pragma mark  UIWebViewDelegate
--(void)webViewDidFinishLoad:(UIWebView *)webView{
-    [self endLoading];
-}
-
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
-    [self endLoading];
-}
-
--(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType{
-    NSURL *requestURL =request.URL;
-    if (([[requestURL scheme] isEqualToString: @"http"] || [[ requestURL scheme] isEqualToString: @"https"])
-        && ( navigationType == UIWebViewNavigationTypeLinkClicked ) ) {
-        [[UIApplication sharedApplication] openURL: requestURL];
-        return NO;
+-(void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    NSURL *url = navigationAction.request.URL;
+    if (url && navigationAction.navigationType == WKNavigationTypeLinkActivated) {
+        NSString *urlStr = url.absoluteString.lowercaseString;
+        if ([urlStr hasPrefix:@"http"] || [urlStr hasPrefix:@"sms:"] || [urlStr hasPrefix:@"tel:"] || [urlStr hasPrefix:@"mailto:"]) {
+            if ([[UIApplication sharedApplication] canOpenURL:url]) {
+                [[UIApplication sharedApplication]openURL:url];
+                decisionHandler(WKNavigationActionPolicyCancel);
+                return;
+            }
+        }
     }
-    return YES;
+    if(navigationAction.targetFrame == nil) {
+        [webView loadRequest:navigationAction.request];
+    }
+    decisionHandler(WKNavigationActionPolicyAllow);
+}
+-(void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
+    
+}
+-(void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    [self endLoading];
+}
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [self endLoading];
+}
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [self endLoading];
+}
+/// 设置支持Https
+-(void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+        if ([challenge previousFailureCount] == 0) {
+            NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+            completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+        } else {
+            completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+        }
+    } else {
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+    }
+}
+
+#pragma mark - WKScriptMessageHandler
+
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+    
+}
+
+#pragma mark- WKUIDelegate
+
+-(void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {
+    UIAlertController *alertVC = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:(UIAlertControllerStyleAlert)];
+    UIAlertAction *actionCancel = [UIAlertAction actionWithTitle:@"Cancel" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+        completionHandler();
+    }];
+    [alertVC addAction:actionCancel];
+    [self presentViewController:alertVC animated:YES completion:nil];
+}
+-(void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completionHandler {
+    UIAlertController *alertVC = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:(UIAlertControllerStyleAlert)];
+    UIAlertAction *actionCancel = [UIAlertAction actionWithTitle:@"Cancel" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+        completionHandler(NO);
+    }];
+    UIAlertAction *actionDone = [UIAlertAction actionWithTitle:@"Done" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+        completionHandler(YES);
+    }];
+    [alertVC addAction:actionDone];
+    [alertVC addAction:actionCancel];
+    [self presentViewController:alertVC animated:YES completion:nil];
 }
 
 @end
