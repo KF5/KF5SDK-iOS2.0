@@ -185,9 +185,11 @@ Accept: application/json
 4、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 
 ## 七、最新版本            
+#### V2.11.1 最后更新于 2020-05-20            
+修复文档中心点击搜索框可能会崩溃的问题            
+### 历史版本                         
 #### V2.11.0 最后更新于 2020-03-11            
 删除UIWebView,并替换成WKWebView            
-### 历史版本                         
 #### V2.10.0 最后更新于 2019-04-13            
 新增IM支持机器人热门问题和自定义问题,新增IM机器人支持接收图片消息            
 #### V2.10.0 最后更新于 2019-04-02            

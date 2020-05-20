@@ -52,12 +52,16 @@ static BOOL HideRightButton = NO;
 
     self.definesPresentationContext = YES;
     KFBaseTableViewController *searchVC = [[KFBaseTableViewController alloc] init];
+    if ([searchVC respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+           searchVC.edgesForExtendedLayout = UIRectEdgeNone;
+    }
     searchVC.tableView.delegate = self;
     searchVC.tableView.dataSource = self;
     searchVC.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     self.searchTableView = searchVC.tableView;
     
     UISearchController *searchController = [[UISearchController alloc] initWithSearchResultsController:searchVC];
+    searchController.view.backgroundColor = [UIColor whiteColor];
     self.searchController = searchController;
     searchController.searchBar.delegate = self;
     searchController.delegate = self;

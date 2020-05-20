@@ -21,7 +21,9 @@
 }
 
 - (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
-    viewControllerToPresent.modalPresentationStyle = KF5Helper.defaultModalPresentationStyle;
+    if (![viewControllerToPresent isKindOfClass:[UISearchController class]]) {
+        viewControllerToPresent.modalPresentationStyle = KF5Helper.defaultModalPresentationStyle;
+    }
     [super presentViewController:viewControllerToPresent animated:flag completion:completion];
 }
 
