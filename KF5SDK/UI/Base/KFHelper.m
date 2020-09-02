@@ -31,7 +31,6 @@ return _##property;\
 }
 
 #import "KFCategory.h"
-#import "AFNetworkReachabilityManager.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "KFUserManager.h"
 #import <AVFoundation/AVCaptureDevice.h>
@@ -45,19 +44,6 @@ return _##property;\
 #endif
 
 @implementation KFHelper
-
-+ (AFNetworkReachabilityManager *)reachabilityManager{
-    static AFNetworkReachabilityManager *_sharedManager = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _sharedManager = [AFNetworkReachabilityManager manager];
-    });
-    return _sharedManager;
-}
-
-+ (void)load{
-    [[self reachabilityManager]startMonitoring];
-}
 
 + (instancetype)shareHelper{
     static KFHelper *share;
@@ -412,8 +398,7 @@ static NSBundle *bundle = nil;
 
 #pragma mark - helper
 + (BOOL)isNetworkEnable{
-    BOOL isNetwork = [[KFHelper reachabilityManager] isReachable];
-    return isNetwork;
+    return [KFHttpTool isNetworkEnable];
 }
 
 + (BOOL)canRecordVoice{
@@ -462,10 +447,6 @@ static NSBundle *bundle = nil;
                                   attributes:@{NSFontAttributeName: font}//传人的字体字典
                                      context:nil];
     return rect.size;
-}
-
-- (void)dealloc{
-    [[KFHelper reachabilityManager] stopMonitoring];
 }
 
 @end

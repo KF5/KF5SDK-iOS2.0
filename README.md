@@ -16,17 +16,17 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '9.0'
 
 target 'TargetName' do
-pod 'KF5SDK', '~>2.11.0'
+pod 'KF5SDK', '~>2.11.2'
 end
 ```
 #### 2、Carthage
 ```ogdl
-github "KF5SDK/KF5SDK-iOS2.0" ~>2.11.0
+github "KF5SDK/KF5SDK-iOS2.0" ~>2.11.2
 ```
 #### 3、手动集成
 1、先下载[KF5SDK](https://codeload.github.com/KF5/KF5SDK-iOS2.0/zip/master)的官方demo。将KF5SDK下的文件拖拽到自己的工程中。      
-2、添加系统库支持，添加` JavaScriptCore.framework`，` libsqlite3.tbd`到自己的工程。    
-![addSystemLibraries.png](http://upload-images.jianshu.io/upload_images/1429831-eb14e00613aa17fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)     
+2、添加系统库支持，添加` JavaScriptCore.framework`，` JavaScriptCore.framework`，` libsqlite3.tbd`到自己的工程。    
+![addSystemLibraries.png](https://upload-images.jianshu.io/upload_images/1429831-26e20273d9907ffa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)     
 #### 注意：SDK需要使用以下权限,进入工程中的info.plist，添加以下权限  
 Privacy - Camera Usage Description：是否允许该应用使用你的相机？    
 Privacy - Microphone Usage Description：是否允许该应用使用你的麦克风?    
@@ -185,17 +185,15 @@ Accept: application/json
 4、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 
 ## 七、最新版本            
+#### V2.11.2 最后更新于 2020-09-02            
+更新KF5SDK.podspec设置            
+### 历史版本                                
 #### V2.11.1 最后更新于 2020-05-20            
 修复文档中心点击搜索框可能会崩溃的问题            
-### 历史版本                         
 #### V2.11.0 最后更新于 2020-03-11            
 删除UIWebView,并替换成WKWebView            
 #### V2.10.0 最后更新于 2019-04-13            
-新增IM支持机器人热门问题和自定义问题,新增IM机器人支持接收图片消息            
-#### V2.10.0 最后更新于 2019-04-02            
-新增IM支持机器人热门问题和自定义问题,新增IM支持接收图片消息            
-#### V2.10.0 最后更新于 2019-04-02            
-新增IM支持机器人热门问题和自定义问题,新增IM支持接收图片消息            
+新增IM支持机器人热门问题和自定义问题,新增IM机器人支持接收图片消息
 #### V2.9.0 最后更新于 2019-01-22            
 新增IM支持视频消息            
 #### V2.8.0 最后更新于 2018-12-28            

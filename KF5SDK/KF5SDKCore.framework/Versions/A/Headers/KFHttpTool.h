@@ -34,6 +34,8 @@
  */
 + (void)setTimeoutInterval:(NSTimeInterval)timeoutInterval;
 
++ (BOOL)isNetworkEnable;
+
 #pragma mark - 用户接口
 /**
  用户创建

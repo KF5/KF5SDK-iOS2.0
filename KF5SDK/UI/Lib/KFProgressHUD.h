@@ -23,6 +23,6 @@
 
 + (void)hideHUDForView:(UIView *)view hideAfter:(NSTimeInterval)afterSecond;
 
-+ (void)setFontSize:(CGFloat)fontSize opacity:(CGFloat)opacity;
++ (void)setFont:(UIFont *)font backgroundColor:(UIColor *)backgroundColor contentColor:(UIColor *)contentColor;
 
 @end

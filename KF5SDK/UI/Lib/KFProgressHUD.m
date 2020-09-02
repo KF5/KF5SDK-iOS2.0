@@ -10,8 +10,10 @@
 #import "MBProgressHUD.h"
 #import "KFCategory.h"
 
-static CGFloat FONTSIZE = 14.f;
-static CGFloat OPACITY = 0.95;
+static UIFont *kProgressHUDFont;
+static UIColor *kProgressHUDBackgroundColor;
+static UIColor *kProgressHUDColor;
+
 
 @interface KFProgressHUD()
 
@@ -19,14 +21,21 @@ static CGFloat OPACITY = 0.95;
 
 @implementation KFProgressHUD
 
++ (void)initialize {
+    kProgressHUDFont = [UIFont systemFontOfSize:14.f];
+    kProgressHUDBackgroundColor = [UIColor colorWithWhite:0 alpha:0.95];
+    kProgressHUDColor = [UIColor whiteColor];
+}
+
 + (MBProgressHUD *)showHUDAddedTo:(UIView *)view title:(NSString *)title{
     if (view == nil) return nil;
     
     MBProgressHUD *hud = [MBProgressHUD HUDForView:view]?:[MBProgressHUD showHUDAddedTo:view animated:YES];
 
-    hud.contentColor = [UIColor whiteColor];
-    hud.bezelView.color = [UIColor colorWithWhite:0 alpha:OPACITY];
-    hud.label.font = [UIFont systemFontOfSize:FONTSIZE];
+    hud.contentColor = kProgressHUDColor;
+    hud.bezelView.style = MBProgressHUDBackgroundStyleSolidColor;
+    hud.bezelView.color = kProgressHUDBackgroundColor;
+    hud.label.font = kProgressHUDFont;
     hud.label.text = title;
         
     return hud;
@@ -90,9 +99,10 @@ static CGFloat OPACITY = 0.95;
     }
 }
 
-+ (void)setFontSize:(CGFloat)fontSize opacity:(CGFloat)opacity{
-    FONTSIZE = fontSize;
-    OPACITY = opacity;
++ (void)setFont:(UIFont *)font backgroundColor:(UIColor *)backgroundColor contentColor:(UIColor *)contentColor{
+    kProgressHUDFont = font;
+    kProgressHUDBackgroundColor = backgroundColor;
+    kProgressHUDColor = contentColor;
 }
 
 @end

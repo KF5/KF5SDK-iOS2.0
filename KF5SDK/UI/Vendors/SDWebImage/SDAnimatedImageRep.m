@@ -10,28 +10,86 @@
 
 #if SD_MAC
 
-#import "SDWebImageGIFCoder.h"
+#import "SDImageIOAnimatedCoderInternal.h"
+#import "SDImageGIFCoder.h"
+#import "SDImageAPNGCoder.h"
+#import "SDImageHEICCoder.h"
+#import "SDImageAWebPCoder.h"
 
-@interface SDWebImageGIFCoder ()
+@implementation SDAnimatedImageRep {
+    CGImageSourceRef _imageSource;
+}
 
-- (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source;
+- (void)dealloc {
+    if (_imageSource) {
+        CFRelease(_imageSource);
+        _imageSource = NULL;
+    }
+}
 
-@end
+// `NSBitmapImageRep`'s `imageRepWithData:` is not designed initializer
++ (instancetype)imageRepWithData:(NSData *)data {
+    SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:data];
+    return imageRep;
+}
 
-@interface SDAnimatedImageRep ()
-
-@property (nonatomic, assign, readonly, nullable) CGImageSourceRef imageSource;
-
-@end
-
-@implementation SDAnimatedImageRep
+// We should override init method for `NSBitmapImageRep` to do initialize about animated image format
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+- (instancetype)initWithData:(NSData *)data {
+    self = [super initWithData:data];
+    if (self) {
+        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef) data, NULL);
+        if (!imageSource) {
+            return self;
+        }
+        _imageSource = imageSource;
+        NSUInteger frameCount = CGImageSourceGetCount(imageSource);
+        if (frameCount <= 1) {
+            return self;
+        }
+        CFStringRef type = CGImageSourceGetType(imageSource);
+        if (!type) {
+            return self;
+        }
+        if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
+            // GIF
+            // Fix the `NSBitmapImageRep` GIF loop count calculation issue
+            // Which will use 0 when there are no loop count information metadata in GIF data
+            NSUInteger loopCount = [SDImageGIFCoder imageLoopCountWithSource:imageSource];
+            [self setProperty:NSImageLoopCount withValue:@(loopCount)];
+        } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
+            // APNG
+            // Do initialize about frame count, current frame/duration and loop count
+            [self setProperty:NSImageFrameCount withValue:@(frameCount)];
+            [self setProperty:NSImageCurrentFrame withValue:@(0)];
+            NSUInteger loopCount = [SDImageAPNGCoder imageLoopCountWithSource:imageSource];
+            [self setProperty:NSImageLoopCount withValue:@(loopCount)];
+        } else if (CFStringCompare(type, kSDUTTypeHEICS, 0) == kCFCompareEqualTo) {
+            // HEIC
+            // Do initialize about frame count, current frame/duration and loop count
+            [self setProperty:NSImageFrameCount withValue:@(frameCount)];
+            [self setProperty:NSImageCurrentFrame withValue:@(0)];
+            NSUInteger loopCount = [SDImageHEICCoder imageLoopCountWithSource:imageSource];
+            [self setProperty:NSImageLoopCount withValue:@(loopCount)];
+        } else if (CFStringCompare(type, kSDUTTypeWebP, 0) == kCFCompareEqualTo) {
+            // WebP
+            // Do initialize about frame count, current frame/duration and loop count
+            [self setProperty:NSImageFrameCount withValue:@(frameCount)];
+            [self setProperty:NSImageCurrentFrame withValue:@(0)];
+            NSUInteger loopCount = [SDImageAWebPCoder imageLoopCountWithSource:imageSource];
+            [self setProperty:NSImageLoopCount withValue:@(loopCount)];
+        }
+    }
+    return self;
+}
 
 // `NSBitmapImageRep` will use `kCGImagePropertyGIFDelayTime` whenever you call `setProperty:withValue:` with `NSImageCurrentFrame` to change the current frame. We override it and use the actual `kCGImagePropertyGIFUnclampedDelayTime` if need.
 - (void)setProperty:(NSBitmapImageRepPropertyKey)property withValue:(id)value {
     [super setProperty:property withValue:value];
     if ([property isEqualToString:NSImageCurrentFrame]) {
         // Access the image source
-        CGImageSourceRef imageSource = self.imageSource;
+        CGImageSourceRef imageSource = _imageSource;
         if (!imageSource) {
             return;
         }
@@ -41,10 +99,19 @@
             return;
         }
         NSUInteger index = [value unsignedIntegerValue];
-        float frameDuration = 0;
-        // Through we currently process GIF only, in the 5.x we support APNG so we keep the extensibility
+        NSTimeInterval frameDuration = 0;
         if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
-            frameDuration = [[SDWebImageGIFCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
+            // GIF
+            frameDuration = [SDImageGIFCoder frameDurationAtIndex:index source:imageSource];
+        } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
+            // APNG
+            frameDuration = [SDImageAPNGCoder frameDurationAtIndex:index source:imageSource];
+        } else if (CFStringCompare(type, kSDUTTypeHEICS, 0) == kCFCompareEqualTo) {
+            // HEIC
+            frameDuration = [SDImageHEICCoder frameDurationAtIndex:index source:imageSource];
+        } else if (CFStringCompare(type, kSDUTTypeWebP, 0) == kCFCompareEqualTo) {
+            // WebP
+            frameDuration = [SDImageAWebPCoder frameDurationAtIndex:index source:imageSource];
         }
         if (!frameDuration) {
             return;
@@ -53,13 +120,7 @@
         [super setProperty:NSImageCurrentFrameDuration withValue:@(frameDuration)];
     }
 }
-
-- (CGImageSourceRef)imageSource {
-    if (_tiffData) {
-        return (__bridge CGImageSourceRef)(_tiffData);
-    }
-    return NULL;
-}
+#pragma clang diagnostic pop
 
 @end
 

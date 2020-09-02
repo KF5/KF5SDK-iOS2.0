@@ -14,6 +14,7 @@
 #import "AmrRecordWriter.h"
 #import "KFMessageModel.h"
 #import "SDWebImageManager.h"
+#import "SDImageCache.h"
 #import <AVFoundation/AVFoundation.h>
 
 NSString * const KFChatVoiceDidDownloadNotification = @"KF5ChatVoiceDidDownloadNotification";

@@ -9,6 +9,7 @@
 #import "TZImageManager.h"
 #import "TZAssetModel.h"
 #import "TZImagePickerController.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface TZImageManager ()
 #pragma clang diagnostic push
@@ -116,7 +117,7 @@ static dispatch_once_t onceToken;
         if (collection.estimatedAssetCount <= 0) continue;
         if ([self isCameraRollAlbum:collection]) {
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets];
+            model = [self modelWithResult:fetchResult collection:collection isCameraRoll:YES needFetchAssets:needFetchAssets options:option];
             if (completion) completion(model);
             break;
         }
@@ -158,9 +159,9 @@ static dispatch_once_t onceToken;
             if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumAllHidden) continue;
             if (collection.assetCollectionSubtype == 1000000201) continue; //『最近删除』相册
             if ([self isCameraRollAlbum:collection]) {
-                [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets] atIndex:0];
+                [albumArr insertObject:[self modelWithResult:fetchResult collection:collection isCameraRoll:YES needFetchAssets:needFetchAssets options:option] atIndex:0];
             } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:NO needFetchAssets:needFetchAssets]];
+                [albumArr addObject:[self modelWithResult:fetchResult collection:collection isCameraRoll:NO needFetchAssets:needFetchAssets options:option]];
             }
         }
     }
@@ -363,17 +364,13 @@ static dispatch_once_t onceToken;
         imageSize = CGSizeMake(pixelWidth, pixelHeight);
     }
     
-    __block UIImage *image;
     // 修复获取图片时出现的瞬间内存过高问题
     // 下面两行代码，来自hsjcom，他的github是：https://github.com/hsjcom 表示感谢
     PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
     option.resizeMode = PHImageRequestOptionsResizeModeFast;
     int32_t imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage *result, NSDictionary *info) {
-        if (result) {
-            image = result;
-        }
-        BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-        if (downloadFinined && result) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && result) {
             result = [self fixOrientation:result];
             if (completion) completion(result,info,[[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
         }
@@ -394,8 +391,8 @@ static dispatch_once_t onceToken;
                 if (![TZImagePickerConfig sharedInstance].notScaleImage) {
                     resultImage = [self scaleImage:resultImage toSize:imageSize];
                 }
-                if (!resultImage) {
-                    resultImage = image;
+                if (!resultImage && result) {
+                    resultImage = result;
                 }
                 resultImage = [self fixOrientation:resultImage];
                 if (completion) completion(resultImage,info,NO);
@@ -410,6 +407,9 @@ static dispatch_once_t onceToken;
     id asset = [model.result lastObject];
     if (!self.sortAscendingByModificationDate) {
         asset = [model.result firstObject];
+    }
+    if (!asset) {
+        return -1;
     }
     return [[TZImageManager manager] getPhotoWithAsset:asset photoWidth:80 completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (completion) completion(photo);
@@ -437,8 +437,8 @@ static dispatch_once_t onceToken;
     }
     option.resizeMode = PHImageRequestOptionsResizeModeFast;
     return [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage *result, NSDictionary *info) {
-        BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-        if (downloadFinined && result) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && result) {
             result = [self fixOrientation:result];
             BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
             if (completion) completion(result,info,isDegraded);
@@ -460,8 +460,8 @@ static dispatch_once_t onceToken;
     [option setProgressHandler:progressHandler];
     option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
     return [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-        BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-        if (downloadFinined && imageData) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && imageData) {
             if (completion) completion(imageData,info,NO);
         }
     }];
@@ -485,8 +485,7 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
-                PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
-                completion(asset, nil);
+                [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
             } else if (error) {
                 NSLog(@"保存照片出错:%@",error.localizedDescription);
                 if (completion) {
@@ -495,6 +494,55 @@ static dispatch_once_t onceToken;
             }
         });
     }];
+}
+
+- (void)savePhotoWithImage:(UIImage *)image meta:(NSDictionary *)meta location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion {
+    NSData *imageData = UIImageJPEGRepresentation(image, 1.0f);
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
+    NSDateFormatter *formater = [[NSDateFormatter alloc] init];
+    [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss-SSS"];
+    NSString *path = [NSTemporaryDirectory() stringByAppendingFormat:@"image-%@.jpg", [formater stringFromDate:[NSDate date]]];
+    NSURL *tmpURL = [NSURL fileURLWithPath:path];
+    CGImageDestinationRef destination = CGImageDestinationCreateWithURL((__bridge CFURLRef)tmpURL, kUTTypeJPEG, 1, NULL);
+    CGImageDestinationAddImageFromSource(destination, source, 0, (__bridge CFDictionaryRef)meta);
+    CGImageDestinationFinalize(destination);
+    CFRelease(source);
+    CFRelease(destination);
+    
+    __block NSString *localIdentifier = nil;
+    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+        PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:tmpURL];
+        localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
+        if (location) {
+            request.location = location;
+        }
+        request.creationDate = [NSDate date];
+    } completionHandler:^(BOOL success, NSError *error) {
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (success && completion) {
+                [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
+            } else if (error) {
+                NSLog(@"保存照片出错:%@",error.localizedDescription);
+                if (completion) {
+                    completion(nil, error);
+                }
+            }
+        });
+    }];
+}
+
+- (void)fetchAssetByIocalIdentifier:(NSString *)localIdentifier retryCount:(NSInteger)retryCount completion:(void (^)(PHAsset *asset, NSError *error))completion {
+    PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
+    if (asset || retryCount <= 0) {
+        if (completion) {
+            completion(asset, nil);
+        }
+        return;
+    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self fetchAssetByIocalIdentifier:localIdentifier retryCount:retryCount - 1 completion:completion];
+    });
 }
 
 #pragma mark - Save video
@@ -515,8 +563,7 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
-                PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
-                completion(asset, nil);
+                [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
             } else if (error) {
                 NSLog(@"保存视频出错:%@",error.localizedDescription);
                 if (completion) {
@@ -558,7 +605,6 @@ static dispatch_once_t onceToken;
 
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
     PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
-    options.version = PHVideoRequestOptionsVersionOriginal;
     options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
     options.networkAccessAllowed = YES;
     [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:options resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
@@ -587,11 +633,6 @@ static dispatch_once_t onceToken;
         NSDateFormatter *formater = [[NSDateFormatter alloc] init];
         [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss-SSS"];
         NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/video-%@.mp4", [formater stringFromDate:[NSDate date]]];
-        if (videoAsset.URL && videoAsset.URL.lastPathComponent) {
-            outputPath = [outputPath stringByReplacingOccurrencesOfString:@".mp4" withString:[NSString stringWithFormat:@"-%@", videoAsset.URL.lastPathComponent]];
-        }
-        // NSLog(@"video outputPath = %@",outputPath);
-        session.outputURL = [NSURL fileURLWithPath:outputPath];
         
         // Optimize for network use.
         session.shouldOptimizeForNetworkUse = true;
@@ -607,7 +648,12 @@ static dispatch_once_t onceToken;
             return;
         } else {
             session.outputFileType = [supportedTypeArray objectAtIndex:0];
+            if (videoAsset.URL && videoAsset.URL.lastPathComponent) {
+                outputPath = [outputPath stringByReplacingOccurrencesOfString:@".mp4" withString:[NSString stringWithFormat:@"-%@", videoAsset.URL.lastPathComponent]];
+            }
         }
+        // NSLog(@"video outputPath = %@",outputPath);
+        session.outputURL = [NSURL fileURLWithPath:outputPath];
         
         if (![[NSFileManager defaultManager] fileExistsAtPath:[NSHomeDirectory() stringByAppendingFormat:@"/tmp"]]) {
             [[NSFileManager defaultManager] createDirectoryAtPath:[NSHomeDirectory() stringByAppendingFormat:@"/tmp"] withIntermediateDirectories:YES attributes:nil error:nil];
@@ -691,10 +737,12 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Private Method
 
-- (TZAlbumModel *)modelWithResult:(PHFetchResult *)result name:(NSString *)name isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets {
+- (TZAlbumModel *)modelWithResult:(PHFetchResult *)result collection:(PHAssetCollection *)collection isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets options:(PHFetchOptions *)options {
     TZAlbumModel *model = [[TZAlbumModel alloc] init];
     [model setResult:result needFetchAssets:needFetchAssets];
-    model.name = name;
+    model.name = collection.localizedTitle;
+    model.collection = collection;
+    model.options = options;
     model.isCameraRoll = isCameraRoll;
     model.count = result.count;
     return model;
