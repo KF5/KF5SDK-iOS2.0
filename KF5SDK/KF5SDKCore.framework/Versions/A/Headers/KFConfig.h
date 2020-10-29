@@ -38,7 +38,7 @@
 - (void)initializeWithHostName:(nonnull NSString *)hostName appId:(nonnull NSString *)appId;
 
 /**
- 获取当前SDK的版本(当前SDK版本为2.11.2)
+ 获取当前SDK的版本(当前SDK版本为2.11.3)
 
  @return 版本号
  */

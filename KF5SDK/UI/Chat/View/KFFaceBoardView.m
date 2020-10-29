@@ -204,26 +204,17 @@ static NSString *cellID = @"KFPreviewCell";
 @implementation KFFacePageControl
 - (id)initWithFrame:(CGRect)aFrame {
     if (self = [super initWithFrame:aFrame]) {
+        self.backgroundColor = [UIColor clearColor];
         self.currentPage = 0;
+        self.currentPageIndicatorTintColor = [UIColor blackColor];
+        self.pageIndicatorTintColor =  KF5Helper.KF5TimeColor;
     }
     return self;
 }
--(void) updateDots {
-    for (int i = 0; i < [self.subviews count]; i++){
-        UIView *view = [self.subviews objectAtIndex:i];
-        if (i == self.currentPage) {
-            view.backgroundColor = [UIColor blackColor];
-        }else{
-            view.backgroundColor = KF5Helper.KF5TimeColor;
-        }
-    }
-}
+
 - (void)setNumberOfPages:(NSInteger)numberOfPages{
     [super setNumberOfPages:numberOfPages];
     self.currentPage = 0;
 }
--(void) setCurrentPage:(NSInteger)page {
-    [super setCurrentPage:page];
-    [self updateDots];
-}
+
 @end

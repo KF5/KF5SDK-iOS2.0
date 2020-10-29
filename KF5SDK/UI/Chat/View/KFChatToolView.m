@@ -242,6 +242,7 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
     
     self.textView.placeholderText = nil;
     [self.textView setEditable:YES];
+    [self setShowType:KFChatShowTypeDefault];
 }
 #pragma mark 分配前先输入内容状态
 - (void)layoutForAfterQueueView{
@@ -258,6 +259,7 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
     if (self.voiceBtn.tag == 1) [self clickVoiceBtn:self.voiceBtn];
     self.textView.placeholderText = KF5Localized(@"kf5_input_some_text");
     [self.textView setEditable:YES];
+    [self setShowType:KFChatShowTypeDefault];
 }
 
 - (void)setChatToolViewType:(KFChatStatus)chatToolViewType{
@@ -333,7 +335,7 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
     });
 }
 
-- (void)setShowType:(KFChatShowType)showType{
+- (void)setShowType:(KFChatShowType)showType {
     if (_showType == showType)return;
     _showType = showType;
     
@@ -344,11 +346,13 @@ typedef NS_ENUM(NSInteger,KFChatShowType){//键盘与工具视图的显示状态
     self.voiceBtn.tag = showType == KFChatShowTypeVoice;
     self.faceBtn.tag = showType == KFChatShowTypeFaceView;
     [self.heightLayout setActive:showType == KFChatShowTypeVoice];
+    
+    self.textView.inputView = showType == KFChatShowTypeFaceView ? self.faceBoardView : nil;
+    [self.textView reloadInputViews];
+    
     if (showType == KFChatShowTypeDefault || showType == KFChatShowTypeVoice) {
         [self.textView resignFirstResponder];
     }else{
-        self.textView.inputView = showType == KFChatShowTypeFaceView ? self.faceBoardView : nil;
-        [self.textView reloadInputViews];
         [self.textView becomeFirstResponder];
     }
 }

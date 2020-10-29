@@ -16,12 +16,12 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '9.0'
 
 target 'TargetName' do
-pod 'KF5SDK', '~>2.11.2'
+pod 'KF5SDK', '~>2.11.3'
 end
 ```
 #### 2、Carthage
 ```ogdl
-github "KF5SDK/KF5SDK-iOS2.0" ~>2.11.2
+github "KF5SDK/KF5SDK-iOS2.0" ~>2.11.3
 ```
 #### 3、手动集成
 1、先下载[KF5SDK](https://codeload.github.com/KF5/KF5SDK-iOS2.0/zip/master)的官方demo。将KF5SDK下的文件拖拽到自己的工程中。      
@@ -185,9 +185,11 @@ Accept: application/json
 4、如果在KFChatViewController和KFTicketViewController界面出现弹出键盘时,视图和导航栏都往上移动且工具栏与键盘之间留有空隙,则请检查您是否集成了类似IQKeyboardManager的第三方库,如果有,只需要在KFChatViewController和KFTicketViewController中禁止掉IQKeyboardManager即可!      
 
 ## 七、最新版本            
+#### V2.11.3 最后更新于 2020-10-29            
+修复IM对话关闭后,表情键盘没有切换会文字键盘的问题            
+### 历史版本                                         
 #### V2.11.2 最后更新于 2020-09-02            
 更新KF5SDK.podspec设置            
-### 历史版本                                
 #### V2.11.1 最后更新于 2020-05-20            
 修复文档中心点击搜索框可能会崩溃的问题            
 #### V2.11.0 最后更新于 2020-03-11            
