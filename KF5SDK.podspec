@@ -18,6 +18,8 @@ Pod::Spec.new do |s|
 
     s.subspec 'Core' do |ss|
         ss.vendored_frameworks = 'KF5SDK/KF5SDKCore.framework'
+        ss.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+        ss.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
     end
 
     s.subspec 'Base' do |ss|
